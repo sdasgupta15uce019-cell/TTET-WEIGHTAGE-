@@ -185,7 +185,6 @@ export default function App() {
       {/* Footer */}
       <footer className="max-w-5xl mx-auto px-4 py-12 border-t border-black/5 mt-12">
         <div className="flex flex-col items-center text-center space-y-4">
-          <div className="w-8 h-px bg-zinc-200" />
           <p className="text-[10px] text-zinc-400 max-w-md">
             Built with modern web technologies to provide candidates with accurate merit calculations and real-time competitive analysis.
           </p>
