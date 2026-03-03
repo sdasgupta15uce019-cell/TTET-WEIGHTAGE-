@@ -10,7 +10,8 @@ interface CalculatorFormProps {
 
 export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, records, onCategoryChange }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submittedResult, setSubmittedResult] = useState<{allRank: number, categoryRank: number, score: number, category: string} | null>(null);
+  const [submittedResult, setSubmittedResult] = useState<{name: string, allRank: number, categoryRank: number, score: number, category: string} | null>(null);
+  
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -25,27 +26,25 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
   const calculateMerit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const p12 = parseFloat(formData.score12th) || 0;
-    const pGrad = parseFloat(formData.scoreGrad) || 0;
-    const pBEd = parseFloat(formData.scoreBEd) || 0;
-    const tetMarks = parseFloat(formData.scoreTET2) || 0;
-
-    const tetPercentage = (tetMarks / 150) * 100;
-    const finalScore = (p12 * 0.12) + (pGrad * 0.03) + (pBEd * 0.15) + (tetPercentage * 0.70);
+    if (formData.phone.length !== 10) {
+      alert("Please enter a valid 10-digit phone number.");
+      return;
+    }
 
     setIsSubmitting(true);
 
-    // Safety timeout: reset button after 10 seconds if it hangs
-    const timeoutId = setTimeout(() => {
-      if (isSubmitting) {
-        setIsSubmitting(false);
-        alert("Submission is taking longer than expected. Please check your connection.");
-      }
-    }, 10000);
-
     try {
-      const allRank = records.filter(r => r.finalScore > finalScore).length + 1;
-      const categoryRank = records.filter(r => r.category === formData.category && r.finalScore > finalScore).length + 1;
+      const p12 = parseFloat(formData.score12th) || 0;
+      const pGrad = parseFloat(formData.scoreGrad) || 0;
+      const pBEd = parseFloat(formData.scoreBEd) || 0;
+      const tetMarks = parseFloat(formData.scoreTET2) || 0;
+
+      const tetPercentage = (tetMarks / 150) * 100;
+      const finalScore = (p12 * 0.12) + (pGrad * 0.03) + (pBEd * 0.15) + (tetPercentage * 0.70);
+
+      const visibleRecords = records.filter(r => !r.isHidden);
+      const allRank = visibleRecords.filter(r => r.finalScore > finalScore).length + 1;
+      const categoryRank = visibleRecords.filter(r => r.category === formData.category && r.finalScore > finalScore).length + 1;
 
       await onSubmit({
         name: formData.name,
@@ -58,10 +57,9 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         scoreTET2: tetMarks,
         finalScore: parseFloat(finalScore.toFixed(3))
       });
-
-      clearTimeout(timeoutId);
       
       setSubmittedResult({
+        name: formData.name,
         allRank,
         categoryRank,
         score: finalScore,
@@ -79,9 +77,9 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         scoreTET2: ''
       }));
       
-    } catch (err) {
-      clearTimeout(timeoutId);
+    } catch (err: any) {
       console.error("Form submission error:", err);
+      alert(`Failed to submit: ${err.message || 'Unknown error'}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -134,7 +132,10 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
             pattern="[0-9]{10}"
             title="Please enter a valid 10-digit phone number"
             value={formData.phone}
-            onChange={e => { setFormData({ ...formData, phone: e.target.value }); setSubmittedResult(null); }}
+            onChange={e => { 
+              setFormData({ ...formData, phone: e.target.value }); 
+              setSubmittedResult(null);
+            }}
             placeholder="e.g. 9876543210"
             className="w-full px-4 py-2 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
           />
@@ -234,7 +235,8 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
 
       {submittedResult && (
         <div className="mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center animate-in fade-in slide-in-from-top-2">
-          <h4 className="text-emerald-900 font-bold mb-3">Calculation Successful!</h4>
+          <h4 className="text-emerald-900 font-bold mb-1">Calculation Successful!</h4>
+          <p className="text-emerald-700 font-medium mb-4 text-sm">Candidate: {submittedResult.name}</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="bg-white/60 p-2 rounded-lg">
               <p className="text-[9px] sm:text-[10px] text-emerald-600 font-bold uppercase tracking-wider">All Rank</p>

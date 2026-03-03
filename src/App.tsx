@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { 
   collection, 
-  addDoc, 
+  doc,
+  setDoc, 
+  updateDoc,
   query, 
   where, 
   onSnapshot, 
@@ -13,13 +15,16 @@ import { CalculatorForm } from './components/CalculatorForm';
 import { Leaderboard } from './components/Leaderboard';
 import { HelpDialog } from './components/HelpDialog';
 import { SearchDialog } from './components/SearchDialog';
-import { AlertCircle, Database } from 'lucide-react';
+import { AlertCircle, Database, Shield } from 'lucide-react';
 
 export default function App() {
   const [records, setRecords] = useState<CandidateRecord[]>([]);
+  const [trashIds, setTrashIds] = useState<Set<string>>(new Set());
+  const [trashError, setTrashError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<FilterCategory>('All');
   const [isLoading, setIsLoading] = useState(true);
   const [currentView, setCurrentView] = useState<'calculator' | 'leaderboard'>('calculator');
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
@@ -27,10 +32,12 @@ export default function App() {
       return;
     }
 
-    // Fetch ALL records to calculate both All and Category ranks
-    const q = query(collection(db, 'merit_records'));
+    // Fetch ALL merit records
+    const qMerit = query(collection(db, 'merit_records'));
+    // Fetch ALL trash records (hidden IDs)
+    const qTrash = query(collection(db, 'trash_records'));
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribeMerit = onSnapshot(qMerit, (snapshot) => {
       const newRecords = snapshot.docs
         .map(doc => ({
           id: doc.id,
@@ -44,12 +51,32 @@ export default function App() {
       setRecords(newRecords);
       setIsLoading(false);
     }, (error) => {
-      console.error("Firestore error:", error);
+      console.error("Firestore merit error:", error);
       setIsLoading(false);
     });
 
-    return () => unsubscribe();
+    const unsubscribeTrash = onSnapshot(qTrash, (snapshot) => {
+      const ids = new Set(snapshot.docs.map(doc => doc.id));
+      setTrashIds(ids);
+      setTrashError(null);
+    }, (error: any) => {
+      console.error("Firestore trash error:", error);
+      if (error.code === 'permission-denied') {
+        setTrashError("Missing permissions for 'trash_records'.");
+      }
+    });
+
+    return () => {
+      unsubscribeMerit();
+      unsubscribeTrash();
+    };
   }, []);
+
+  // Combine Firebase state with trash overrides
+  const effectiveRecords = records.map(r => ({
+    ...r,
+    isHidden: trashIds.has(r.id)
+  }));
 
   const handleSubmit = async (record: Omit<CandidateRecord, 'id' | 'timestamp'>) => {
     if (!isFirebaseConfigured) {
@@ -59,7 +86,7 @@ export default function App() {
 
     try {
       console.log("Submitting record...", record);
-      await addDoc(collection(db, 'merit_records'), {
+      await setDoc(doc(db, 'merit_records', record.phone), {
         ...record,
         timestamp: serverTimestamp()
       });
@@ -69,6 +96,51 @@ export default function App() {
       alert(`Failed to submit record: ${error.message || 'Unknown error'}. Check your Firestore Security Rules.`);
       throw error; 
     }
+  };
+
+  const handleHide = async (id: string | undefined) => {
+    if (!id) {
+      console.error("Error: Record ID is missing.");
+      return;
+    }
+    
+    try {
+      // Instead of updating the record, we create a marker in the trash_records collection
+      // This is more robust if the user's rules block updates but allow creates
+      await setDoc(doc(db, 'trash_records', id), {
+        hiddenAt: serverTimestamp(),
+        hiddenBy: 'admin'
+      });
+      console.log(`Record ${id} moved to trash successfully.`);
+    } catch (error: any) {
+      console.error("Error hiding document:", error);
+      alert(`Firebase Error: Could not hide entry.\n\nDetails: ${error.message}\n\nPlease check your Firestore Security Rules to allow 'create' on the 'trash_records' collection.`);
+    }
+  };
+
+  const handleRestore = async (id: string | undefined) => {
+    if (!id) {
+      console.error("Error: Record ID is missing.");
+      return;
+    }
+
+    try {
+      // To restore, we simply delete the marker from the trash_records collection
+      // We use the delete_doc equivalent in the SDK
+      const { deleteDoc } = await import('firebase/firestore');
+      await deleteDoc(doc(db, 'trash_records', id));
+      console.log(`Record ${id} restored successfully.`);
+    } catch (error: any) {
+      console.error("Error restoring document:", error);
+      alert(`Firebase Error: Could not restore entry.\n\nDetails: ${error.message}\n\nPlease check your Firestore Security Rules to allow 'delete' on the 'trash_records' collection.`);
+    }
+  };
+
+  const getDisplayCount = () => {
+    if (selectedCategory === 'Trash') return effectiveRecords.filter(r => r.isHidden).length;
+    const visible = effectiveRecords.filter(r => !r.isHidden);
+    if (selectedCategory === 'All') return visible.length;
+    return visible.filter(r => r.category === selectedCategory).length;
   };
 
   return (
@@ -97,8 +169,8 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2">
-            <SearchDialog records={records} />
-            <HelpDialog />
+            <SearchDialog records={effectiveRecords} />
+            <HelpDialog isAdmin={isAdmin} setIsAdmin={setIsAdmin} />
           </div>
         </div>
         {/* Mobile Dev Name */}
@@ -122,13 +194,53 @@ export default function App() {
           </div>
         )}
 
+        {trashError && (
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-6 flex items-start gap-4">
+            <Shield className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
+            <div className="w-full">
+              <h3 className="font-bold text-red-900">Firestore Security Rules Update Required</h3>
+              <p className="text-sm text-red-800 mt-1 mb-3">
+                To use the Trash feature, you must allow access to the <code>trash_records</code> collection. 
+                Go to your Firebase Console &gt; Firestore Database &gt; Rules, and add the following:
+              </p>
+              <pre className="bg-red-100/50 p-4 rounded-xl text-sm text-red-900 overflow-x-auto border border-red-200 font-mono">
+{`rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /merit_records/{document=**} {
+      // Anyone can view the leaderboard
+      allow read: if true; 
+      
+      // Strict data validation to block trolls and impossible scores
+      allow write: if request.resource.data.scoreTET2 >= 0 
+                   && request.resource.data.scoreTET2 <= 121
+                   && request.resource.data.score12th >= 0 
+                   && request.resource.data.score12th <= 100
+                   && request.resource.data.scoreGrad >= 0 
+                   && request.resource.data.scoreGrad <= 100
+                   && request.resource.data.scoreBEd >= 0 
+                   && request.resource.data.scoreBEd <= 100
+                   && request.resource.data.finalScore <= 72
+                   && !(request.resource.data.name.lower().matches('.*(naughty america|mother chod|meloni|sunny leone).*'));
+    }
+    
+    match /trash_records/{document=**} {
+      allow read, write: if true;
+    }
+  }
+}`}
+              </pre>
+            </div>
+          </div>
+        )}
+
         {currentView === 'calculator' ? (
           <div className="grid lg:grid-cols-[400px,1fr] gap-8 items-start animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Left Column: Form */}
             <div className="space-y-6">
               <CalculatorForm 
                 onSubmit={handleSubmit} 
-                records={records}
+                records={effectiveRecords}
                 onCategoryChange={setSelectedCategory}
               />
             </div>
@@ -162,7 +274,7 @@ export default function App() {
                 ← Back to Calculator
               </button>
               <div className="text-sm font-medium text-zinc-500">
-                Showing {selectedCategory === 'All' ? records.length : records.filter(r => r.category === selectedCategory).length} candidates
+                Showing {getDisplayCount()} candidates
               </div>
             </div>
 
@@ -173,9 +285,12 @@ export default function App() {
               </div>
             ) : (
               <Leaderboard 
-                records={records} 
+                records={effectiveRecords} 
                 selectedCategory={selectedCategory}
                 onCategoryChange={setSelectedCategory}
+                isAdmin={isAdmin}
+                onHide={handleHide}
+                onRestore={handleRestore}
               />
             )}
           </div>

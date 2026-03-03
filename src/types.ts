@@ -1,5 +1,5 @@
 export type Category = 'UR' | 'SC' | 'ST';
-export type FilterCategory = 'All' | Category;
+export type FilterCategory = 'All' | Category | 'Trash';
 export type Gender = 'Male' | 'Female';
 
 export interface CandidateRecord {
@@ -14,4 +14,5 @@ export interface CandidateRecord {
   scoreTET2: number;
   finalScore: number;
   timestamp: any;
+  isHidden?: boolean;
 }

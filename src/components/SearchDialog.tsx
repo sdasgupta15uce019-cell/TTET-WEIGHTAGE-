@@ -22,15 +22,16 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records }) => {
       return;
     }
 
-    const record = records.find(r => r.phone === phone.trim());
+    const visibleRecords = records.filter(r => !r.isHidden);
+    const record = visibleRecords.find(r => r.phone === phone.trim());
     
     if (!record) {
-      setError('No record found with this phone number.');
+      setError('No record found with this phone number on the public leaderboard.');
       return;
     }
 
-    const allRank = records.filter(r => r.finalScore > record.finalScore).length + 1;
-    const categoryRank = records.filter(r => r.category === record.category && r.finalScore > record.finalScore).length + 1;
+    const allRank = visibleRecords.filter(r => r.finalScore > record.finalScore).length + 1;
+    const categoryRank = visibleRecords.filter(r => r.category === record.category && r.finalScore > record.finalScore).length + 1;
 
     setResult({
       ...record,
@@ -50,10 +51,10 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records }) => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-3 py-1.5 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-lg hover:bg-emerald-200 transition-all"
+        className="p-2 rounded-xl text-zinc-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+        title="Search Your Rank"
       >
-        <Search className="w-3.5 h-3.5" />
-        Search You
+        <Search className="w-5 h-5" />
       </button>
 
       {isOpen && (
