@@ -94,19 +94,19 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
 
       <div className="space-y-3">
         <div>
-          <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">Candidate Name</label>
+          <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1">Candidate Name</label>
           <input
             required
             type="text"
             value={formData.name}
             onChange={e => { setFormData({ ...formData, name: e.target.value }); setSubmittedResult(null); }}
             placeholder="Enter full name"
-            className="w-full px-4 py-2 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+            className="w-full px-4 py-2 rounded-xl border-2 border-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Gender</label>
+          <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">Gender</label>
           <div className="flex gap-4">
             {(['Male', 'Female'] as Gender[]).map(g => (
               <label key={g} className="flex items-center gap-2 cursor-pointer group">
@@ -125,7 +125,10 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">Phone Number</label>
+          <label className="flex items-center gap-2 mb-1">
+            <span className="block text-xs font-bold text-zinc-900 uppercase tracking-wider">Phone Number</span>
+            <span className="text-[10px] font-bold text-red-500 lowercase tracking-normal">(will be used for searching your rank)</span>
+          </label>
           <input
             required
             type="tel"
@@ -137,13 +140,13 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
               setSubmittedResult(null);
             }}
             placeholder="e.g. 9876543210"
-            className="w-full px-4 py-2 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+            className="w-full px-4 py-2 rounded-xl border-2 border-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">Class 12th %</label>
+            <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1">Class 12th %</label>
             <input
               required
               type="number"
@@ -151,11 +154,11 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
               value={formData.score12th}
               onChange={e => { setFormData({ ...formData, score12th: e.target.value }); setSubmittedResult(null); }}
               placeholder="e.g. 85.5"
-              className="w-full px-4 py-2 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+              className="w-full px-4 py-2 rounded-xl border-2 border-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">Graduate %</label>
+            <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1">Graduation %</label>
             <input
               required
               type="number"
@@ -163,14 +166,14 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
               value={formData.scoreGrad}
               onChange={e => { setFormData({ ...formData, scoreGrad: e.target.value }); setSubmittedResult(null); }}
               placeholder="e.g. 70.2"
-              className="w-full px-4 py-2 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+              className="w-full px-4 py-2 rounded-xl border-2 border-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">B.Ed / D.El.Ed %</label>
+            <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1">B.Ed / D.El.Ed %</label>
             <input
               required
               type="number"
@@ -178,11 +181,11 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
               value={formData.scoreBEd}
               onChange={e => { setFormData({ ...formData, scoreBEd: e.target.value }); setSubmittedResult(null); }}
               placeholder="e.g. 80.0"
-              className="w-full px-4 py-2 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+              className="w-full px-4 py-2 rounded-xl border-2 border-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">TET 2 Marks (out of 150)</label>
+            <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1">TET 2 Marks</label>
             <input
               required
               type="number"
@@ -191,13 +194,13 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
               value={formData.scoreTET2}
               onChange={e => { setFormData({ ...formData, scoreTET2: e.target.value }); setSubmittedResult(null); }}
               placeholder="e.g. 110"
-              className="w-full px-4 py-2 rounded-xl border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+              className="w-full px-4 py-2 rounded-xl border-2 border-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Category</label>
+          <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">Category</label>
           <div className="flex gap-4">
             {(['UR', 'SC', 'ST'] as Category[]).map(cat => (
               <label key={cat} className="flex items-center gap-2 cursor-pointer group">

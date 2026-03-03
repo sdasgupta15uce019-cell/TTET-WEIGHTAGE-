@@ -51,7 +51,7 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records }) => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors uppercase tracking-wider border border-emerald-200/50"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold text-red-700 bg-red-50 hover:bg-red-100 transition-colors uppercase tracking-wider border-2 border-red-500"
         title="Search Your Rank"
       >
         <Search className="w-3.5 h-3.5" />

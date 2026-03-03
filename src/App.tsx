@@ -149,8 +149,8 @@ export default function App() {
       <header className="bg-white border-b border-black/5 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
-              <Database className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-emerald-500/20 border border-emerald-600/20 shrink-0 flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-700">
+              <span className="text-white font-black text-sm tracking-tighter">TTET</span>
             </div>
             <div>
               <h1 className="font-bold text-lg leading-tight">TET 2 Merit</h1>
