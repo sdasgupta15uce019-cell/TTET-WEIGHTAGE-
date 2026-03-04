@@ -163,9 +163,14 @@ export default function App() {
             <p className="text-sm font-bold text-zinc-900 tracking-tight uppercase">
               Er. SUBHAJIT DASGUPTA
             </p>
-            <p className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">
+            <p className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider mb-1.5">
               NITA 2020 ALUMNUS
             </p>
+            <div className="inline-block bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-md shadow-sm">
+              <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
+                Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
@@ -174,10 +179,15 @@ export default function App() {
           </div>
         </div>
         {/* Mobile Dev Name */}
-        <div className="md:hidden px-4 py-2 border-t border-zinc-50 text-center bg-zinc-50/50">
+        <div className="md:hidden px-4 py-2 border-t border-zinc-50 text-center bg-zinc-50/50 flex flex-col items-center gap-1.5">
           <p className="text-[10px] font-bold text-zinc-900 tracking-tight uppercase">
             Developed by: Er. SUBHAJIT DASGUPTA (NITA 2020 ALUMNUS)
           </p>
+          <div className="inline-block bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-md shadow-sm">
+            <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
+              Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
+            </p>
+          </div>
         </div>
       </header>
 
