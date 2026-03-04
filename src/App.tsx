@@ -139,7 +139,7 @@ export default function App() {
   const getDisplayCount = () => {
     if (selectedCategory === 'Trash') return effectiveRecords.filter(r => r.isHidden).length;
     const visible = effectiveRecords.filter(r => !r.isHidden);
-    if (selectedCategory === 'All') return visible.length;
+    if (selectedCategory === 'All') return visible.filter(r => r.scoreTET2 >= 90).length;
     return visible.filter(r => r.category === selectedCategory).length;
   };
 

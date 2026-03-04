@@ -27,7 +27,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
   if (selectedCategory === 'Trash') {
     filteredRecords = trashRecords;
   } else if (selectedCategory === 'All') {
-    filteredRecords = visibleRecords;
+    filteredRecords = visibleRecords.filter(r => r.scoreTET2 >= 90);
   } else {
     filteredRecords = visibleRecords.filter(r => r.category === selectedCategory);
   }
@@ -110,6 +110,12 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                         {record.gender === 'Male' && <span className="text-red-500 font-bold text-xs">M</span>}
                         {record.gender === 'Female' && <span className="text-blue-500 font-bold text-xs">F</span>}
                       </div>
+                      {record.scoreTET2 < 90 && selectedCategory !== 'Trash' && selectedCategory !== 'All' && (
+                        <div className="text-[10px] text-red-500 font-bold mt-0.5">(reserved)</div>
+                      )}
+                      {record.scoreTET2 >= 90 && (record.category === 'SC' || record.category === 'ST') && selectedCategory !== 'Trash' && (
+                        <div className="text-[10px] text-emerald-600 font-bold mt-0.5">(Recommended under UR)</div>
+                      )}
                       <div className="text-xs text-zinc-500">{record.category || 'Unknown'} Category</div>
                     </td>
                     <td className="px-6 py-4 text-right">

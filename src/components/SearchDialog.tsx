@@ -30,7 +30,9 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records }) => {
       return;
     }
 
-    const allRank = visibleRecords.filter(r => r.finalScore > record.finalScore).length + 1;
+    const allRank = record.scoreTET2 >= 90 
+      ? visibleRecords.filter(r => r.scoreTET2 >= 90 && r.finalScore > record.finalScore).length + 1 
+      : null;
     const categoryRank = visibleRecords.filter(r => r.category === record.category && r.finalScore > record.finalScore).length + 1;
 
     setResult({
@@ -112,7 +114,15 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records }) => {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-semibold text-emerald-600/70 uppercase tracking-wider">Name</span>
-                      <span className="font-bold text-emerald-900">{result.name}</span>
+                      <div className="text-right">
+                        <span className="font-bold text-emerald-900 block">{result.name}</span>
+                        {result.scoreTET2 < 90 && (
+                          <span className="text-[10px] text-red-500 font-bold block">(reserved)</span>
+                        )}
+                        {result.scoreTET2 >= 90 && (result.category === 'SC' || result.category === 'ST') && (
+                          <span className="text-[10px] text-emerald-600 font-bold block">(Recommended under UR)</span>
+                        )}
+                      </div>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-semibold text-emerald-600/70 uppercase tracking-wider">Gender</span>
@@ -127,11 +137,13 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records }) => {
                       <span className="font-bold text-emerald-900">{result.finalScore.toFixed(3)}</span>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-3 pt-3 mt-3 border-t border-emerald-200/50">
-                      <div className="bg-white/60 p-2 rounded-lg text-center">
-                        <span className="block text-[10px] font-bold text-emerald-600 uppercase tracking-wider">All Rank</span>
-                        <span className="text-xl font-black text-emerald-700">#{result.allRank}</span>
-                      </div>
+                    <div className={`grid gap-3 pt-3 mt-3 border-t border-emerald-200/50 ${result.allRank !== null ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                      {result.allRank !== null && (
+                        <div className="bg-white/60 p-2 rounded-lg text-center">
+                          <span className="block text-[10px] font-bold text-emerald-600 uppercase tracking-wider">All Rank</span>
+                          <span className="text-xl font-black text-emerald-700">#{result.allRank}</span>
+                        </div>
+                      )}
                       <div className="bg-white/60 p-2 rounded-lg text-center">
                         <span className="block text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Cat. Rank</span>
                         <span className="text-xl font-black text-emerald-700">#{result.categoryRank}</span>

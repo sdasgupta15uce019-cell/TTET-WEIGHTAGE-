@@ -10,7 +10,7 @@ interface CalculatorFormProps {
 
 export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, records, onCategoryChange }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submittedResult, setSubmittedResult] = useState<{name: string, allRank: number, categoryRank: number, score: number, category: string} | null>(null);
+  const [submittedResult, setSubmittedResult] = useState<{name: string, allRank: number | null, categoryRank: number, score: number, category: string, scoreTET2: number} | null>(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -43,7 +43,9 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
       const finalScore = (p12 * 0.12) + (pGrad * 0.03) + (pBEd * 0.15) + (tetPercentage * 0.70);
 
       const visibleRecords = records.filter(r => !r.isHidden);
-      const allRank = visibleRecords.filter(r => r.finalScore > finalScore).length + 1;
+      const allRank = tetMarks >= 90 
+        ? visibleRecords.filter(r => r.scoreTET2 >= 90 && r.finalScore > finalScore).length + 1 
+        : null;
       const categoryRank = visibleRecords.filter(r => r.category === formData.category && r.finalScore > finalScore).length + 1;
 
       await onSubmit({
@@ -63,7 +65,8 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         allRank,
         categoryRank,
         score: finalScore,
-        category: formData.category
+        category: formData.category,
+        scoreTET2: tetMarks
       });
 
       // Reset form
@@ -192,7 +195,19 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
               step="0.01"
               max="150"
               value={formData.scoreTET2}
-              onChange={e => { setFormData({ ...formData, scoreTET2: e.target.value }); setSubmittedResult(null); }}
+              onChange={e => { 
+                const val = e.target.value;
+                const tet2 = parseFloat(val);
+                let newCat = formData.category;
+                
+                if (!isNaN(tet2)) {
+                  if (tet2 < 90 && newCat === 'UR') newCat = 'SC';
+                }
+                
+                setFormData({ ...formData, scoreTET2: val, category: newCat }); 
+                if (newCat !== formData.category) onCategoryChange(newCat);
+                setSubmittedResult(null); 
+              }}
               placeholder="e.g. 110"
               className="w-full px-4 py-2 rounded-xl border-2 border-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
             />
@@ -202,23 +217,34 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         <div>
           <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">Category</label>
           <div className="flex gap-4">
-            {(['UR', 'SC', 'ST'] as Category[]).map(cat => (
-              <label key={cat} className="flex items-center gap-2 cursor-pointer group">
-                <input
-                  type="radio"
-                  name="category"
-                  value={cat}
-                  checked={formData.category === cat}
-                  onChange={() => { 
-                    setFormData({ ...formData, category: cat }); 
-                    onCategoryChange(cat);
-                    setSubmittedResult(null); 
-                  }}
-                  className="w-4 h-4 text-emerald-600 border-zinc-300 focus:ring-emerald-500"
-                />
-                <span className="text-sm font-medium text-zinc-700 group-hover:text-emerald-600 transition-colors">{cat}</span>
-              </label>
-            ))}
+            {(['UR', 'SC', 'ST'] as Category[]).map(cat => {
+              const tet2 = parseFloat(formData.scoreTET2);
+              const isTet2Valid = !isNaN(tet2);
+              let isDisabled = false;
+              
+              if (isTet2Valid) {
+                if (tet2 < 90 && cat === 'UR') isDisabled = true;
+              }
+
+              return (
+                <label key={cat} className={`flex items-center gap-2 ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer group'}`}>
+                  <input
+                    type="radio"
+                    name="category"
+                    value={cat}
+                    checked={formData.category === cat}
+                    disabled={isDisabled}
+                    onChange={() => { 
+                      setFormData({ ...formData, category: cat }); 
+                      onCategoryChange(cat);
+                      setSubmittedResult(null); 
+                    }}
+                    className="w-4 h-4 text-emerald-600 border-zinc-300 focus:ring-emerald-500 disabled:opacity-50"
+                  />
+                  <span className={`text-sm font-medium transition-colors ${isDisabled ? 'text-zinc-400' : 'text-zinc-700 group-hover:text-emerald-600'}`}>{cat}</span>
+                </label>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -239,12 +265,27 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
       {submittedResult && (
         <div className="mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center animate-in fade-in slide-in-from-top-2">
           <h4 className="text-emerald-900 font-bold mb-1">Calculation Successful!</h4>
-          <p className="text-emerald-700 font-medium mb-4 text-sm">Candidate: {submittedResult.name}</p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-white/60 p-2 rounded-lg">
-              <p className="text-[9px] sm:text-[10px] text-emerald-600 font-bold uppercase tracking-wider">All Rank</p>
-              <p className="text-lg sm:text-2xl font-black text-emerald-700">#{submittedResult.allRank}</p>
+          <p className="text-emerald-700 font-medium mb-3 text-sm">Candidate: {submittedResult.name}</p>
+          
+          {submittedResult.scoreTET2 < 90 && (
+            <div className="mb-4 inline-block px-3 py-1 bg-red-100 border border-red-200 text-red-700 text-xs font-bold rounded-md uppercase tracking-wider">
+              Under Reservation
             </div>
+          )}
+          
+          {submittedResult.scoreTET2 >= 90 && (submittedResult.category === 'SC' || submittedResult.category === 'ST') && (
+            <div className="mb-4 inline-block px-3 py-1 bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-md uppercase tracking-wider">
+              Recommended under UR
+            </div>
+          )}
+
+          <div className={`grid gap-3 ${submittedResult.allRank !== null ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'}`}>
+            {submittedResult.allRank !== null && (
+              <div className="bg-white/60 p-2 rounded-lg">
+                <p className="text-[9px] sm:text-[10px] text-emerald-600 font-bold uppercase tracking-wider">All Rank</p>
+                <p className="text-lg sm:text-2xl font-black text-emerald-700">#{submittedResult.allRank}</p>
+              </div>
+            )}
             <div className="bg-white/60 p-2 rounded-lg">
               <p className="text-[9px] sm:text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Cat. Rank</p>
               <p className="text-lg sm:text-2xl font-black text-emerald-700">#{submittedResult.categoryRank}</p>
