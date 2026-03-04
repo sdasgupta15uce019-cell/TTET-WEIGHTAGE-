@@ -114,7 +114,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                         <div className="text-[10px] text-red-500 font-bold mt-0.5">(reserved)</div>
                       )}
                       {record.scoreTET2 >= 90 && (record.category === 'SC' || record.category === 'ST') && selectedCategory !== 'Trash' && (
-                        <div className="text-[10px] text-emerald-600 font-bold mt-0.5">(Recommended under UR)</div>
+                        <div className="text-[10px] text-emerald-600 font-bold mt-0.5">(Recommended against UR)</div>
                       )}
                       <div className="text-xs text-zinc-500">{record.category || 'Unknown'} Category</div>
                     </td>

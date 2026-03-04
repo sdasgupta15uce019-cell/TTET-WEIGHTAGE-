@@ -275,7 +275,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
           
           {submittedResult.scoreTET2 >= 90 && (submittedResult.category === 'SC' || submittedResult.category === 'ST') && (
             <div className="mb-4 inline-block px-3 py-1 bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-md uppercase tracking-wider">
-              Recommended under UR
+              Recommended against UR
             </div>
           )}
 

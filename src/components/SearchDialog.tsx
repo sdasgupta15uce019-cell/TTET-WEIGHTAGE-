@@ -120,7 +120,7 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records }) => {
                           <span className="text-[10px] text-red-500 font-bold block">(reserved)</span>
                         )}
                         {result.scoreTET2 >= 90 && (result.category === 'SC' || result.category === 'ST') && (
-                          <span className="text-[10px] text-emerald-600 font-bold block">(Recommended under UR)</span>
+                          <span className="text-[10px] text-emerald-600 font-bold block">(Recommended against UR)</span>
                         )}
                       </div>
                     </div>
