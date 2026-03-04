@@ -160,8 +160,8 @@ export default function App() {
     }
     
     let adjustedCutoff = rawCutoff - 2;
-    if (adjustedCutoff < 65.11) {
-      adjustedCutoff = 65.11;
+    if (adjustedCutoff < 64.9) {
+      adjustedCutoff = 64.9;
     }
     predictedCutoff = adjustedCutoff.toFixed(3);
   }
