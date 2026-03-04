@@ -143,6 +143,29 @@ export default function App() {
     return visible.filter(r => r.category === selectedCategory).length;
   };
 
+  const allList = effectiveRecords.filter(r => !r.isHidden && r.scoreTET2 >= 90);
+  const totalExpected = 1500;
+  const totalVacancies = 507;
+  const participationRatio = allList.length / totalExpected;
+  const targetRank = Math.round(totalVacancies * participationRatio);
+  
+  let predictedCutoff: string | number = 'Calculating...';
+  if (allList.length >= 100) {
+    const targetIndex = Math.max(0, targetRank - 1);
+    let rawCutoff = 0;
+    if (targetIndex < allList.length) {
+      rawCutoff = allList[targetIndex].finalScore;
+    } else {
+      rawCutoff = allList[allList.length - 1].finalScore;
+    }
+    
+    let adjustedCutoff = rawCutoff - 2;
+    if (adjustedCutoff < 65.11) {
+      adjustedCutoff = 65.11;
+    }
+    predictedCutoff = adjustedCutoff.toFixed(3);
+  }
+
   return (
     <div className="min-h-screen bg-[#F8F9FA] text-zinc-900 font-sans selection:bg-emerald-100 selection:text-emerald-900">
       {/* Header */}
@@ -166,10 +189,17 @@ export default function App() {
             <p className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider mb-1.5">
               NITA 2020 ALUMNUS
             </p>
-            <div className="inline-block bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-md shadow-sm">
-              <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
-                Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
-              </p>
+            <div className="flex items-center justify-center gap-2">
+              <div className="inline-block bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-md shadow-sm">
+                <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
+                  Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
+                </p>
+              </div>
+              <div className="inline-block bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-md shadow-sm">
+                <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
+                  Predicted UR Cutoff (for 507 posts): <span className="text-amber-900 text-xs ml-1">{predictedCutoff}</span>
+                </p>
+              </div>
             </div>
           </div>
 
@@ -183,10 +213,17 @@ export default function App() {
           <p className="text-[10px] font-bold text-zinc-900 tracking-tight uppercase">
             Developed by: Er. SUBHAJIT DASGUPTA (NITA 2020 ALUMNUS)
           </p>
-          <div className="inline-block bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-md shadow-sm">
-            <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
-              Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
-            </p>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <div className="inline-block bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-md shadow-sm">
+              <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
+                Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
+              </p>
+            </div>
+            <div className="inline-block bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-md shadow-sm">
+              <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
+                Predicted UR Cutoff (for 507 posts): <span className="text-amber-900 text-xs ml-1">{predictedCutoff}</span>
+              </p>
+            </div>
           </div>
         </div>
       </header>
