@@ -159,7 +159,7 @@ export default function App() {
       rawCutoff = allList[allList.length - 1].finalScore;
     }
     
-    let adjustedCutoff = rawCutoff - 2;
+    let adjustedCutoff = rawCutoff - 1.75;
     if (adjustedCutoff < 64.9) {
       adjustedCutoff = 64.9;
     }
