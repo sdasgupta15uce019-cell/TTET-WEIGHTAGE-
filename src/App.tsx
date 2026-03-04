@@ -150,6 +150,7 @@ export default function App() {
   const targetRank = Math.round(totalVacancies * participationRatio);
   
   let predictedCutoff: string | number = 'Calculating...';
+  let actualCutoff: string | number = 'Calculating...';
   if (allList.length >= 100) {
     const targetIndex = Math.max(0, targetRank - 1);
     let rawCutoff = 0;
@@ -159,7 +160,9 @@ export default function App() {
       rawCutoff = allList[allList.length - 1].finalScore;
     }
     
-    let adjustedCutoff = rawCutoff - 1.75;
+    actualCutoff = rawCutoff.toFixed(3);
+
+    let adjustedCutoff = rawCutoff - 1.2;
     if (adjustedCutoff < 64.9) {
       adjustedCutoff = 64.9;
     }
@@ -200,6 +203,13 @@ export default function App() {
                   Predicted UR Cutoff (for 507 posts): <span className="text-amber-900 text-xs ml-1">{predictedCutoff}</span>
                 </p>
               </div>
+              {isAdmin && (
+                <div className="inline-block bg-purple-50 border border-purple-200 px-2.5 py-0.5 rounded-md shadow-sm">
+                  <p className="text-[10px] font-bold text-purple-700 uppercase tracking-wider">
+                    Actual Cutoff (Admin): <span className="text-purple-900 text-xs ml-1">{actualCutoff}</span>
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -224,6 +234,13 @@ export default function App() {
                 Predicted UR Cutoff (for 507 posts): <span className="text-amber-900 text-xs ml-1">{predictedCutoff}</span>
               </p>
             </div>
+            {isAdmin && (
+              <div className="inline-block bg-purple-50 border border-purple-200 px-2.5 py-0.5 rounded-md shadow-sm">
+                <p className="text-[10px] font-bold text-purple-700 uppercase tracking-wider">
+                  Actual Cutoff (Admin): <span className="text-purple-900 text-xs ml-1">{actualCutoff}</span>
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </header>
