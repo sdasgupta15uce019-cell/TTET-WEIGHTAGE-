@@ -68,6 +68,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
             <tr className="bg-zinc-50/50">
               <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Rank</th>
               <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Candidate</th>
+              {isAdmin && <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider text-center">TET Marks</th>}
               <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider text-right">Merit Score</th>
               {isAdmin && <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider text-right">Actions</th>}
             </tr>
@@ -80,7 +81,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  <td colSpan={isAdmin ? 4 : 3} className="px-6 py-12 text-center text-zinc-400 italic">
+                  <td colSpan={isAdmin ? 5 : 3} className="px-6 py-12 text-center text-zinc-400 italic">
                     No records found for {selectedCategory}
                   </td>
                 </motion.tr>
@@ -118,6 +119,13 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                       )}
                       <div className="text-xs text-zinc-500">{record.category || 'Unknown'} Category</div>
                     </td>
+                    {isAdmin && (
+                      <td className="px-6 py-4 text-center">
+                        <div className="inline-block px-2 py-1 bg-purple-50 text-purple-700 text-xs font-bold rounded-md border border-purple-200 tabular-nums">
+                          {typeof record.scoreTET2 === 'number' ? record.scoreTET2.toFixed(2) : 'N/A'}
+                        </div>
+                      </td>
+                    )}
                     <td className="px-6 py-4 text-right">
                       <div className="text-lg font-bold text-emerald-600 tabular-nums">
                         {typeof record.finalScore === 'number' ? record.finalScore.toFixed(3) : '0.000'}
