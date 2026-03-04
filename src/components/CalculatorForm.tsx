@@ -201,7 +201,14 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
                 let newCat = formData.category;
                 
                 if (!isNaN(tet2)) {
-                  if (tet2 < 90 && newCat === 'UR') newCat = 'SC';
+                  if (tet2 < 90 && newCat === 'UR') {
+                    newCat = 'SC';
+                  } else if (tet2 >= 90) {
+                    const oldTet2 = parseFloat(formData.scoreTET2);
+                    if (isNaN(oldTet2) || oldTet2 < 90) {
+                      newCat = 'UR';
+                    }
+                  }
                 }
                 
                 setFormData({ ...formData, scoreTET2: val, category: newCat }); 
