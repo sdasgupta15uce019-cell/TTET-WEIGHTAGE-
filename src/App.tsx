@@ -162,7 +162,7 @@ export default function App() {
     
     actualCutoff = rawCutoff.toFixed(3);
 
-    let adjustedCutoff = rawCutoff - 1.2;
+    let adjustedCutoff = rawCutoff - 1.85;
     if (adjustedCutoff < 64.9) {
       adjustedCutoff = 64.9;
     }
