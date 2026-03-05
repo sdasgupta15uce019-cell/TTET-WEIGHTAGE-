@@ -162,11 +162,13 @@ export default function App() {
     
     actualCutoff = rawCutoff.toFixed(3);
 
-    let adjustedCutoff = rawCutoff - 1.85;
+    let adjustedCutoff = rawCutoff - 1.4;
     if (adjustedCutoff < 64.9) {
       adjustedCutoff = 64.9;
     }
-    predictedCutoff = adjustedCutoff.toFixed(3);
+    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(3) : "65.453";
+  } else if (!isAdmin) {
+    predictedCutoff = "65.453";
   }
 
   return (
