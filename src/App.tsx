@@ -15,7 +15,7 @@ import { CalculatorForm } from './components/CalculatorForm';
 import { Leaderboard } from './components/Leaderboard';
 import { HelpDialog } from './components/HelpDialog';
 import { SearchDialog } from './components/SearchDialog';
-import { AlertCircle, Database, Shield } from 'lucide-react';
+import { Sparkles, AlertCircle, Database, Shield, Download } from 'lucide-react';
 
 export default function App() {
   const [records, setRecords] = useState<CandidateRecord[]>([]);
@@ -25,6 +25,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentView, setCurrentView] = useState<'calculator' | 'leaderboard'>('calculator');
   const [isAdmin, setIsAdmin] = useState(false);
+  const [predictRankMessage, setPredictRankMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
@@ -144,6 +145,35 @@ export default function App() {
   };
 
   const allList = effectiveRecords.filter(r => !r.isHidden && r.scoreTET2 >= 90);
+
+  const handleDownloadPDF = async () => {
+    try {
+      const { jsPDF } = await import('jspdf');
+      const doc = new jsPDF();
+      
+      doc.setFontSize(16);
+      doc.text("Merit List (All)", 14, 15);
+      
+      doc.setFontSize(12);
+      doc.text("rank ,tet- weightage", 14, 25);
+      
+      let y = 35;
+      allList.forEach((record, index) => {
+        if (y > 280) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.text(`${index + 1}- ${record.scoreTET2}-${record.finalScore.toFixed(3)}`, 14, y);
+        y += 7;
+      });
+      
+      doc.save("merit_list.pdf");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Failed to generate PDF. Please try again.");
+    }
+  };
+
   const totalExpected = 1500;
   const totalVacancies = 507;
   const participationRatio = allList.length / totalExpected;
@@ -166,10 +196,15 @@ export default function App() {
     if (adjustedCutoff < 64.9) {
       adjustedCutoff = 64.9;
     }
-    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(3) : "65.380";
+    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(3) : "66.120";
   } else if (!isAdmin) {
-    predictedCutoff = "65.380";
+    predictedCutoff = "66.120";
   }
+
+  const handlePredictRankClick = () => {
+    const remaining = 700 - allList.length;
+    setPredictRankMessage(`To predict your rank, add ${remaining} more who got 90 or above.`);
+  };
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] text-zinc-900 font-sans selection:bg-emerald-100 selection:text-emerald-900">
@@ -194,23 +229,48 @@ export default function App() {
             <p className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider mb-1.5">
               NITA 2020 ALUMNUS
             </p>
-            <div className="flex items-center justify-center gap-2">
-              <div className="inline-block bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-md shadow-sm">
-                <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
-                  Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
-                </p>
-              </div>
-              <div className="inline-block bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-md shadow-sm">
-                <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
-                  Predicted UR Cutoff (for 507 posts): <span className="text-amber-900 text-xs ml-1">{predictedCutoff}</span>
-                </p>
-              </div>
-              {isAdmin && (
-                <div className="inline-block bg-purple-50 border border-purple-200 px-2.5 py-0.5 rounded-md shadow-sm">
-                  <p className="text-[10px] font-bold text-purple-700 uppercase tracking-wider">
-                    Actual Cutoff (Admin): <span className="text-purple-900 text-xs ml-1">{actualCutoff}</span>
+            <div className="flex flex-col items-center justify-center gap-2">
+              <div className="flex items-center justify-center gap-2">
+                <div className="inline-block bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-md shadow-sm">
+                  <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
+                    Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
                   </p>
                 </div>
+                <div className="inline-block bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-md shadow-sm">
+                  <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
+                    Predicted UR Cutoff (for 507 posts): <span className="text-amber-900 text-xs ml-1">{predictedCutoff}</span>
+                  </p>
+                </div>
+                {isAdmin && (
+                  <>
+                    <div className="inline-block bg-purple-50 border border-purple-200 px-2.5 py-0.5 rounded-md shadow-sm">
+                      <p className="text-[10px] font-bold text-purple-700 uppercase tracking-wider">
+                        Actual Cutoff (Admin): <span className="text-purple-900 text-xs ml-1">{actualCutoff}</span>
+                      </p>
+                    </div>
+                    <button 
+                      onClick={handleDownloadPDF}
+                      className="inline-block bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-md shadow-sm hover:bg-blue-100 transition-colors active:scale-95"
+                    >
+                      <p className="text-[10px] font-bold text-blue-700 uppercase tracking-wider flex items-center gap-1">
+                        <Download className="w-3 h-3" /> Download PDF
+                      </p>
+                    </button>
+                  </>
+                )}
+              </div>
+              {!isAdmin && (
+                <button 
+                  onClick={handlePredictRankClick}
+                  className="relative group overflow-hidden inline-block bg-red-50 border border-red-200 px-3 py-0.5 rounded-md shadow-sm hover:bg-red-100 transition-all active:scale-95 animate-button-glow"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
+                  <p className="relative text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-red-500 animate-pulse" />
+                    Know your predicted rank for 507 vacancies
+                    <Sparkles className="w-3 h-3 text-red-500 animate-pulse" />
+                  </p>
+                </button>
               )}
             </div>
           </div>
@@ -225,23 +285,48 @@ export default function App() {
           <p className="text-[10px] font-bold text-zinc-900 tracking-tight uppercase">
             Developed by: Er. SUBHAJIT DASGUPTA (NITA 2020 ALUMNUS)
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <div className="inline-block bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-md shadow-sm">
-              <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
-                Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
-              </p>
-            </div>
-            <div className="inline-block bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-md shadow-sm">
-              <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
-                Predicted UR Cutoff (for 507 posts): <span className="text-amber-900 text-xs ml-1">{predictedCutoff}</span>
-              </p>
-            </div>
-            {isAdmin && (
-              <div className="inline-block bg-purple-50 border border-purple-200 px-2.5 py-0.5 rounded-md shadow-sm">
-                <p className="text-[10px] font-bold text-purple-700 uppercase tracking-wider">
-                  Actual Cutoff (Admin): <span className="text-purple-900 text-xs ml-1">{actualCutoff}</span>
+          <div className="flex flex-col items-center justify-center gap-2">
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <div className="inline-block bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-md shadow-sm">
+                <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
+                  Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
                 </p>
               </div>
+              <div className="inline-block bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-md shadow-sm">
+                <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
+                  Predicted UR Cutoff (for 507 posts): <span className="text-amber-900 text-xs ml-1">{predictedCutoff}</span>
+                </p>
+              </div>
+              {isAdmin && (
+                <>
+                  <div className="inline-block bg-purple-50 border border-purple-200 px-2.5 py-0.5 rounded-md shadow-sm">
+                    <p className="text-[10px] font-bold text-purple-700 uppercase tracking-wider">
+                      Actual Cutoff (Admin): <span className="text-purple-900 text-xs ml-1">{actualCutoff}</span>
+                    </p>
+                  </div>
+                  <button 
+                    onClick={handleDownloadPDF}
+                    className="inline-block bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-md shadow-sm hover:bg-blue-100 transition-colors active:scale-95"
+                  >
+                    <p className="text-[10px] font-bold text-blue-700 uppercase tracking-wider flex items-center gap-1">
+                      <Download className="w-3 h-3" /> Download PDF
+                    </p>
+                  </button>
+                </>
+              )}
+            </div>
+            {!isAdmin && (
+              <button 
+                onClick={handlePredictRankClick}
+                className="relative group overflow-hidden inline-block bg-red-50 border border-red-200 px-3 py-0.5 rounded-md shadow-sm hover:bg-red-100 transition-all active:scale-95 animate-button-glow"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
+                <p className="relative text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-red-500 animate-pulse" />
+                  Know your predicted rank for 507 vacancies
+                  <Sparkles className="w-3 h-3 text-red-500 animate-pulse" />
+                </p>
+              </button>
             )}
           </div>
         </div>
@@ -371,6 +456,31 @@ service cloud.firestore {
           </p>
         </div>
       </footer>
+
+      {/* Predict Rank Message Modal */}
+      {predictRankMessage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 animate-in zoom-in-95 duration-200">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                <AlertCircle className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-zinc-900 mb-2">Predicted Rank</h3>
+                <p className="text-zinc-600 text-sm leading-relaxed">
+                  {predictRankMessage}
+                </p>
+              </div>
+              <button
+                onClick={() => setPredictRankMessage(null)}
+                className="w-full mt-2 px-4 py-2 bg-zinc-900 text-white font-medium rounded-xl hover:bg-zinc-800 transition-colors active:scale-95"
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
