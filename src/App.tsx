@@ -196,9 +196,9 @@ export default function App() {
     if (adjustedCutoff < 64.9) {
       adjustedCutoff = 64.9;
     }
-    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(3) : "66.120";
+    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(3) : "66.249";
   } else if (!isAdmin) {
-    predictedCutoff = "66.120";
+    predictedCutoff = "66.249";
   }
 
   const handlePredictRankClick = () => {
