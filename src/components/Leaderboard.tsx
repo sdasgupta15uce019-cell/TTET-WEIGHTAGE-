@@ -128,7 +128,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                     )}
                     <td className="px-6 py-4 text-right">
                       <div className="text-lg font-bold text-emerald-600 tabular-nums">
-                        {typeof record.finalScore === 'number' ? record.finalScore.toFixed(3) : '0.000'}
+                        {typeof record.finalScore === 'number' ? record.finalScore.toFixed(2) : '0.00'}
                       </div>
                     </td>
                     {isAdmin && selectedCategory !== 'Trash' && onHide && (

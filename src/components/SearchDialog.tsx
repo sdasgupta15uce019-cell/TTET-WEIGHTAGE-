@@ -134,7 +134,7 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records }) => {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-semibold text-emerald-600/70 uppercase tracking-wider">Weightage</span>
-                      <span className="font-bold text-emerald-900">{result.finalScore.toFixed(3)}</span>
+                      <span className="font-bold text-emerald-900">{result.finalScore.toFixed(2)}</span>
                     </div>
                     
                     <div className={`grid gap-3 pt-3 mt-3 border-t border-emerald-200/50 ${result.allRank !== null ? 'grid-cols-2' : 'grid-cols-1'}`}>

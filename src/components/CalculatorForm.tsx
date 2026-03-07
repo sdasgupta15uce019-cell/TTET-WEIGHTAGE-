@@ -57,7 +57,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         scoreGrad: pGrad,
         scoreBEd: pBEd,
         scoreTET2: tetMarks,
-        finalScore: parseFloat(finalScore.toFixed(3))
+        finalScore: parseFloat(finalScore.toFixed(2))
       });
       
       setSubmittedResult({
@@ -299,7 +299,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
             </div>
             <div className="bg-white/60 p-2 rounded-lg">
               <p className="text-[9px] sm:text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Weightage</p>
-              <p className="text-lg sm:text-2xl font-black text-emerald-700">{submittedResult.score.toFixed(3)}</p>
+              <p className="text-lg sm:text-2xl font-black text-emerald-700">{submittedResult.score.toFixed(2)}</p>
             </div>
             <div className="bg-white/60 p-2 rounded-lg">
               <p className="text-[9px] sm:text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Category</p>

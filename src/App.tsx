@@ -163,7 +163,7 @@ export default function App() {
           doc.addPage();
           y = 20;
         }
-        doc.text(`${index + 1}- ${record.scoreTET2}-${record.finalScore.toFixed(3)}`, 14, y);
+        doc.text(`${index + 1}- ${record.scoreTET2}-${record.finalScore.toFixed(2)}`, 14, y);
         y += 7;
       });
       
@@ -190,13 +190,13 @@ export default function App() {
       rawCutoff = allList[allList.length - 1].finalScore;
     }
     
-    actualCutoff = rawCutoff.toFixed(3);
+    actualCutoff = rawCutoff.toFixed(2);
 
     let adjustedCutoff = rawCutoff - 1.4;
     if (adjustedCutoff < 64.9) {
       adjustedCutoff = 64.9;
     }
-    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(3) : "66.39";
+    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "66.39";
   } else if (!isAdmin) {
     predictedCutoff = "66.39";
   }
