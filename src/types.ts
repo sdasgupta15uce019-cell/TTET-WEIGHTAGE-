@@ -1,4 +1,4 @@
-export type Category = 'UR' | 'SC' | 'ST';
+export type Category = 'UR' | 'SC' | 'ST' | 'PH';
 export type FilterCategory = 'All' | Category | 'Trash';
 export type Gender = 'Male' | 'Female';
 
@@ -15,4 +15,6 @@ export interface CandidateRecord {
   finalScore: number;
   timestamp: any;
   isHidden?: boolean;
+  rollNo?: string;
+  isVerified?: boolean;
 }

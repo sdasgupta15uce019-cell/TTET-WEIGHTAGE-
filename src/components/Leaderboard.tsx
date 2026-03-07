@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CandidateRecord, Category, FilterCategory } from '../types';
-import { Trophy, EyeOff, RefreshCw } from 'lucide-react';
+import { Trophy, EyeOff, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface LeaderboardProps {
@@ -10,6 +10,7 @@ interface LeaderboardProps {
   isAdmin?: boolean;
   onHide?: (id: string | undefined) => void;
   onRestore?: (id: string | undefined) => void;
+  onVerify?: (id: string | undefined, rollNo: string) => void;
 }
 
 export const Leaderboard: React.FC<LeaderboardProps> = ({
@@ -18,10 +19,12 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
   onCategoryChange,
   isAdmin,
   onHide,
-  onRestore
+  onRestore,
+  onVerify
 }) => {
   const visibleRecords = records.filter(r => !r.isHidden);
   const trashRecords = records.filter(r => r.isHidden);
+  const [verifyRollNo, setVerifyRollNo] = useState<Record<string, string>>({});
 
   let filteredRecords: CandidateRecord[] = [];
   if (selectedCategory === 'Trash') {
@@ -32,7 +35,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
     filteredRecords = visibleRecords.filter(r => r.category === selectedCategory);
   }
 
-  const categories: FilterCategory[] = ['All', 'UR', 'SC', 'ST'];
+  const categories: FilterCategory[] = ['All', 'UR', 'SC', 'ST', 'PH'];
   if (isAdmin) {
     categories.push('Trash');
   }
@@ -45,12 +48,12 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
           <h2 className="text-xl font-semibold text-zinc-900">Merit Leaderboard</h2>
         </div>
         
-        <div className="flex items-center gap-2 bg-zinc-100 p-1 rounded-xl">
+        <div className="flex items-center gap-2 bg-zinc-100 p-1 rounded-xl overflow-x-auto">
           {categories.map(cat => (
             <button
               key={cat}
               onClick={() => onCategoryChange(cat)}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                 selectedCategory === cat
                   ? cat === 'Trash' ? 'bg-red-100 text-red-700 shadow-sm' : 'bg-white text-zinc-900 shadow-sm'
                   : 'text-zinc-500 hover:text-zinc-700'
@@ -110,11 +113,32 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                         {record.name || 'Unknown Candidate'}
                         {record.gender === 'Male' && <span className="text-red-500 font-bold text-xs">M</span>}
                         {record.gender === 'Female' && <span className="text-blue-500 font-bold text-xs">F</span>}
+                        {record.isVerified === true && <CheckCircle className="w-4 h-4 text-emerald-500" title="Verified" />}
+                        {record.isVerified === false && <XCircle className="w-4 h-4 text-red-500" title="Verification Failed" />}
                       </div>
+                      
+                      {isAdmin && record.isVerified !== true && onVerify && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <input 
+                            type="text" 
+                            placeholder="Input Roll No" 
+                            className="text-xs px-2 py-1 border border-zinc-300 rounded focus:outline-none focus:border-emerald-500 w-28"
+                            value={verifyRollNo[record.id || ''] || ''}
+                            onChange={e => setVerifyRollNo(prev => ({ ...prev, [record.id || '']: e.target.value }))}
+                          />
+                          <button 
+                            onClick={() => onVerify(record.id, verifyRollNo[record.id || ''])}
+                            className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold hover:bg-emerald-200"
+                          >
+                            Verify
+                          </button>
+                        </div>
+                      )}
+
                       {record.scoreTET2 < 90 && selectedCategory !== 'Trash' && selectedCategory !== 'All' && (
                         <div className="text-[10px] text-red-500 font-bold mt-0.5">(reserved)</div>
                       )}
-                      {record.scoreTET2 >= 90 && (record.category === 'SC' || record.category === 'ST') && selectedCategory !== 'Trash' && (
+                      {record.scoreTET2 >= 90 && (record.category === 'SC' || record.category === 'ST' || record.category === 'PH') && selectedCategory !== 'Trash' && (
                         <div className="text-[10px] text-emerald-600 font-bold mt-0.5">(Recommended against UR)</div>
                       )}
                       <div className="text-xs text-zinc-500">{record.category || 'Unknown'} Category</div>
@@ -127,7 +151,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                       </td>
                     )}
                     <td className="px-6 py-4 text-right">
-                      <div className="text-lg font-bold text-emerald-600 tabular-nums">
+                      <div className={`text-lg font-bold tabular-nums ${record.isVerified === false ? 'text-red-600' : 'text-emerald-600'}`}>
                         {typeof record.finalScore === 'number' ? record.finalScore.toFixed(2) : '0.00'}
                       </div>
                     </td>
@@ -163,3 +187,4 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
     </div>
   );
 };
+

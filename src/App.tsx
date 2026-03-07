@@ -137,6 +137,37 @@ export default function App() {
     }
   };
 
+  const handleVerify = async (id: string | undefined, rollNo: string) => {
+    if (!id || !rollNo) return;
+    
+    try {
+      const record = effectiveRecords.find(r => r.id === id);
+      if (!record) return;
+
+      const { candidatesData } = await import('./data/candidates');
+      const candidate = candidatesData.find(c => c.rollNo === rollNo);
+      
+      let isVerified = false;
+      let updatedName = record.name;
+
+      if (candidate && candidate.tetMarks === record.scoreTET2) {
+        isVerified = true;
+        updatedName = candidate.name;
+      }
+
+      await updateDoc(doc(db, 'merit_records', id), {
+        isVerified,
+        name: updatedName,
+        rollNo
+      });
+
+      console.log(`Record ${id} verification status updated.`);
+    } catch (error: any) {
+      console.error("Error updating verification status:", error);
+      alert(`Failed to update verification status: ${error.message}`);
+    }
+  };
+
   const getDisplayCount = () => {
     if (selectedCategory === 'Trash') return effectiveRecords.filter(r => r.isHidden).length;
     const visible = effectiveRecords.filter(r => !r.isHidden);
@@ -276,7 +307,7 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2">
-            <SearchDialog records={effectiveRecords} />
+            <SearchDialog records={effectiveRecords} onVerify={handleVerify} />
             <HelpDialog isAdmin={isAdmin} setIsAdmin={setIsAdmin} />
           </div>
         </div>
@@ -393,6 +424,7 @@ service cloud.firestore {
                 onSubmit={handleSubmit} 
                 records={effectiveRecords}
                 onCategoryChange={setSelectedCategory}
+                onVerify={handleVerify}
               />
             </div>
 
@@ -442,6 +474,7 @@ service cloud.firestore {
                 isAdmin={isAdmin}
                 onHide={handleHide}
                 onRestore={handleRestore}
+                onVerify={handleVerify}
               />
             )}
           </div>
