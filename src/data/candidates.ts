@@ -6,6 +6,8 @@ export interface CandidateData {
 }
 
 export const candidatesData: CandidateData[] = [
+  { name: 'Test Test3', rollNo: '7005', category: 'UR' as const, tetMarks: 92 },
+  { name: 'Test Test4', rollNo: '9436', category: 'ST' as const, tetMarks: 95 },
   { name: 'PAPAN SUTRADHAR', rollNo: '236810122427855', category: 'UR' as const, tetMarks: 121 },
   { name: 'HIRAKJYOTI MOHANTA', rollNo: '236416112411867', category: 'UR' as const, tetMarks: 117 },
   { name: 'ASHISH MAJUMDER', rollNo: '236515112417499', category: 'UR' as const, tetMarks: 113 },

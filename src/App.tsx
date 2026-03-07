@@ -15,7 +15,7 @@ import { CalculatorForm } from './components/CalculatorForm';
 import { Leaderboard } from './components/Leaderboard';
 import { HelpDialog } from './components/HelpDialog';
 import { SearchDialog } from './components/SearchDialog';
-import { Sparkles, AlertCircle, Database, Shield, Download } from 'lucide-react';
+import { Sparkles, AlertCircle, Database, Shield, Download, X } from 'lucide-react';
 
 export default function App() {
   const [records, setRecords] = useState<CandidateRecord[]>([]);
@@ -26,6 +26,7 @@ export default function App() {
   const [currentView, setCurrentView] = useState<'calculator' | 'leaderboard'>('calculator');
   const [isAdmin, setIsAdmin] = useState(false);
   const [predictRankMessage, setPredictRankMessage] = useState<string | null>(null);
+  const [showPredictionsPopup, setShowPredictionsPopup] = useState(false);
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
@@ -227,9 +228,9 @@ export default function App() {
     if (adjustedCutoff < 64.9) {
       adjustedCutoff = 64.9;
     }
-    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "66.39";
+    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "66.03";
   } else if (!isAdmin) {
-    predictedCutoff = "66.39";
+    predictedCutoff = "66.03";
   }
 
   const handlePredictRankClick = () => {
@@ -253,7 +254,7 @@ export default function App() {
           </div>
           
           <div className="hidden md:block text-center">
-            <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-0.5">Developed by:</p>
+            <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-0.5">Developer -</p>
             <p className="text-sm font-bold text-zinc-900 tracking-tight uppercase">
               Er. SUBHAJIT DASGUPTA
             </p>
@@ -267,11 +268,14 @@ export default function App() {
                     Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
                   </p>
                 </div>
-                <div className="inline-block bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-md shadow-sm">
-                  <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
-                    Predicted UR Cutoff (for 507 posts): <span className="text-amber-900 text-xs ml-1">{predictedCutoff}</span>
+                <button 
+                  onClick={() => setShowPredictionsPopup(true)}
+                  className="inline-block bg-red-50 border border-red-200 px-3 py-0.5 rounded-md shadow-sm hover:bg-red-100 transition-colors active:scale-95"
+                >
+                  <p className="text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center gap-1">
+                    Predictions
                   </p>
-                </div>
+                </button>
                 {isAdmin && (
                   <>
                     <div className="inline-block bg-purple-50 border border-purple-200 px-2.5 py-0.5 rounded-md shadow-sm">
@@ -290,19 +294,6 @@ export default function App() {
                   </>
                 )}
               </div>
-              {!isAdmin && (
-                <button 
-                  onClick={handlePredictRankClick}
-                  className="relative group overflow-hidden inline-block bg-red-50 border border-red-200 px-3 py-0.5 rounded-md shadow-sm hover:bg-red-100 transition-all active:scale-95 animate-button-glow"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
-                  <p className="relative text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-red-500 animate-pulse" />
-                    Know your predicted rank for 507 vacancies
-                    <Sparkles className="w-3 h-3 text-red-500 animate-pulse" />
-                  </p>
-                </button>
-              )}
             </div>
           </div>
 
@@ -314,7 +305,7 @@ export default function App() {
         {/* Mobile Dev Name */}
         <div className="md:hidden px-4 py-2 border-t border-zinc-50 text-center bg-zinc-50/50 flex flex-col items-center gap-1.5">
           <p className="text-[10px] font-bold text-zinc-900 tracking-tight uppercase">
-            Developed by: Er. SUBHAJIT DASGUPTA (NITA 2020 ALUMNUS)
+            Developer - Er. SUBHAJIT DASGUPTA (NITA 2020 ALUMNUS)
           </p>
           <div className="flex flex-col items-center justify-center gap-2">
             <div className="flex flex-wrap items-center justify-center gap-2">
@@ -323,11 +314,14 @@ export default function App() {
                   Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
                 </p>
               </div>
-              <div className="inline-block bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-md shadow-sm">
-                <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
-                  Predicted UR Cutoff (for 507 posts): <span className="text-amber-900 text-xs ml-1">{predictedCutoff}</span>
+              <button 
+                onClick={() => setShowPredictionsPopup(true)}
+                className="inline-block bg-red-50 border border-red-200 px-3 py-0.5 rounded-md shadow-sm hover:bg-red-100 transition-colors active:scale-95"
+              >
+                <p className="text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center gap-1">
+                  Predictions
                 </p>
-              </div>
+              </button>
               {isAdmin && (
                 <>
                   <div className="inline-block bg-purple-50 border border-purple-200 px-2.5 py-0.5 rounded-md shadow-sm">
@@ -346,19 +340,6 @@ export default function App() {
                 </>
               )}
             </div>
-            {!isAdmin && (
-              <button 
-                onClick={handlePredictRankClick}
-                className="relative group overflow-hidden inline-block bg-red-50 border border-red-200 px-3 py-0.5 rounded-md shadow-sm hover:bg-red-100 transition-all active:scale-95 animate-button-glow"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
-                <p className="relative text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-red-500 animate-pulse" />
-                  Know your predicted rank for 507 vacancies
-                  <Sparkles className="w-3 h-3 text-red-500 animate-pulse" />
-                </p>
-              </button>
-            )}
           </div>
         </div>
       </header>
@@ -489,6 +470,47 @@ service cloud.firestore {
           </p>
         </div>
       </footer>
+
+      {/* Predictions Popup */}
+      {showPredictionsPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-bold text-zinc-900">Predictions</h3>
+              <button 
+                onClick={() => setShowPredictionsPopup(false)}
+                className="text-zinc-400 hover:text-zinc-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-center">
+                <p className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">
+                  Predicted UR Cutoff (for 507 posts)
+                </p>
+                <p className="text-3xl font-black text-amber-900">{predictedCutoff}</p>
+              </div>
+
+              {!isAdmin && (
+                <button 
+                  onClick={() => {
+                    setShowPredictionsPopup(false);
+                    handlePredictRankClick();
+                  }}
+                  className="w-full bg-red-50 border border-red-200 p-4 rounded-xl text-center hover:bg-red-100 transition-colors active:scale-[0.98]"
+                >
+                  <p className="text-sm font-bold text-red-700 uppercase tracking-wider mb-1 flex items-center justify-center gap-1">
+                    Know your predicted rank for 507 vacancies
+                  </p>
+                  <p className="text-xs text-red-900 font-medium">Click to view prediction</p>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Predict Rank Message Modal */}
       {predictRankMessage && (

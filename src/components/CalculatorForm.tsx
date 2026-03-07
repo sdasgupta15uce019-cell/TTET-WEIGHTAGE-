@@ -13,6 +13,8 @@ interface CalculatorFormProps {
 export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, records, onCategoryChange, onVerify }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedResult, setSubmittedResult] = useState<{name: string, allRank: number | null, categoryRank: number, score: number, category: string, scoreTET2: number} | null>(null);
+  const [showResultPopup, setShowResultPopup] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [duplicateRecord, setDuplicateRecord] = useState<CandidateRecord | null>(null);
   const [verifyRollNo, setVerifyRollNo] = useState('');
   
@@ -161,6 +163,12 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         category: formData.category,
         scoreTET2: tetMarks
       });
+      setShowResultPopup(true);
+      setIsConnecting(true);
+
+      setTimeout(() => {
+        setIsConnecting(false);
+      }, 3500);
 
       // Reset form
       setFormData(prev => ({
@@ -317,7 +325,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <div>
             <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1">B.Ed / D.El.Ed %</label>
             <input
@@ -329,38 +337,6 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
               placeholder="e.g. 80.0"
               className="w-full px-4 py-2 rounded-xl border-2 border-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
             />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1">TET 2 Marks (Auto-filled)</label>
-            <input
-              readOnly
-              type="number"
-              value={formData.scoreTET2}
-              placeholder="Auto-filled from database"
-              className="w-full px-4 py-2 rounded-xl border-2 border-black/10 bg-zinc-50 text-zinc-500 focus:outline-none cursor-not-allowed"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">Category (Auto-filled)</label>
-          <div className="flex gap-4 flex-wrap">
-            {(['UR', 'SC', 'ST', 'PH'] as Category[]).map(cat => {
-              return (
-                <label key={cat} className="flex items-center gap-2 opacity-70 cursor-not-allowed">
-                  <input
-                    type="radio"
-                    name="category"
-                    value={cat}
-                    checked={formData.category === cat}
-                    readOnly
-                    disabled
-                    className="w-4 h-4 text-emerald-600 border-zinc-300 disabled:opacity-50"
-                  />
-                  <span className="text-sm font-medium text-zinc-500">{cat}</span>
-                </label>
-              );
-            })}
           </div>
         </div>
       </div>
@@ -378,42 +354,75 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         Calculate & Submit
       </button>
 
-      {submittedResult && (
-        <div className="mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center animate-in fade-in slide-in-from-top-2">
-          <h4 className="text-emerald-900 font-bold mb-1">Calculation Successful!</h4>
-          <p className="text-emerald-700 font-medium mb-3 text-sm">Candidate: {submittedResult.name}</p>
-          
-          {submittedResult.scoreTET2 < 90 && (
-            <div className="mb-4 inline-block px-3 py-1 bg-red-100 border border-red-200 text-red-700 text-xs font-bold rounded-md uppercase tracking-wider">
-              Under Reservation
-            </div>
-          )}
-          
-          {submittedResult.scoreTET2 >= 90 && (submittedResult.category === 'SC' || submittedResult.category === 'ST' || submittedResult.category === 'PH') && (
-            <div className="mb-4 inline-block px-3 py-1 bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-md uppercase tracking-wider">
-              Recommended against UR
-            </div>
-          )}
+      {showResultPopup && submittedResult && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
+            {isConnecting ? (
+              <div className="flex flex-col items-center justify-center py-12 space-y-6">
+                <div className="relative w-20 h-20">
+                  <div className="absolute inset-0 border-4 border-emerald-100 rounded-full"></div>
+                  <div className="absolute inset-0 border-4 border-emerald-600 rounded-full border-t-transparent animate-spin"></div>
+                  <div className="absolute inset-2 border-4 border-emerald-200 rounded-full border-b-transparent animate-spin-reverse"></div>
+                </div>
+                <div className="space-y-2 text-center">
+                  <p className="text-zinc-800 font-bold text-lg animate-pulse">Connecting to TRBT server</p>
+                  <p className="text-zinc-500 text-sm">Fetching and verifying data...</p>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center">
+                <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8" />
+                </div>
+                <h4 className="text-xl text-emerald-900 font-black mb-1">Calculation Successful!</h4>
+                <p className="text-emerald-700 font-medium mb-4">Candidate: {submittedResult.name}</p>
+                
+                {submittedResult.scoreTET2 < 90 && (
+                  <div className="mb-5 inline-block px-3 py-1 bg-red-100 border border-red-200 text-red-700 text-xs font-bold rounded-md uppercase tracking-wider">
+                    Under Reservation
+                  </div>
+                )}
+                
+                {submittedResult.scoreTET2 >= 90 && (submittedResult.category === 'SC' || submittedResult.category === 'ST' || submittedResult.category === 'PH') && (
+                  <div className="mb-5 inline-block px-3 py-1 bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-md uppercase tracking-wider">
+                    Recommended against UR
+                  </div>
+                )}
 
-          <div className={`grid gap-3 ${submittedResult.allRank !== null ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'}`}>
-            {submittedResult.allRank !== null && (
-              <div className="bg-white/60 p-2 rounded-lg">
-                <p className="text-[9px] sm:text-[10px] text-emerald-600 font-bold uppercase tracking-wider">All Rank</p>
-                <p className="text-lg sm:text-2xl font-black text-emerald-700">#{submittedResult.allRank}</p>
+                <div className={`grid gap-3 mb-6 ${submittedResult.allRank !== null ? 'grid-cols-2' : 'grid-cols-2'}`}>
+                  {submittedResult.allRank !== null && (
+                    <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl">
+                      <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider mb-1">All Rank</p>
+                      <p className="text-2xl font-black text-emerald-700">#{submittedResult.allRank}</p>
+                    </div>
+                  )}
+                  <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl">
+                    <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider mb-1">Cat. Rank</p>
+                    <p className="text-2xl font-black text-emerald-700">#{submittedResult.categoryRank}</p>
+                  </div>
+                  <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl">
+                    <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider mb-1">Weightage</p>
+                    <p className="text-2xl font-black text-emerald-700">{submittedResult.score.toFixed(2)}</p>
+                  </div>
+                  <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl">
+                    <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider mb-1">TET Score</p>
+                    <p className="text-2xl font-black text-emerald-700">{submittedResult.scoreTET2}</p>
+                  </div>
+                  <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl">
+                    <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider mb-1">Category</p>
+                    <p className="text-2xl font-black text-emerald-700">{submittedResult.category}</p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowResultPopup(false)}
+                  className="w-full bg-zinc-100 hover:bg-zinc-200 text-zinc-800 font-bold py-3 rounded-xl transition-all active:scale-[0.98]"
+                >
+                  Close
+                </button>
               </div>
             )}
-            <div className="bg-white/60 p-2 rounded-lg">
-              <p className="text-[9px] sm:text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Cat. Rank</p>
-              <p className="text-lg sm:text-2xl font-black text-emerald-700">#{submittedResult.categoryRank}</p>
-            </div>
-            <div className="bg-white/60 p-2 rounded-lg">
-              <p className="text-[9px] sm:text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Weightage</p>
-              <p className="text-lg sm:text-2xl font-black text-emerald-700">{submittedResult.score.toFixed(2)}</p>
-            </div>
-            <div className="bg-white/60 p-2 rounded-lg">
-              <p className="text-[9px] sm:text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Category</p>
-              <p className="text-lg sm:text-2xl font-black text-emerald-700">{submittedResult.category}</p>
-            </div>
           </div>
         </div>
       )}
