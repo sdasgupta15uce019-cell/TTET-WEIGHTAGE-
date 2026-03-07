@@ -117,7 +117,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                         {record.isVerified === false && <XCircle className="w-4 h-4 text-red-500" title="Verification Failed" />}
                       </div>
                       
-                      {isAdmin && record.isVerified !== true && onVerify && (
+                      {(record.isVerified === undefined || (isAdmin && record.isVerified !== true)) && onVerify && (
                         <div className="mt-2 flex items-center gap-2">
                           <input 
                             type="text" 
