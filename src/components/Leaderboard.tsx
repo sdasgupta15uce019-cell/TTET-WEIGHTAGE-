@@ -11,6 +11,8 @@ interface LeaderboardProps {
   onHide?: (id: string | undefined) => void;
   onRestore?: (id: string | undefined) => void;
   onVerify?: (id: string | undefined, rollNo: string) => void;
+  onUpdateName?: (id: string | undefined, newName: string) => void;
+  onUnverify?: (id: string | undefined) => void;
 }
 
 export const Leaderboard: React.FC<LeaderboardProps> = ({
@@ -20,11 +22,17 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
   isAdmin,
   onHide,
   onRestore,
-  onVerify
+  onVerify,
+  onUpdateName,
+  onUnverify
 }) => {
   const visibleRecords = records.filter(r => !r.isHidden);
   const trashRecords = records.filter(r => r.isHidden);
   const [verifyRollNo, setVerifyRollNo] = useState<Record<string, string>>({});
+  const [editingNameId, setEditingNameId] = useState<string | null>(null);
+  const [editNameValue, setEditNameValue] = useState('');
+  const [editingRollNoId, setEditingRollNoId] = useState<string | null>(null);
+  const [editRollNoValue, setEditRollNoValue] = useState('');
 
   let filteredRecords: CandidateRecord[] = [];
   if (selectedCategory === 'Trash') {
@@ -110,14 +118,104 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                     </td>
                     <td className="px-6 py-4">
                       <div className="font-medium text-zinc-900 flex items-center gap-2">
-                        {record.name || 'Unknown Candidate'}
+                        {editingNameId === record.id ? (
+                          <div className="flex items-center gap-1">
+                            <input
+                              type="text"
+                              className="text-sm px-2 py-1 border border-zinc-300 rounded focus:outline-none focus:border-emerald-500"
+                              value={editNameValue}
+                              onChange={e => setEditNameValue(e.target.value)}
+                            />
+                            <button
+                              onClick={() => {
+                                if (onUpdateName) onUpdateName(record.id, editNameValue);
+                                setEditingNameId(null);
+                              }}
+                              className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold hover:bg-emerald-200"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => setEditingNameId(null)}
+                              className="text-[10px] bg-zinc-100 text-zinc-700 px-2 py-1 rounded font-bold hover:bg-zinc-200"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            {record.name || 'Unknown Candidate'}
+                            {isAdmin && onUpdateName && (
+                              <button
+                                onClick={() => {
+                                  setEditingNameId(record.id || null);
+                                  setEditNameValue(record.name || '');
+                                }}
+                                className="text-[10px] text-blue-500 hover:text-blue-700 underline ml-1"
+                              >
+                                Edit
+                              </button>
+                            )}
+                          </>
+                        )}
                         {record.gender === 'Male' && <span className="text-red-500 font-bold text-xs">M</span>}
                         {record.gender === 'Female' && <span className="text-blue-500 font-bold text-xs">F</span>}
                         {record.isVerified === true && <CheckCircle className="w-4 h-4 text-emerald-500" title="Verified" />}
                         {record.isVerified === false && <XCircle className="w-4 h-4 text-red-500" title="Verification Failed" />}
                       </div>
                       
-                      {(record.isVerified === undefined || (isAdmin && record.isVerified !== true)) && onVerify && (
+                      {isAdmin && record.isVerified === true ? (
+                        <div className="mt-2 flex items-center gap-2">
+                          {editingRollNoId === record.id ? (
+                            <>
+                              <input 
+                                type="text" 
+                                className="text-xs px-2 py-1 border border-zinc-300 rounded focus:outline-none focus:border-emerald-500 w-28"
+                                value={editRollNoValue}
+                                onChange={e => setEditRollNoValue(e.target.value)}
+                              />
+                              <button 
+                                onClick={() => {
+                                  if (onVerify) onVerify(record.id, editRollNoValue);
+                                  setEditingRollNoId(null);
+                                }}
+                                className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold hover:bg-emerald-200"
+                              >
+                                Re-verify
+                              </button>
+                              <button
+                                onClick={() => setEditingRollNoId(null)}
+                                className="text-[10px] bg-zinc-100 text-zinc-700 px-2 py-1 rounded font-bold hover:bg-zinc-200"
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-xs text-zinc-600 font-mono bg-zinc-100 px-2 py-1 rounded border border-zinc-200">
+                                Roll No: {record.rollNo || 'N/A'}
+                              </span>
+                              <button
+                                onClick={() => {
+                                  setEditingRollNoId(record.id || null);
+                                  setEditRollNoValue(record.rollNo || '');
+                                }}
+                                className="text-[10px] text-blue-500 hover:text-blue-700 underline"
+                              >
+                                Edit
+                              </button>
+                              {onUnverify && (
+                                <button
+                                  onClick={() => onUnverify(record.id)}
+                                  className="text-[10px] text-red-500 hover:text-red-700 underline"
+                                >
+                                  Unverify
+                                </button>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      ) : (record.isVerified === undefined || (isAdmin && record.isVerified !== true)) && onVerify ? (
                         <div className="mt-2 flex items-center gap-2">
                           <input 
                             type="text" 
@@ -133,7 +231,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                             Verify
                           </button>
                         </div>
-                      )}
+                      ) : null}
 
                       {record.scoreTET2 < 90 && selectedCategory !== 'Trash' && selectedCategory !== 'All' && (
                         <div className="text-[10px] text-red-500 font-bold mt-0.5">(reserved)</div>

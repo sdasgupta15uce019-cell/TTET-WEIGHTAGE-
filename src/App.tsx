@@ -169,6 +169,33 @@ export default function App() {
     }
   };
 
+  const handleUpdateName = async (id: string | undefined, newName: string) => {
+    if (!id || !newName) return;
+    try {
+      await updateDoc(doc(db, 'merit_records', id), {
+        name: newName
+      });
+      console.log(`Record ${id} name updated.`);
+    } catch (error: any) {
+      console.error("Error updating name:", error);
+      alert(`Failed to update name: ${error.message}`);
+    }
+  };
+
+  const handleUnverify = async (id: string | undefined) => {
+    if (!id) return;
+    try {
+      await updateDoc(doc(db, 'merit_records', id), {
+        isVerified: false,
+        rollNo: null
+      });
+      console.log(`Record ${id} unverified.`);
+    } catch (error: any) {
+      console.error("Error unverifying:", error);
+      alert(`Failed to unverify: ${error.message}`);
+    }
+  };
+
   const getDisplayCount = () => {
     if (selectedCategory === 'Trash') return effectiveRecords.filter(r => r.isHidden).length;
     const visible = effectiveRecords.filter(r => !r.isHidden);
@@ -456,6 +483,8 @@ service cloud.firestore {
                 onHide={handleHide}
                 onRestore={handleRestore}
                 onVerify={handleVerify}
+                onUpdateName={handleUpdateName}
+                onUnverify={handleUnverify}
               />
             )}
           </div>
