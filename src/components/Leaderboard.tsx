@@ -11,6 +11,7 @@ interface LeaderboardProps {
   onHide?: (id: string | undefined) => void;
   onRestore?: (id: string | undefined) => void;
   onVerify?: (id: string | undefined, rollNo: string) => void;
+  onVerifyBySlNo?: (id: string | undefined, slNo: string) => void;
   onUpdateName?: (id: string | undefined, newName: string) => void;
   onUnverify?: (id: string | undefined) => void;
 }
@@ -23,12 +24,14 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
   onHide,
   onRestore,
   onVerify,
+  onVerifyBySlNo,
   onUpdateName,
   onUnverify
 }) => {
   const visibleRecords = records.filter(r => !r.isHidden);
   const trashRecords = records.filter(r => r.isHidden);
   const [verifyRollNo, setVerifyRollNo] = useState<Record<string, string>>({});
+  const [verifySlNo, setVerifySlNo] = useState<Record<string, string>>({});
   const [editingNameId, setEditingNameId] = useState<string | null>(null);
   const [editNameValue, setEditNameValue] = useState('');
   const [editingRollNoId, setEditingRollNoId] = useState<string | null>(null);
@@ -167,29 +170,52 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                       {isAdmin && record.isVerified === true ? (
                         <div className="mt-2 flex items-center gap-2">
                           {editingRollNoId === record.id ? (
-                            <>
-                              <input 
-                                type="text" 
-                                className="text-xs px-2 py-1 border border-zinc-300 rounded focus:outline-none focus:border-emerald-500 w-28"
-                                value={editRollNoValue}
-                                onChange={e => setEditRollNoValue(e.target.value)}
-                              />
-                              <button 
-                                onClick={() => {
-                                  if (onVerify) onVerify(record.id, editRollNoValue);
-                                  setEditingRollNoId(null);
-                                }}
-                                className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold hover:bg-emerald-200"
-                              >
-                                Re-verify
-                              </button>
-                              <button
-                                onClick={() => setEditingRollNoId(null)}
-                                className="text-[10px] bg-zinc-100 text-zinc-700 px-2 py-1 rounded font-bold hover:bg-zinc-200"
-                              >
-                                Cancel
-                              </button>
-                            </>
+                            <div className="flex flex-col gap-2">
+                              <div className="flex items-center gap-2">
+                                <input 
+                                  type="text" 
+                                  className="text-xs px-2 py-1 border border-zinc-300 rounded focus:outline-none focus:border-emerald-500 w-28"
+                                  value={editRollNoValue}
+                                  onChange={e => setEditRollNoValue(e.target.value)}
+                                  placeholder="Roll No"
+                                />
+                                <button 
+                                  onClick={() => {
+                                    if (onVerify) onVerify(record.id, editRollNoValue);
+                                    setEditingRollNoId(null);
+                                  }}
+                                  className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold hover:bg-emerald-200"
+                                >
+                                  Re-verify
+                                </button>
+                                <button
+                                  onClick={() => setEditingRollNoId(null)}
+                                  className="text-[10px] bg-zinc-100 text-zinc-700 px-2 py-1 rounded font-bold hover:bg-zinc-200"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                              {isAdmin && onVerifyBySlNo && (
+                                <div className="flex items-center gap-2">
+                                  <input 
+                                    type="text" 
+                                    placeholder="Input Sl No" 
+                                    className="text-xs px-2 py-1 border border-zinc-300 rounded focus:outline-none focus:border-blue-500 w-28"
+                                    value={verifySlNo[record.id || ''] || ''}
+                                    onChange={e => setVerifySlNo(prev => ({ ...prev, [record.id || '']: e.target.value }))}
+                                  />
+                                  <button 
+                                    onClick={() => {
+                                      if (onVerifyBySlNo) onVerifyBySlNo(record.id, verifySlNo[record.id || '']);
+                                      setEditingRollNoId(null);
+                                    }}
+                                    className="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold hover:bg-blue-200"
+                                  >
+                                    Re-verify by Sl No
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                           ) : (
                             <>
                               <span className="text-xs text-zinc-600 font-mono bg-zinc-100 px-2 py-1 rounded border border-zinc-200">
@@ -216,20 +242,39 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                           )}
                         </div>
                       ) : (record.isVerified === undefined || (isAdmin && record.isVerified !== true)) && onVerify ? (
-                        <div className="mt-2 flex items-center gap-2">
-                          <input 
-                            type="text" 
-                            placeholder="Input Roll No" 
-                            className="text-xs px-2 py-1 border border-zinc-300 rounded focus:outline-none focus:border-emerald-500 w-28"
-                            value={verifyRollNo[record.id || ''] || ''}
-                            onChange={e => setVerifyRollNo(prev => ({ ...prev, [record.id || '']: e.target.value }))}
-                          />
-                          <button 
-                            onClick={() => onVerify(record.id, verifyRollNo[record.id || ''])}
-                            className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold hover:bg-emerald-200"
-                          >
-                            Verify
-                          </button>
+                        <div className="mt-2 flex flex-col gap-2">
+                          <div className="flex items-center gap-2">
+                            <input 
+                              type="text" 
+                              placeholder="Input Roll No" 
+                              className="text-xs px-2 py-1 border border-zinc-300 rounded focus:outline-none focus:border-emerald-500 w-28"
+                              value={verifyRollNo[record.id || ''] || ''}
+                              onChange={e => setVerifyRollNo(prev => ({ ...prev, [record.id || '']: e.target.value }))}
+                            />
+                            <button 
+                              onClick={() => onVerify(record.id, verifyRollNo[record.id || ''])}
+                              className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold hover:bg-emerald-200"
+                            >
+                              Verify
+                            </button>
+                          </div>
+                          {isAdmin && onVerifyBySlNo && (
+                            <div className="flex items-center gap-2">
+                              <input 
+                                type="text" 
+                                placeholder="Input Sl No" 
+                                className="text-xs px-2 py-1 border border-zinc-300 rounded focus:outline-none focus:border-blue-500 w-28"
+                                value={verifySlNo[record.id || ''] || ''}
+                                onChange={e => setVerifySlNo(prev => ({ ...prev, [record.id || '']: e.target.value }))}
+                              />
+                              <button 
+                                onClick={() => onVerifyBySlNo(record.id, verifySlNo[record.id || ''])}
+                                className="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold hover:bg-blue-200"
+                              >
+                                Verify by Sl No
+                              </button>
+                            </div>
+                          )}
                         </div>
                       ) : null}
 

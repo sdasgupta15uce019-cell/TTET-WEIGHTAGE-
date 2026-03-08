@@ -16,5 +16,6 @@ export interface CandidateRecord {
   timestamp: any;
   isHidden?: boolean;
   rollNo?: string;
+  slNo?: number;
   isVerified?: boolean;
 }

@@ -169,6 +169,44 @@ export default function App() {
     }
   };
 
+  const handleVerifyBySlNo = async (id: string | undefined, slNoStr: string) => {
+    if (!id || !slNoStr) return;
+    const slNo = parseInt(slNoStr, 10);
+    if (isNaN(slNo)) return;
+    
+    try {
+      const record = effectiveRecords.find(r => r.id === id);
+      if (!record) return;
+
+      const { candidatesData } = await import('./data/candidates');
+      const candidate = candidatesData.find(c => c.slNo === slNo);
+      
+      if (!candidate) {
+        alert(`No candidate found with Sl No: ${slNo}`);
+        return;
+      }
+
+      let isVerified = false;
+      let updatedName = record.name;
+
+      if (candidate.tetMarks === record.scoreTET2) {
+        isVerified = true;
+        updatedName = candidate.name;
+      }
+
+      await updateDoc(doc(db, 'merit_records', id), {
+        isVerified,
+        name: updatedName,
+        rollNo: candidate.rollNo
+      });
+
+      console.log(`Record ${id} verification status updated by Sl No.`);
+    } catch (error: any) {
+      console.error("Error updating verification status by Sl No:", error);
+      alert(`Failed to update verification status: ${error.message}`);
+    }
+  };
+
   const handleUpdateName = async (id: string | undefined, newName: string) => {
     if (!id || !newName) return;
     try {
@@ -483,6 +521,7 @@ service cloud.firestore {
                 onHide={handleHide}
                 onRestore={handleRestore}
                 onVerify={handleVerify}
+                onVerifyBySlNo={handleVerifyBySlNo}
                 onUpdateName={handleUpdateName}
                 onUnverify={handleUnverify}
               />

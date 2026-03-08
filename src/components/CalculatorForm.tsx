@@ -22,6 +22,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
     firstName: '',
     middleName: '',
     lastName: '',
+    slNo: '',
     rollNo: '',
     phone: '',
     gender: 'Male' as Gender,
@@ -31,6 +32,35 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
     scoreTET2: '',
     category: 'UR' as Category
   });
+
+  // Auto-fill logic based on Sl No
+  useEffect(() => {
+    if (formData.slNo) {
+      const sl = parseInt(formData.slNo, 10);
+      if (!isNaN(sl)) {
+        const candidate = candidatesData.find(c => c.slNo === sl);
+        if (candidate) {
+          const parts = candidate.name.split(' ');
+          let first = parts[0] || '';
+          let last = parts.length > 1 ? parts[parts.length - 1] : '';
+          let middle = parts.length > 2 ? parts.slice(1, -1).join(' ') : '';
+          
+          setFormData(prev => {
+            if (prev.rollNo === candidate.rollNo) return prev;
+            return {
+              ...prev,
+              rollNo: candidate.rollNo,
+              firstName: first,
+              middleName: middle,
+              lastName: last,
+              category: candidate.category,
+              scoreTET2: candidate.tetMarks.toString()
+            };
+          });
+        }
+      }
+    }
+  }, [formData.slNo]);
 
   // Auto-fill logic based on Roll No
   useEffect(() => {
@@ -42,14 +72,18 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         let last = parts.length > 1 ? parts[parts.length - 1] : '';
         let middle = parts.length > 2 ? parts.slice(1, -1).join(' ') : '';
         
-        setFormData(prev => ({
-          ...prev,
-          firstName: first,
-          middleName: middle,
-          lastName: last,
-          category: candidate.category,
-          scoreTET2: candidate.tetMarks.toString()
-        }));
+        setFormData(prev => {
+          if (prev.slNo === (candidate.slNo ? candidate.slNo.toString() : '')) return prev;
+          return {
+            ...prev,
+            slNo: candidate.slNo ? candidate.slNo.toString() : '',
+            firstName: first,
+            middleName: middle,
+            lastName: last,
+            category: candidate.category,
+            scoreTET2: candidate.tetMarks.toString()
+          };
+        });
       }
     }
   }, [formData.rollNo]);
@@ -62,6 +96,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
       if (candidate) {
         setFormData(prev => ({
           ...prev,
+          slNo: candidate.slNo ? candidate.slNo.toString() : '',
           rollNo: candidate.rollNo,
           category: candidate.category,
           scoreTET2: candidate.tetMarks.toString()
@@ -122,18 +157,35 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         }
       }
 
-      // Check for duplicate entry by scores
-      const duplicate = visibleRecords.find(r => 
-        r.score12th === p12 && 
-        r.scoreGrad === pGrad && 
-        r.scoreBEd === pBEd && 
-        r.finalScore === finalScore
-      );
+      // Check if sl no is already verified in another record
+      if (formData.slNo) {
+        const sl = parseInt(formData.slNo, 10);
+        if (!isNaN(sl)) {
+          const existingBySlNo = visibleRecords.find(r => r.slNo === sl && r.isVerified);
+          if (existingBySlNo) {
+            setDuplicateRecord(existingBySlNo);
+            setIsSubmitting(false);
+            return;
+          }
+        }
+      }
 
-      if (duplicate) {
-        setDuplicateRecord(duplicate);
-        setIsSubmitting(false);
-        return;
+      // Check for duplicate entry by scores (only for non-verified candidates)
+      const isVerifiedSubmission = (formData.rollNo && candidatesData.some(c => c.rollNo === formData.rollNo && c.tetMarks === tetMarks));
+      
+      if (!isVerifiedSubmission) {
+        const duplicate = visibleRecords.find(r => 
+          r.score12th === p12 && 
+          r.scoreGrad === pGrad && 
+          r.scoreBEd === pBEd && 
+          r.finalScore === finalScore
+        );
+
+        if (duplicate) {
+          setDuplicateRecord(duplicate);
+          setIsSubmitting(false);
+          return;
+        }
       }
 
       const allRank = tetMarks >= 90 
@@ -152,6 +204,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         scoreTET2: tetMarks,
         finalScore: finalScore,
         rollNo: formData.rollNo || undefined,
+        slNo: formData.slNo ? parseInt(formData.slNo, 10) : undefined,
         isVerified: formData.rollNo ? candidatesData.some(c => c.rollNo === formData.rollNo && c.tetMarks === tetMarks) : false
       });
       
@@ -176,6 +229,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         firstName: '',
         middleName: '',
         lastName: '',
+        slNo: '',
         rollNo: '',
         phone: '',
         score12th: '',
@@ -209,6 +263,23 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
       </div>
 
       <div className="space-y-4">
+        <div>
+          <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1">
+            Sl No <span className="text-[10px] text-red-500 font-normal normal-case">(NO.F.4 (1-11)/COE/TRBT/2020/477(26/06/25)- list of qualified candidates)</span>
+          </label>
+          <input
+            type="number"
+            value={formData.slNo}
+            onChange={e => { setFormData({ ...formData, slNo: e.target.value }); setSubmittedResult(null); }}
+            placeholder="Enter Sl No"
+            className="w-full px-4 py-2 rounded-xl border-2 border-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+          />
+        </div>
+
+        <div className="flex items-center justify-center">
+          <span className="text-xs font-bold text-red-600 uppercase tracking-widest bg-white px-4">OR</span>
+        </div>
+
         <div>
           <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1">TET 2 Roll No</label>
           <input
