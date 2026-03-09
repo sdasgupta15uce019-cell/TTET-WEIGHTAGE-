@@ -16,6 +16,7 @@ import { Leaderboard } from './components/Leaderboard';
 import { HelpDialog } from './components/HelpDialog';
 import { SearchDialog } from './components/SearchDialog';
 import { Sparkles, AlertCircle, Database, Shield, Download, X } from 'lucide-react';
+import { candidatesData } from './data/candidates';
 
 export default function App() {
   const [records, setRecords] = useState<CandidateRecord[]>([]);
@@ -27,6 +28,8 @@ export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [predictRankMessage, setPredictRankMessage] = useState<string | null>(null);
   const [showPredictionsPopup, setShowPredictionsPopup] = useState(false);
+  const [showNonVerifiedPopup, setShowNonVerifiedPopup] = useState(false);
+  const [showUnregisteredPopup, setShowUnregisteredPopup] = useState(false);
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
@@ -475,22 +478,40 @@ service cloud.firestore {
             </div>
 
             {/* Right Column: Teaser/Navigation */}
-            <div className="bg-emerald-600 rounded-3xl p-8 text-white shadow-xl shadow-emerald-500/20 flex flex-col items-center justify-center text-center space-y-6 min-h-[400px]">
-              <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-md">
-                <Database className="w-10 h-10 text-white" />
-              </div>
+            <div className="bg-yellow-400 rounded-3xl p-8 text-zinc-900 shadow-xl shadow-yellow-400/20 flex flex-col items-center justify-center text-center space-y-6 min-h-[400px]">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold">View Merit List</h2>
-                <p className="text-emerald-50 max-w-xs mx-auto">
-                  Check your rank among other candidates in real-time. Filtered by category and sorted by merit.
-                </p>
               </div>
               <button
                 onClick={() => setCurrentView('leaderboard')}
-                className="px-8 py-4 bg-white text-emerald-600 font-bold rounded-2xl shadow-lg hover:bg-emerald-50 transition-all active:scale-95"
+                className="px-8 py-4 bg-white text-zinc-900 font-bold rounded-2xl shadow-lg hover:bg-zinc-50 transition-all active:scale-95 w-full max-w-xs"
               >
                 Go to Leaderboard
               </button>
+              
+              <div className="flex flex-col gap-3 w-full max-w-xs mt-4">
+                <button 
+                  onClick={() => setShowNonVerifiedPopup(true)}
+                  className="px-6 py-3 bg-white hover:bg-zinc-50 text-zinc-900 font-bold rounded-xl shadow-sm transition-all text-sm"
+                >
+                  Non-Verified Candidates
+                </button>
+                <button 
+                  onClick={() => setShowUnregisteredPopup(true)}
+                  className="px-6 py-3 bg-white hover:bg-zinc-50 text-zinc-900 font-bold rounded-xl shadow-sm transition-all text-sm"
+                >
+                  Unregistered Candidates
+                </button>
+                <a 
+                  href="https://wa.me/917005893480"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-sm transition-all text-sm flex items-center justify-center gap-2"
+                >
+                  <AlertCircle className="w-4 h-4" />
+                  Report False Entry
+                </a>
+              </div>
             </div>
           </div>
         ) : (
@@ -513,18 +534,20 @@ service cloud.firestore {
                 <p className="text-sm font-medium text-zinc-500">Loading leaderboard...</p>
               </div>
             ) : (
-              <Leaderboard 
-                records={effectiveRecords} 
-                selectedCategory={selectedCategory}
-                onCategoryChange={setSelectedCategory}
-                isAdmin={isAdmin}
-                onHide={handleHide}
-                onRestore={handleRestore}
-                onVerify={handleVerify}
-                onVerifyBySlNo={handleVerifyBySlNo}
-                onUpdateName={handleUpdateName}
-                onUnverify={handleUnverify}
-              />
+              <>
+                <Leaderboard 
+                  records={effectiveRecords} 
+                  selectedCategory={selectedCategory}
+                  onCategoryChange={setSelectedCategory}
+                  isAdmin={isAdmin}
+                  onHide={handleHide}
+                  onRestore={handleRestore}
+                  onVerify={handleVerify}
+                  onVerifyBySlNo={handleVerifyBySlNo}
+                  onUpdateName={handleUpdateName}
+                  onUnverify={handleUnverify}
+                />
+              </>
             )}
           </div>
         )}
@@ -600,6 +623,97 @@ service cloud.firestore {
               >
                 Got it
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Non-Verified Candidates Popup */}
+      {showNonVerifiedPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[80vh] flex flex-col animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-zinc-100 flex justify-between items-center">
+              <div>
+                <h3 className="text-xl font-bold text-zinc-900">Non-Verified Candidates</h3>
+                <p className="text-sm text-zinc-500 mt-1">Candidates with entries but not verified</p>
+              </div>
+              <button 
+                onClick={() => setShowNonVerifiedPopup(false)}
+                className="text-zinc-400 hover:text-zinc-600 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1">
+              <div className="space-y-3">
+                {effectiveRecords.filter(r => !r.isHidden && !r.isVerified).length > 0 ? (
+                  effectiveRecords.filter(r => !r.isHidden && !r.isVerified).map((candidate, index) => (
+                    <div key={candidate.id || index} className="flex justify-between items-center p-4 bg-amber-50/50 border border-amber-100 rounded-xl">
+                      <div>
+                        <p className="font-bold text-zinc-900">
+                          {candidate.name}
+                          {candidate.slNo && <span className="text-xs text-zinc-500 font-normal ml-2">(Sl No: {candidate.slNo})</span>}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-amber-700">TET: {candidate.scoreTET2}</p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center text-zinc-500 py-8">No non-verified candidates found.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Unregistered Candidates Popup */}
+      {showUnregisteredPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[80vh] flex flex-col animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-zinc-100 flex justify-between items-center">
+              <div>
+                <h3 className="text-xl font-bold text-zinc-900">Unregistered Candidates</h3>
+                <p className="text-sm text-zinc-500 mt-1">Candidates in CSV but not verified</p>
+              </div>
+              <button 
+                onClick={() => setShowUnregisteredPopup(false)}
+                className="text-zinc-400 hover:text-zinc-600 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1">
+              <div className="space-y-3">
+                {(() => {
+                  const verifiedRollNos = new Set(effectiveRecords.filter(r => !r.isHidden && r.isVerified).map(r => r.rollNo).filter(Boolean));
+                  const verifiedSlNos = new Set(effectiveRecords.filter(r => !r.isHidden && r.isVerified).map(r => r.slNo).filter(Boolean));
+                  
+                  const unregistered = candidatesData.filter(c => 
+                    !verifiedRollNos.has(c.rollNo) && !(c.slNo && verifiedSlNos.has(c.slNo))
+                  );
+
+                  return unregistered.length > 0 ? (
+                    unregistered.map((candidate, index) => (
+                      <div key={candidate.rollNo || index} className="flex justify-between items-center p-4 bg-blue-50/50 border border-blue-100 rounded-xl">
+                        <div>
+                          <p className="font-bold text-zinc-900">
+                            {candidate.name}
+                            {candidate.slNo && <span className="text-xs text-zinc-500 font-normal ml-2">(Sl No: {candidate.slNo})</span>}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-bold text-blue-700">TET: {candidate.tetMarks}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-center text-zinc-500 py-8">All candidates are verified!</p>
+                  );
+                })()}
+              </div>
             </div>
           </div>
         </div>
