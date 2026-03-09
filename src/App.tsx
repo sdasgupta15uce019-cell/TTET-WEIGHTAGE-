@@ -274,6 +274,35 @@ export default function App() {
     }
   };
 
+  const handleDownloadCSVAsPDF = async () => {
+    try {
+      const { jsPDF } = await import('jspdf');
+      const { candidatesData } = await import('./data/candidates');
+      const doc = new jsPDF();
+      
+      doc.setFontSize(16);
+      doc.text("Uploaded CSV Data", 14, 15);
+      
+      doc.setFontSize(12);
+      doc.text("Sl No - Name - Roll No - Category - TET Marks", 14, 25);
+      
+      let y = 35;
+      candidatesData.forEach((record) => {
+        if (y > 280) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.text(`${record.slNo || 'N/A'} - ${record.name} - ${record.rollNo} - ${record.category} - ${record.tetMarks}`, 14, y);
+        y += 7;
+      });
+      
+      doc.save("uploaded_csv.pdf");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Failed to generate PDF. Please try again.");
+    }
+  };
+
   const totalExpected = 1500;
   const totalVacancies = 507;
   const participationRatio = allList.length / totalExpected;
@@ -296,9 +325,9 @@ export default function App() {
     if (adjustedCutoff < 64.9) {
       adjustedCutoff = 64.9;
     }
-    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "66.03";
+    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "65.95";
   } else if (!isAdmin) {
-    predictedCutoff = "66.03";
+    predictedCutoff = "65.95";
   }
 
   const handlePredictRankClick = () => {
@@ -359,6 +388,14 @@ export default function App() {
                         <Download className="w-3 h-3" /> Download PDF
                       </p>
                     </button>
+                    <button 
+                      onClick={handleDownloadCSVAsPDF}
+                      className="inline-block bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-md shadow-sm hover:bg-indigo-100 transition-colors active:scale-95"
+                    >
+                      <p className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-1">
+                        <Download className="w-3 h-3" /> CSV
+                      </p>
+                    </button>
                   </>
                 )}
               </div>
@@ -403,6 +440,14 @@ export default function App() {
                   >
                     <p className="text-[10px] font-bold text-blue-700 uppercase tracking-wider flex items-center gap-1">
                       <Download className="w-3 h-3" /> Download PDF
+                    </p>
+                  </button>
+                  <button 
+                    onClick={handleDownloadCSVAsPDF}
+                    className="inline-block bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-md shadow-sm hover:bg-indigo-100 transition-colors active:scale-95"
+                  >
+                    <p className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-1">
+                      <Download className="w-3 h-3" /> CSV
                     </p>
                   </button>
                 </>
