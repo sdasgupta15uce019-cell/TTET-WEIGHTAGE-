@@ -592,9 +592,9 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
                           setDuplicateRecord(null);
                         }
                       }}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-5 rounded-2xl text-lg font-black transition-all shadow-lg shadow-emerald-500/20"
+                      className={`w-full ${duplicateRecord.isVerified === false ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700'} text-white py-5 rounded-2xl text-lg font-black transition-all shadow-lg ${duplicateRecord.isVerified === false ? 'shadow-amber-500/20' : 'shadow-emerald-500/20'}`}
                     >
-                      Verify Now
+                      {duplicateRecord.isVerified === false ? 'Reverify Now' : 'Verify Now'}
                     </button>
                   </div>
                 </div>

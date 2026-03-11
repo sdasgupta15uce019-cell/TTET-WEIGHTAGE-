@@ -190,9 +190,9 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify })
                                 onVerify(currentRecord.id, verifyRollNo.trim());
                               }
                             }}
-                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg text-sm font-bold transition-colors"
+                            className={`w-full ${currentRecord.isVerified === false ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700'} text-white px-4 py-2.5 rounded-lg text-sm font-bold transition-colors`}
                           >
-                            Verify
+                            {currentRecord.isVerified === false ? 'Reverify' : 'Verify'}
                           </button>
                         </div>
                       </div>

@@ -243,7 +243,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                             </>
                           )}
                         </div>
-                      ) : (record.isVerified === undefined || (isAdmin && record.isVerified !== true)) && onVerify ? (
+                      ) : (record.isVerified !== true) && onVerify ? (
                         <div className="mt-2 flex flex-col gap-2">
                           <div className="flex items-center gap-2">
                             <input 
@@ -255,9 +255,9 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                             />
                             <button 
                               onClick={() => onVerify(record.id, verifyRollNo[record.id || ''])}
-                              className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold hover:bg-emerald-200"
+                              className={`text-[10px] ${record.isVerified === false ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'} px-2 py-1 rounded font-bold transition-colors`}
                             >
-                              Verify
+                              {record.isVerified === false ? 'Reverify' : 'Verify'}
                             </button>
                           </div>
                           {isAdmin && onVerifyBySlNo && (
@@ -271,9 +271,9 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                               />
                               <button 
                                 onClick={() => onVerifyBySlNo(record.id, verifySlNo[record.id || ''])}
-                                className="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold hover:bg-blue-200"
+                                className={`text-[10px] ${record.isVerified === false ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'} px-2 py-1 rounded font-bold transition-colors`}
                               >
-                                Verify by Sl No
+                                {record.isVerified === false ? 'Reverify by Sl No' : 'Verify by Sl No'}
                               </button>
                             </div>
                           )}
