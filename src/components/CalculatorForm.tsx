@@ -8,15 +8,16 @@ interface CalculatorFormProps {
   records: CandidateRecord[];
   onCategoryChange: (category: FilterCategory) => void;
   onVerify?: (id: string, rollNo: string) => void;
+  onVerifyBySlNo?: (id: string, slNo: string) => void;
 }
 
-export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, records, onCategoryChange, onVerify }) => {
+export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, records, onCategoryChange, onVerify, onVerifyBySlNo }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedResult, setSubmittedResult] = useState<{name: string, allRank: number | null, categoryRank: number, score: number, category: string, scoreTET2: number} | null>(null);
   const [showResultPopup, setShowResultPopup] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [duplicateRecord, setDuplicateRecord] = useState<CandidateRecord | null>(null);
-  const [verifyRollNo, setVerifyRollNo] = useState('');
+  const [verifyInput, setVerifyInput] = useState('');
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -108,7 +109,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
   const calculateMerit = async (e: React.FormEvent) => {
     e.preventDefault();
     setDuplicateRecord(null);
-    setVerifyRollNo('');
+    setVerifyInput('');
     
     if (formData.phone.length !== 10) {
       alert("Please enter a valid 10-digit phone number.");
@@ -147,9 +148,9 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         return;
       }
 
-      // Check if roll no is already verified in another record
+      // Check if roll no is already registered in another record
       if (formData.rollNo) {
-        const existingByRollNo = visibleRecords.find(r => r.rollNo === formData.rollNo && r.isVerified);
+        const existingByRollNo = visibleRecords.find(r => r.rollNo === formData.rollNo && r.phone !== formData.phone);
         if (existingByRollNo) {
           setDuplicateRecord(existingByRollNo);
           setIsSubmitting(false);
@@ -157,11 +158,11 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         }
       }
 
-      // Check if sl no is already verified in another record
+      // Check if sl no is already registered in another record
       if (formData.slNo) {
         const sl = parseInt(formData.slNo, 10);
         if (!isNaN(sl)) {
-          const existingBySlNo = visibleRecords.find(r => r.slNo === sl && r.isVerified);
+          const existingBySlNo = visibleRecords.find(r => r.slNo === sl && r.phone !== formData.phone);
           if (existingBySlNo) {
             setDuplicateRecord(existingBySlNo);
             setIsSubmitting(false);
@@ -178,7 +179,8 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
           r.score12th === p12 && 
           r.scoreGrad === pGrad && 
           r.scoreBEd === pBEd && 
-          r.finalScore === finalScore
+          r.finalScore === finalScore &&
+          r.phone !== formData.phone
         );
 
         if (duplicate) {
@@ -547,7 +549,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
                   </div>
                 </div>
 
-                {duplicateRecord.isVerified !== true && onVerify && (
+                {duplicateRecord.isVerified !== true && (onVerify || onVerifyBySlNo) && (
                   <div className="mt-4 text-left">
                     <label className="block text-xs font-semibold text-zinc-700 uppercase tracking-wider mb-2">
                       Verify Your Entry
@@ -555,16 +557,21 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
                     <div className="flex flex-col gap-2">
                       <input
                         type="text"
-                        placeholder="Enter Roll No"
-                        value={verifyRollNo}
-                        onChange={(e) => setVerifyRollNo(e.target.value)}
+                        placeholder="Enter Roll No or Sl No"
+                        value={verifyInput}
+                        onChange={(e) => setVerifyInput(e.target.value)}
                         className="w-full px-3 py-2 rounded-lg border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm"
                       />
                       <button
                         type="button"
                         onClick={() => {
-                          if (verifyRollNo.trim() && duplicateRecord.id) {
-                            onVerify(duplicateRecord.id, verifyRollNo.trim());
+                          const input = verifyInput.trim();
+                          if (input && duplicateRecord.id) {
+                            if (input.length > 5 && onVerify) {
+                              onVerify(duplicateRecord.id, input);
+                            } else if (input.length <= 5 && onVerifyBySlNo) {
+                              onVerifyBySlNo(duplicateRecord.id, input);
+                            }
                             setDuplicateRecord(null);
                           }
                         }}

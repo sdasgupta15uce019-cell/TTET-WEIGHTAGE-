@@ -519,6 +519,7 @@ service cloud.firestore {
                 records={effectiveRecords}
                 onCategoryChange={setSelectedCategory}
                 onVerify={handleVerify}
+                onVerifyBySlNo={handleVerifyBySlNo}
               />
             </div>
 
