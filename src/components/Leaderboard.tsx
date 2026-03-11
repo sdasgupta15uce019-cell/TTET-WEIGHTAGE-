@@ -82,10 +82,10 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
         <table className="w-full text-left">
           <thead>
             <tr className="bg-white/20 backdrop-blur-sm border-b border-white/30">
-              <th className="px-2 py-3 sm:px-6 sm:py-4 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest">Rank</th>
-              <th className="px-2 py-3 sm:px-6 sm:py-4 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest">Candidate</th>
+              <th className="px-1 py-3 sm:px-6 sm:py-4 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest">Rank</th>
+              <th className="px-1 py-3 sm:px-6 sm:py-4 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest">Name</th>
               {isAdmin && <th className="px-2 py-3 sm:px-6 sm:py-4 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest text-center">TET Marks</th>}
-              <th className="px-2 py-3 sm:px-6 sm:py-4 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest text-right">Merit Score</th>
+              <th className="px-1 py-3 sm:px-6 sm:py-4 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest text-right">Weightage</th>
               {isAdmin && <th className="px-2 py-3 sm:px-6 sm:py-4 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest text-right">Actions</th>}
             </tr>
           </thead>
@@ -111,7 +111,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                     exit={{ opacity: 0, scale: 0.95 }}
                     className="hover:bg-white/40 transition-colors group backdrop-blur-sm"
                   >
-                    <td className="px-2 py-3 sm:px-6 sm:py-4 w-10 sm:w-auto">
+                    <td className="px-1 py-3 sm:px-6 sm:py-4 w-8 sm:w-auto">
                       <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center text-xs sm:text-sm font-bold shadow-sm border ${
                         index === 0 ? 'bg-amber-100/80 border-amber-200 text-amber-700' :
                         index === 1 ? 'bg-zinc-200/80 border-zinc-300 text-zinc-700' :
@@ -121,7 +121,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                         {index + 1}
                       </div>
                     </td>
-                    <td className="px-2 py-3 sm:px-6 sm:py-4">
+                    <td className="px-1 py-3 sm:px-6 sm:py-4">
                       <div className="font-medium text-xs sm:text-base text-zinc-900 flex items-center gap-1 sm:gap-2 flex-wrap sm:flex-nowrap">
                         {editingNameId === record.id ? (
                           <div className="flex items-center gap-1">
@@ -295,8 +295,8 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                         </div>
                       </td>
                     )}
-                    <td className="px-2 py-3 sm:px-6 sm:py-4 text-right">
-                      <div className={`text-sm sm:text-lg font-bold tabular-nums ${record.isVerified === false ? 'text-red-600' : 'text-emerald-600'}`}>
+                    <td className="px-1 py-3 sm:px-6 sm:py-4 text-right">
+                      <div className={`text-xs sm:text-lg font-bold tabular-nums ${record.isVerified === false ? 'text-red-600' : 'text-emerald-600'}`}>
                         {typeof record.finalScore === 'number' ? record.finalScore.toFixed(2) : '0.00'}
                       </div>
                     </td>

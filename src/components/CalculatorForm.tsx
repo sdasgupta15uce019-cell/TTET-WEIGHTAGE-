@@ -143,6 +143,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
       // Check if phone number already has a verified record
       const existingByPhone = visibleRecords.find(r => r.phone === formData.phone);
       if (existingByPhone && existingByPhone.isVerified) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         setDuplicateRecord(existingByPhone);
         setIsSubmitting(false);
         return;
@@ -152,6 +153,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
       if (formData.rollNo) {
         const existingByRollNo = visibleRecords.find(r => r.rollNo === formData.rollNo && r.phone !== formData.phone);
         if (existingByRollNo) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
           setDuplicateRecord(existingByRollNo);
           setIsSubmitting(false);
           return;
@@ -164,6 +166,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         if (!isNaN(sl)) {
           const existingBySlNo = visibleRecords.find(r => r.slNo === sl && r.phone !== formData.phone);
           if (existingBySlNo) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             setDuplicateRecord(existingBySlNo);
             setIsSubmitting(false);
             return;
@@ -184,6 +187,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         );
 
         if (duplicate) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
           setDuplicateRecord(duplicate);
           setIsSubmitting(false);
           return;
@@ -218,6 +222,13 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         category: formData.category,
         scoreTET2: tetMarks
       });
+
+      // Dismiss keyboard and scroll to top for better visibility of the popup
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
       setShowResultPopup(true);
       setIsConnecting(true);
 
@@ -453,7 +464,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
                   <CheckCircle className="w-8 h-8" />
                 </div>
                 <h4 className="text-xl text-emerald-900 font-black mb-1">Calculation Successful!</h4>
-                <p className="text-emerald-700 font-bold mb-4">Candidate: {submittedResult.name}</p>
+                <p className="text-emerald-700 font-bold mb-4">Name: {submittedResult.name}</p>
                 
                 {submittedResult.scoreTET2 < 90 && (
                   <div className="mb-5 inline-block px-3 py-1 bg-red-100/80 backdrop-blur-sm border border-red-200/50 text-red-700 text-xs font-bold rounded-lg uppercase tracking-wider shadow-sm">
