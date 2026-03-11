@@ -30,6 +30,22 @@ export default function App() {
   const [showPredictionsPopup, setShowPredictionsPopup] = useState(false);
   const [showNonVerifiedPopup, setShowNonVerifiedPopup] = useState(false);
   const [showUnregisteredPopup, setShowUnregisteredPopup] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [transitionText, setTransitionText] = useState('');
+
+  const handleViewChange = (view: 'calculator' | 'leaderboard') => {
+    setTransitionText(view === 'leaderboard' ? 'Loading Leaderboard...' : 'Loading Calculator...');
+    setIsTransitioning(true);
+    setCurrentView(view);
+    
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }, 0);
+    
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 1000);
+  };
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
@@ -325,9 +341,9 @@ export default function App() {
     if (adjustedCutoff < 64.9) {
       adjustedCutoff = 64.9;
     }
-    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "65.90";
+    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "65.88";
   } else if (!isAdmin) {
-    predictedCutoff = "65.90";
+    predictedCutoff = "65.88";
   }
 
   const handlePredictRankClick = () => {
@@ -336,17 +352,22 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-zinc-900 font-sans selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="min-h-screen font-sans selection:bg-emerald-100 selection:text-emerald-900 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-300/20 blur-[100px] pointer-events-none animate-pulse"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-cyan-300/20 blur-[100px] pointer-events-none animate-pulse" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute top-[40%] left-[60%] w-[30%] h-[30%] rounded-full bg-teal-300/20 blur-[100px] pointer-events-none animate-pulse" style={{ animationDelay: '4s' }}></div>
+
       {/* Header */}
-      <header className="bg-white border-b border-black/5 sticky top-0 z-10">
+      <header className="glass-panel border-b border-white/40 sticky top-0 z-40 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-emerald-500/20 border border-emerald-600/20 shrink-0 flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-700">
               <span className="text-white font-black text-sm tracking-tighter">TTET</span>
             </div>
-            <div>
-              <h1 className="font-bold text-lg leading-tight">TET 2 Merit</h1>
-              <p className="text-xs text-zinc-500 font-medium">Calculator & Leaderboard</p>
+            <div className="flex flex-col">
+              <h1 className="font-bold text-sm sm:text-base leading-tight text-zinc-900">TET 2 Merit</h1>
+              <h2 className="font-bold text-sm sm:text-base leading-tight text-zinc-900">Calculator & Leaderboard</h2>
             </div>
           </div>
           
@@ -360,14 +381,14 @@ export default function App() {
             </p>
             <div className="flex flex-col items-center justify-center gap-2">
               <div className="flex items-center justify-center gap-2">
-                <div className="inline-block bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-md shadow-sm">
+                <div className="inline-block bg-white/50 backdrop-blur-sm border border-emerald-200/50 px-2.5 py-0.5 rounded-md shadow-sm">
                   <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
                     Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
                   </p>
                 </div>
                 <button 
                   onClick={() => setShowPredictionsPopup(true)}
-                  className="inline-block bg-red-50 border border-red-200 px-3 py-0.5 rounded-md shadow-sm hover:bg-red-100 transition-colors active:scale-95"
+                  className="inline-block bg-white/50 backdrop-blur-sm border border-red-200/50 px-3 py-0.5 rounded-md shadow-sm hover:bg-white/80 transition-colors active:scale-95"
                 >
                   <p className="text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center gap-1">
                     Predictions
@@ -375,14 +396,14 @@ export default function App() {
                 </button>
                 {isAdmin && (
                   <>
-                    <div className="inline-block bg-purple-50 border border-purple-200 px-2.5 py-0.5 rounded-md shadow-sm">
+                    <div className="inline-block bg-white/50 backdrop-blur-sm border border-purple-200/50 px-2.5 py-0.5 rounded-md shadow-sm">
                       <p className="text-[10px] font-bold text-purple-700 uppercase tracking-wider">
                         Actual Cutoff (Admin): <span className="text-purple-900 text-xs ml-1">{actualCutoff}</span>
                       </p>
                     </div>
                     <button 
                       onClick={handleDownloadPDF}
-                      className="inline-block bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-md shadow-sm hover:bg-blue-100 transition-colors active:scale-95"
+                      className="inline-block bg-white/50 backdrop-blur-sm border border-blue-200/50 px-2.5 py-0.5 rounded-md shadow-sm hover:bg-white/80 transition-colors active:scale-95"
                     >
                       <p className="text-[10px] font-bold text-blue-700 uppercase tracking-wider flex items-center gap-1">
                         <Download className="w-3 h-3" /> Download PDF
@@ -390,7 +411,7 @@ export default function App() {
                     </button>
                     <button 
                       onClick={handleDownloadCSVAsPDF}
-                      className="inline-block bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-md shadow-sm hover:bg-indigo-100 transition-colors active:scale-95"
+                      className="inline-block bg-white/50 backdrop-blur-sm border border-indigo-200/50 px-2.5 py-0.5 rounded-md shadow-sm hover:bg-white/80 transition-colors active:scale-95"
                     >
                       <p className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-1">
                         <Download className="w-3 h-3" /> CSV
@@ -408,20 +429,20 @@ export default function App() {
           </div>
         </div>
         {/* Mobile Dev Name */}
-        <div className="md:hidden px-4 py-2 border-t border-zinc-50 text-center bg-zinc-50/50 flex flex-col items-center gap-1.5">
+        <div className="md:hidden px-4 py-2 border-t border-white/20 text-center bg-white/30 backdrop-blur-md flex flex-col items-center gap-1.5">
           <p className="text-[10px] font-bold text-zinc-900 tracking-tight uppercase">
             Developer - Er. SUBHAJIT DASGUPTA (NITA 2020 ALUMNUS)
           </p>
           <div className="flex flex-col items-center justify-center gap-2">
             <div className="flex flex-wrap items-center justify-center gap-2">
-              <div className="inline-block bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-md shadow-sm">
+              <div className="inline-block bg-white/50 backdrop-blur-sm border border-emerald-200/50 px-2.5 py-0.5 rounded-md shadow-sm">
                 <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
                   Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
                 </p>
               </div>
               <button 
                 onClick={() => setShowPredictionsPopup(true)}
-                className="inline-block bg-red-50 border border-red-200 px-3 py-0.5 rounded-md shadow-sm hover:bg-red-100 transition-colors active:scale-95"
+                className="inline-block bg-white/50 backdrop-blur-sm border border-red-200/50 px-3 py-0.5 rounded-md shadow-sm hover:bg-white/80 transition-colors active:scale-95"
               >
                 <p className="text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center gap-1">
                   Predictions
@@ -429,14 +450,14 @@ export default function App() {
               </button>
               {isAdmin && (
                 <>
-                  <div className="inline-block bg-purple-50 border border-purple-200 px-2.5 py-0.5 rounded-md shadow-sm">
+                  <div className="inline-block bg-white/50 backdrop-blur-sm border border-purple-200/50 px-2.5 py-0.5 rounded-md shadow-sm">
                     <p className="text-[10px] font-bold text-purple-700 uppercase tracking-wider">
                       Actual Cutoff (Admin): <span className="text-purple-900 text-xs ml-1">{actualCutoff}</span>
                     </p>
                   </div>
                   <button 
                     onClick={handleDownloadPDF}
-                    className="inline-block bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-md shadow-sm hover:bg-blue-100 transition-colors active:scale-95"
+                    className="inline-block bg-white/50 backdrop-blur-sm border border-blue-200/50 px-2.5 py-0.5 rounded-md shadow-sm hover:bg-white/80 transition-colors active:scale-95"
                   >
                     <p className="text-[10px] font-bold text-blue-700 uppercase tracking-wider flex items-center gap-1">
                       <Download className="w-3 h-3" /> Download PDF
@@ -444,7 +465,7 @@ export default function App() {
                   </button>
                   <button 
                     onClick={handleDownloadCSVAsPDF}
-                    className="inline-block bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-md shadow-sm hover:bg-indigo-100 transition-colors active:scale-95"
+                    className="inline-block bg-white/50 backdrop-blur-sm border border-indigo-200/50 px-2.5 py-0.5 rounded-md shadow-sm hover:bg-white/80 transition-colors active:scale-95"
                   >
                     <p className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-1">
                       <Download className="w-3 h-3" /> CSV
@@ -459,27 +480,27 @@ export default function App() {
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-8">
         {!isFirebaseConfigured && (
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 flex items-start gap-4">
+          <div className="glass-panel bg-amber-50/40 backdrop-blur-sm border border-amber-200/50 rounded-3xl p-6 flex items-start gap-4 shadow-sm">
             <AlertCircle className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
             <div>
               <h3 className="font-bold text-amber-900">Firebase Configuration Required</h3>
-              <p className="text-sm text-amber-800 mt-1">
-                To enable real-time database syncing, please configure your Firebase credentials in the <code className="bg-amber-100 px-1 rounded">.env</code> file. 
+              <p className="text-sm text-amber-800 mt-1 font-medium">
+                To enable real-time database syncing, please configure your Firebase credentials in the <code className="bg-amber-100/50 px-1.5 py-0.5 rounded-md border border-amber-200/50">.env</code> file. 
               </p>
             </div>
           </div>
         )}
 
         {trashError && (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-6 flex items-start gap-4">
+          <div className="glass-panel bg-red-50/40 backdrop-blur-sm border border-red-200/50 rounded-3xl p-6 flex items-start gap-4 shadow-sm">
             <Shield className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
             <div className="w-full">
               <h3 className="font-bold text-red-900">Firestore Security Rules Update Required</h3>
-              <p className="text-sm text-red-800 mt-1 mb-3">
-                To use the Trash feature, you must allow access to the <code>trash_records</code> collection. 
+              <p className="text-sm text-red-800 mt-1 mb-3 font-medium">
+                To use the Trash feature, you must allow access to the <code className="bg-red-100/50 px-1.5 py-0.5 rounded-md border border-red-200/50">trash_records</code> collection. 
                 Go to your Firebase Console &gt; Firestore Database &gt; Rules, and add the following:
               </p>
-              <pre className="bg-red-100/50 p-4 rounded-xl text-sm text-red-900 overflow-x-auto border border-red-200 font-mono">
+              <pre className="bg-red-100/30 backdrop-blur-sm p-4 rounded-2xl text-sm text-red-900 overflow-x-auto border border-red-200/50 font-mono shadow-inner">
 {`rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -524,27 +545,28 @@ service cloud.firestore {
             </div>
 
             {/* Right Column: Teaser/Navigation */}
-            <div className="bg-yellow-400 rounded-3xl p-8 text-zinc-900 shadow-xl shadow-yellow-400/20 flex flex-col items-center justify-center text-center space-y-6 min-h-[400px]">
-              <div className="space-y-2">
+            <div className="glass-panel rounded-3xl p-8 text-zinc-900 shadow-xl flex flex-col items-center justify-center text-center space-y-6 min-h-[400px] relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 to-amber-500/20 animate-gradient-xy"></div>
+              <div className="relative z-10 space-y-2">
                 <h2 className="text-3xl font-bold">View Merit List</h2>
               </div>
               <button
-                onClick={() => setCurrentView('leaderboard')}
-                className="px-8 py-4 bg-white text-zinc-900 font-bold rounded-2xl shadow-lg hover:bg-zinc-50 transition-all active:scale-95 w-full max-w-xs"
+                onClick={() => handleViewChange('leaderboard')}
+                className="glass-button px-8 py-4 bg-white/80 text-zinc-900 font-bold rounded-2xl shadow-lg hover:bg-white transition-all active:scale-95 w-full max-w-xs border border-white/50"
               >
                 Go to Leaderboard
               </button>
               
-              <div className="flex flex-col gap-3 w-full max-w-xs mt-4">
+              <div className="relative z-10 flex flex-col gap-3 w-full max-w-xs mt-4">
                 <button 
                   onClick={() => setShowNonVerifiedPopup(true)}
-                  className="px-6 py-3 bg-white hover:bg-zinc-50 text-zinc-900 font-bold rounded-xl shadow-sm transition-all text-sm"
+                  className="glass-button px-6 py-3 bg-white/50 hover:bg-white/80 text-zinc-900 font-bold rounded-xl shadow-sm transition-all text-sm border border-white/40"
                 >
                   Non-Verified Candidates
                 </button>
                 <button 
                   onClick={() => setShowUnregisteredPopup(true)}
-                  className="px-6 py-3 bg-white hover:bg-zinc-50 text-zinc-900 font-bold rounded-xl shadow-sm transition-all text-sm"
+                  className="glass-button px-6 py-3 bg-white/50 hover:bg-white/80 text-zinc-900 font-bold rounded-xl shadow-sm transition-all text-sm border border-white/40"
                 >
                   Unregistered Candidates
                 </button>
@@ -552,7 +574,7 @@ service cloud.firestore {
                   href="https://wa.me/917005893480"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-sm transition-all text-sm flex items-center justify-center gap-2"
+                  className="glass-button px-6 py-3 bg-red-600/90 hover:bg-red-600 text-white font-bold rounded-xl shadow-sm transition-all text-sm flex items-center justify-center gap-2"
                 >
                   <AlertCircle className="w-4 h-4" />
                   Report False Entry
@@ -562,22 +584,23 @@ service cloud.firestore {
           </div>
         ) : (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex items-center justify-between">
-              <button
-                onClick={() => setCurrentView('calculator')}
-                className="flex items-center gap-2 px-4 py-2 text-zinc-600 hover:text-zinc-900 font-bold transition-all"
-              >
-                ← Back to Calculator
-              </button>
+            <div className="flex items-center justify-center">
               <div className="text-sm font-medium text-zinc-500">
                 Showing {getDisplayCount()} candidates
               </div>
             </div>
 
+            <button
+              onClick={() => handleViewChange('calculator')}
+              className="fixed bottom-1 right-2 sm:bottom-4 sm:right-4 z-50 flex items-center gap-1.5 px-4 py-2.5 bg-zinc-900 text-white hover:bg-zinc-800 hover:-translate-y-1 active:scale-95 rounded-full shadow-[0_0_5px_rgba(0,0,0,0.5),0_0_15px_rgba(0,0,0,0.3),0_0_30px_rgba(0,0,0,0.2),0_0_50px_rgba(0,0,0,0.15),0_0_80px_rgba(0,0,0,0.1)] font-bold text-[10px] sm:text-xs transition-all"
+            >
+              ← Go Back
+            </button>
+
             {isLoading ? (
-              <div className="bg-white rounded-2xl h-[400px] flex flex-col items-center justify-center gap-4 border border-black/5">
+              <div className="glass-panel rounded-3xl h-[400px] flex flex-col items-center justify-center gap-4">
                 <div className="w-8 h-8 border-3 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
-                <p className="text-sm font-medium text-zinc-500">Loading leaderboard...</p>
+                <p className="text-sm font-bold text-zinc-600">Loading leaderboard...</p>
               </div>
             ) : (
               <>
@@ -610,20 +633,20 @@ service cloud.firestore {
 
       {/* Predictions Popup */}
       {showPredictionsPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="glass-panel max-w-md w-full p-6 animate-in zoom-in-95 duration-300 rounded-3xl">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-bold text-zinc-900">Predictions</h3>
               <button 
                 onClick={() => setShowPredictionsPopup(false)}
-                className="text-zinc-400 hover:text-zinc-600 transition-colors"
+                className="text-zinc-400 hover:text-zinc-600 hover:bg-white/50 p-1 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             
             <div className="space-y-4">
-              <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-center">
+              <div className="bg-amber-100/50 backdrop-blur-sm border border-amber-200/50 p-4 rounded-xl text-center shadow-inner">
                 <p className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">
                   Predicted UR Cutoff (for 507 posts)
                 </p>
@@ -636,7 +659,7 @@ service cloud.firestore {
                     setShowPredictionsPopup(false);
                     handlePredictRankClick();
                   }}
-                  className="w-full bg-red-50 border border-red-200 p-4 rounded-xl text-center hover:bg-red-100 transition-colors active:scale-[0.98]"
+                  className="glass-button w-full bg-red-50/80 border border-red-200/50 p-4 rounded-xl text-center hover:bg-red-100/80 transition-colors active:scale-[0.98] shadow-sm"
                 >
                   <p className="text-sm font-bold text-red-700 uppercase tracking-wider mb-1 flex items-center justify-center gap-1">
                     Know your predicted rank for 507 vacancies
@@ -651,21 +674,21 @@ service cloud.firestore {
 
       {/* Predict Rank Message Modal */}
       {predictRankMessage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="glass-panel max-w-sm w-full p-6 animate-in zoom-in-95 duration-300 rounded-3xl">
             <div className="flex flex-col items-center text-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+              <div className="w-12 h-12 rounded-xl bg-indigo-100/50 backdrop-blur-sm flex items-center justify-center text-indigo-600 border border-indigo-200/50 shadow-inner">
                 <AlertCircle className="w-6 h-6" />
               </div>
               <div>
                 <h3 className="text-lg font-bold text-zinc-900 mb-2">Predicted Rank</h3>
-                <p className="text-zinc-600 text-sm leading-relaxed">
+                <p className="text-zinc-700 text-sm leading-relaxed font-medium">
                   {predictRankMessage}
                 </p>
               </div>
               <button
                 onClick={() => setPredictRankMessage(null)}
-                className="w-full mt-2 px-4 py-2 bg-zinc-900 text-white font-medium rounded-xl hover:bg-zinc-800 transition-colors active:scale-95"
+                className="glass-button w-full mt-2 px-4 py-2.5 bg-zinc-900/90 text-white font-bold rounded-xl hover:bg-zinc-900 transition-colors active:scale-95 shadow-lg shadow-zinc-900/20"
               >
                 Got it
               </button>
@@ -676,38 +699,38 @@ service cloud.firestore {
 
       {/* Non-Verified Candidates Popup */}
       {showNonVerifiedPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[80vh] flex flex-col animate-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-zinc-100 flex justify-between items-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="glass-panel max-w-2xl w-full max-h-[80vh] flex flex-col animate-in zoom-in-95 duration-300 rounded-3xl overflow-hidden">
+            <div className="p-6 border-b border-white/40 bg-white/30 backdrop-blur-md flex justify-between items-center">
               <div>
                 <h3 className="text-xl font-bold text-zinc-900">Non-Verified Candidates</h3>
-                <p className="text-sm text-zinc-500 mt-1">Candidates with entries but not verified</p>
+                <p className="text-sm text-zinc-600 mt-1 font-medium">Candidates with entries but not verified</p>
               </div>
               <button 
                 onClick={() => setShowNonVerifiedPopup(false)}
-                className="text-zinc-400 hover:text-zinc-600 transition-colors"
+                className="text-zinc-400 hover:text-zinc-600 hover:bg-white/50 p-1.5 rounded-xl transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <div className="p-6 overflow-y-auto flex-1">
+            <div className="p-6 overflow-y-auto flex-1 bg-white/10">
               <div className="space-y-3">
                 {effectiveRecords.filter(r => !r.isHidden && !r.isVerified).length > 0 ? (
                   effectiveRecords.filter(r => !r.isHidden && !r.isVerified).map((candidate, index) => (
-                    <div key={candidate.id || index} className="flex justify-between items-center p-4 bg-amber-50/50 border border-amber-100 rounded-xl">
+                    <div key={candidate.id || index} className="flex justify-between items-center p-4 bg-amber-50/40 backdrop-blur-sm border border-amber-200/50 rounded-xl shadow-sm">
                       <div>
                         <p className="font-bold text-zinc-900">
                           {candidate.name}
-                          {candidate.slNo && <span className="text-xs text-zinc-500 font-normal ml-2">(Sl No: {candidate.slNo})</span>}
+                          {candidate.slNo && <span className="text-xs text-zinc-600 font-medium ml-2">(Sl No: {candidate.slNo})</span>}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-bold text-amber-700">TET: {candidate.scoreTET2}</p>
+                        <p className="text-sm font-bold text-amber-700 bg-amber-100/50 px-2 py-1 rounded-lg inline-block">TET: {candidate.scoreTET2}</p>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className="text-center text-zinc-500 py-8">No non-verified candidates found.</p>
+                  <p className="text-center text-zinc-600 font-medium py-8 bg-white/30 rounded-xl border border-white/40">No non-verified candidates found.</p>
                 )}
               </div>
             </div>
@@ -717,21 +740,21 @@ service cloud.firestore {
 
       {/* Unregistered Candidates Popup */}
       {showUnregisteredPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[80vh] flex flex-col animate-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-zinc-100 flex justify-between items-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="glass-panel max-w-2xl w-full max-h-[80vh] flex flex-col animate-in zoom-in-95 duration-300 rounded-3xl overflow-hidden">
+            <div className="p-6 border-b border-white/40 bg-white/30 backdrop-blur-md flex justify-between items-center">
               <div>
                 <h3 className="text-xl font-bold text-zinc-900">Unregistered Candidates</h3>
-                <p className="text-sm text-zinc-500 mt-1">Candidates in CSV but not verified</p>
+                <p className="text-sm text-zinc-600 mt-1 font-medium">Candidates in CSV but not verified</p>
               </div>
               <button 
                 onClick={() => setShowUnregisteredPopup(false)}
-                className="text-zinc-400 hover:text-zinc-600 transition-colors"
+                className="text-zinc-400 hover:text-zinc-600 hover:bg-white/50 p-1.5 rounded-xl transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <div className="p-6 overflow-y-auto flex-1">
+            <div className="p-6 overflow-y-auto flex-1 bg-white/10">
               <div className="space-y-3">
                 {(() => {
                   const verifiedRollNos = new Set(effectiveRecords.filter(r => !r.isHidden && r.isVerified).map(r => r.rollNo).filter(Boolean));
@@ -743,25 +766,35 @@ service cloud.firestore {
 
                   return unregistered.length > 0 ? (
                     unregistered.map((candidate, index) => (
-                      <div key={candidate.rollNo || index} className="flex justify-between items-center p-4 bg-blue-50/50 border border-blue-100 rounded-xl">
+                      <div key={candidate.rollNo || index} className="flex justify-between items-center p-4 bg-blue-50/40 backdrop-blur-sm border border-blue-200/50 rounded-xl shadow-sm">
                         <div>
                           <p className="font-bold text-zinc-900">
                             {candidate.name}
-                            {candidate.slNo && <span className="text-xs text-zinc-500 font-normal ml-2">(Sl No: {candidate.slNo})</span>}
+                            {candidate.slNo && <span className="text-xs text-zinc-600 font-medium ml-2">(Sl No: {candidate.slNo})</span>}
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-bold text-blue-700">TET: {candidate.tetMarks}</p>
+                          <p className="text-sm font-bold text-blue-700 bg-blue-100/50 px-2 py-1 rounded-lg inline-block">TET: {candidate.tetMarks}</p>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <p className="text-center text-zinc-500 py-8">All candidates are verified!</p>
+                    <p className="text-center text-zinc-600 font-medium py-8 bg-white/30 rounded-xl border border-white/40">All candidates are verified!</p>
                   );
                 })()}
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Full screen transition overlay */}
+      {isTransitioning && (
+        <div className="fixed inset-0 z-[100] bg-zinc-50/80 backdrop-blur-md flex flex-col items-center justify-center animate-in fade-in duration-200">
+          <div className="w-12 h-12 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mb-4" />
+          <p className="text-lg font-bold text-zinc-700">
+            {transitionText}
+          </p>
         </div>
       )}
     </div>

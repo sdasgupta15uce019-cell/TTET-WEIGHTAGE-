@@ -258,10 +258,13 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
   };
 
   return (
-    <form onSubmit={calculateMerit} className="bg-white p-6 rounded-2xl shadow-sm border border-black/5 space-y-4">
+    <form onSubmit={calculateMerit} className="glass-panel p-6 rounded-3xl space-y-4 relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400"></div>
       <div className="flex items-center gap-2 mb-4">
-        <Calculator className="w-5 h-5 text-emerald-600" />
-        <h2 className="text-xl font-semibold text-zinc-900">Merit Calculator</h2>
+        <div className="w-10 h-10 rounded-xl bg-emerald-100/50 backdrop-blur-sm flex items-center justify-center text-emerald-600">
+          <Calculator className="w-5 h-5" />
+        </div>
+        <h2 className="text-xl font-bold text-zinc-900">Merit Calculator</h2>
       </div>
 
       <div className="space-y-4">
@@ -274,12 +277,13 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
             value={formData.slNo}
             onChange={e => { setFormData({ ...formData, slNo: e.target.value }); setSubmittedResult(null); }}
             placeholder="Enter Sl No"
-            className="w-full px-4 py-2 rounded-xl border-2 border-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+            className="glass-input w-full px-4 py-3 rounded-xl text-zinc-900 placeholder:text-zinc-400"
           />
         </div>
 
-        <div className="flex items-center justify-center">
-          <span className="text-xs font-bold text-red-600 uppercase tracking-widest bg-white px-4">OR</span>
+        <div className="flex items-center justify-center relative !-my-1 z-10">
+          <div className="absolute w-full h-px bg-red-200/50"></div>
+          <span className="text-[10px] font-bold text-red-600 uppercase tracking-widest bg-red-50/80 backdrop-blur-md px-4 py-1 rounded-full relative z-10 border border-red-200 shadow-sm">OR</span>
         </div>
 
         <div>
@@ -289,12 +293,13 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
             value={formData.rollNo}
             onChange={e => { setFormData({ ...formData, rollNo: e.target.value }); setSubmittedResult(null); }}
             placeholder="Enter Roll No"
-            className="w-full px-4 py-2 rounded-xl border-2 border-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+            className="glass-input w-full px-4 py-3 rounded-xl text-zinc-900 placeholder:text-zinc-400"
           />
         </div>
 
-        <div className="flex items-center justify-center">
-          <span className="text-xs font-bold text-red-600 uppercase tracking-widest bg-white px-4">OR</span>
+        <div className="flex items-center justify-center relative !-my-1 z-10">
+          <div className="absolute w-full h-px bg-red-200/50"></div>
+          <span className="text-[10px] font-bold text-red-600 uppercase tracking-widest bg-red-50/80 backdrop-blur-md px-4 py-1 rounded-full relative z-10 border border-red-200 shadow-sm">OR</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -306,7 +311,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
               value={formData.firstName}
               onChange={e => { setFormData({ ...formData, firstName: e.target.value.toUpperCase() }); setSubmittedResult(null); }}
               placeholder="FIRST"
-              className="w-full px-4 py-2 rounded-xl border-2 border-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all uppercase"
+              className="glass-input w-full px-4 py-3 rounded-xl text-zinc-900 placeholder:text-zinc-400 uppercase"
             />
           </div>
           <div>
@@ -316,7 +321,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
               value={formData.middleName}
               onChange={e => { setFormData({ ...formData, middleName: e.target.value.toUpperCase() }); setSubmittedResult(null); }}
               placeholder="MIDDLE"
-              className="w-full px-4 py-2 rounded-xl border-2 border-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all uppercase"
+              className="glass-input w-full px-4 py-3 rounded-xl text-zinc-900 placeholder:text-zinc-400 uppercase"
             />
           </div>
           <div>
@@ -327,14 +332,14 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
               value={formData.lastName}
               onChange={e => { setFormData({ ...formData, lastName: e.target.value.toUpperCase() }); setSubmittedResult(null); }}
               placeholder="LAST"
-              className="w-full px-4 py-2 rounded-xl border-2 border-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all uppercase"
+              className="glass-input w-full px-4 py-3 rounded-xl text-zinc-900 placeholder:text-zinc-400 uppercase"
             />
           </div>
         </div>
 
         <div>
           <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">Gender</label>
-          <div className="flex gap-4">
+          <div className="glass-input flex gap-6 px-4 py-3 rounded-xl w-full">
             {(['Male', 'Female'] as Gender[]).map(g => (
               <label key={g} className="flex items-center gap-2 cursor-pointer group">
                 <input
@@ -343,9 +348,9 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
                   value={g}
                   checked={formData.gender === g}
                   onChange={() => { setFormData({ ...formData, gender: g }); setSubmittedResult(null); }}
-                  className="w-4 h-4 text-emerald-600 border-zinc-300 focus:ring-emerald-500"
+                  className="w-4 h-4 text-emerald-600 border-zinc-300 focus:ring-emerald-500 bg-white/50"
                 />
-                <span className="text-sm font-medium text-zinc-700 group-hover:text-emerald-600 transition-colors">{g}</span>
+                <span className="text-sm font-medium text-zinc-700 group-hover:text-emerald-700 transition-colors">{g}</span>
               </label>
             ))}
           </div>
@@ -367,7 +372,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
               setSubmittedResult(null);
             }}
             placeholder="e.g. 9876543210"
-            className="w-full px-4 py-2 rounded-xl border-2 border-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+            className="glass-input w-full px-4 py-3 rounded-xl text-zinc-900 placeholder:text-zinc-400"
           />
         </div>
 
@@ -381,7 +386,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
               value={formData.score12th}
               onChange={e => { setFormData({ ...formData, score12th: e.target.value }); setSubmittedResult(null); }}
               placeholder="e.g. 85.5"
-              className="w-full px-4 py-2 rounded-xl border-2 border-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+              className="glass-input w-full px-4 py-3 rounded-xl text-zinc-900 placeholder:text-zinc-400"
             />
           </div>
           <div>
@@ -393,7 +398,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
               value={formData.scoreGrad}
               onChange={e => { setFormData({ ...formData, scoreGrad: e.target.value }); setSubmittedResult(null); }}
               placeholder="e.g. 70.2"
-              className="w-full px-4 py-2 rounded-xl border-2 border-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+              className="glass-input w-full px-4 py-3 rounded-xl text-zinc-900 placeholder:text-zinc-400"
             />
           </div>
         </div>
@@ -408,7 +413,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
               value={formData.scoreBEd}
               onChange={e => { setFormData({ ...formData, scoreBEd: e.target.value }); setSubmittedResult(null); }}
               placeholder="e.g. 80.0"
-              className="w-full px-4 py-2 rounded-xl border-2 border-black focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+              className="glass-input w-full px-4 py-3 rounded-xl text-zinc-900 placeholder:text-zinc-400"
             />
           </div>
         </div>
@@ -417,7 +422,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white font-semibold py-3 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all active:scale-[0.98] mt-4"
+        className="glass-button w-full bg-emerald-600/90 hover:bg-emerald-600 disabled:bg-emerald-400/50 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all active:scale-[0.98] mt-6"
       >
         {isSubmitting ? (
           <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -428,69 +433,69 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
       </button>
 
       {showResultPopup && submittedResult && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="glass-panel max-w-md w-full p-6 animate-in zoom-in-95 duration-300 rounded-3xl">
             {isConnecting ? (
               <div className="flex flex-col items-center justify-center py-12 space-y-6">
                 <div className="relative w-20 h-20">
-                  <div className="absolute inset-0 border-4 border-emerald-100 rounded-full"></div>
+                  <div className="absolute inset-0 border-4 border-emerald-100/50 rounded-full"></div>
                   <div className="absolute inset-0 border-4 border-emerald-600 rounded-full border-t-transparent animate-spin"></div>
-                  <div className="absolute inset-2 border-4 border-emerald-200 rounded-full border-b-transparent animate-spin-reverse"></div>
+                  <div className="absolute inset-2 border-4 border-emerald-200/50 rounded-full border-b-transparent animate-spin-reverse"></div>
                 </div>
                 <div className="space-y-2 text-center">
                   <p className="text-zinc-800 font-bold text-lg animate-pulse">Connecting to TRBT server</p>
-                  <p className="text-zinc-500 text-sm">Fetching and verifying data...</p>
+                  <p className="text-zinc-600 font-medium text-sm">Fetching and verifying data...</p>
                 </div>
               </div>
             ) : (
               <div className="text-center">
-                <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-emerald-100/80 backdrop-blur-sm text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-200/50 shadow-inner">
                   <CheckCircle className="w-8 h-8" />
                 </div>
                 <h4 className="text-xl text-emerald-900 font-black mb-1">Calculation Successful!</h4>
-                <p className="text-emerald-700 font-medium mb-4">Candidate: {submittedResult.name}</p>
+                <p className="text-emerald-700 font-bold mb-4">Candidate: {submittedResult.name}</p>
                 
                 {submittedResult.scoreTET2 < 90 && (
-                  <div className="mb-5 inline-block px-3 py-1 bg-red-100 border border-red-200 text-red-700 text-xs font-bold rounded-md uppercase tracking-wider">
+                  <div className="mb-5 inline-block px-3 py-1 bg-red-100/80 backdrop-blur-sm border border-red-200/50 text-red-700 text-xs font-bold rounded-lg uppercase tracking-wider shadow-sm">
                     Under Reservation
                   </div>
                 )}
                 
                 {submittedResult.scoreTET2 >= 90 && (submittedResult.category === 'SC' || submittedResult.category === 'ST' || submittedResult.category === 'PH') && (
-                  <div className="mb-5 inline-block px-3 py-1 bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-md uppercase tracking-wider">
+                  <div className="mb-5 inline-block px-3 py-1 bg-emerald-100/80 backdrop-blur-sm border border-emerald-200/50 text-emerald-700 text-xs font-bold rounded-lg uppercase tracking-wider shadow-sm">
                     Recommended against UR
                   </div>
                 )}
 
                 <div className={`grid gap-3 mb-6 ${submittedResult.allRank !== null ? 'grid-cols-2' : 'grid-cols-2'}`}>
                   {submittedResult.allRank !== null && (
-                    <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl">
-                      <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider mb-1">All Rank</p>
-                      <p className="text-2xl font-black text-emerald-700">#{submittedResult.allRank}</p>
+                    <div className="bg-emerald-50/60 backdrop-blur-sm border border-emerald-200/50 p-3 rounded-2xl shadow-sm">
+                      <p className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider mb-1">All Rank</p>
+                      <p className="text-2xl font-black text-emerald-800">#{submittedResult.allRank}</p>
                     </div>
                   )}
-                  <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl">
-                    <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider mb-1">Cat. Rank</p>
-                    <p className="text-2xl font-black text-emerald-700">#{submittedResult.categoryRank}</p>
+                  <div className="bg-emerald-50/60 backdrop-blur-sm border border-emerald-200/50 p-3 rounded-2xl shadow-sm">
+                    <p className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider mb-1">Cat. Rank</p>
+                    <p className="text-2xl font-black text-emerald-800">#{submittedResult.categoryRank}</p>
                   </div>
-                  <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl">
-                    <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider mb-1">Weightage</p>
-                    <p className="text-2xl font-black text-emerald-700">{submittedResult.score.toFixed(2)}</p>
+                  <div className="bg-emerald-50/60 backdrop-blur-sm border border-emerald-200/50 p-3 rounded-2xl shadow-sm">
+                    <p className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider mb-1">Weightage</p>
+                    <p className="text-2xl font-black text-emerald-800">{submittedResult.score.toFixed(2)}</p>
                   </div>
-                  <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl">
-                    <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider mb-1">TET Score</p>
-                    <p className="text-2xl font-black text-emerald-700">{submittedResult.scoreTET2}</p>
+                  <div className="bg-emerald-50/60 backdrop-blur-sm border border-emerald-200/50 p-3 rounded-2xl shadow-sm">
+                    <p className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider mb-1">TET Score</p>
+                    <p className="text-2xl font-black text-emerald-800">{submittedResult.scoreTET2}</p>
                   </div>
-                  <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl">
-                    <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider mb-1">Category</p>
-                    <p className="text-2xl font-black text-emerald-700">{submittedResult.category}</p>
+                  <div className="bg-emerald-50/60 backdrop-blur-sm border border-emerald-200/50 p-3 rounded-2xl shadow-sm col-span-2">
+                    <p className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider mb-1">Category</p>
+                    <p className="text-2xl font-black text-emerald-800">{submittedResult.category}</p>
                   </div>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setShowResultPopup(false)}
-                  className="w-full bg-zinc-100 hover:bg-zinc-200 text-zinc-800 font-bold py-3 rounded-xl transition-all active:scale-[0.98]"
+                  className="glass-button w-full bg-white/50 hover:bg-white/80 text-zinc-800 font-bold py-3 rounded-xl transition-all active:scale-[0.98] border border-white/40"
                 >
                   Close
                 </button>
@@ -501,25 +506,25 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
       )}
 
       {duplicateRecord && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="glass-panel max-w-md w-full p-6 animate-in zoom-in-95 duration-300 rounded-3xl">
             <div className="flex flex-col items-center text-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+              <div className="w-12 h-12 rounded-xl bg-amber-100/80 backdrop-blur-sm flex items-center justify-center text-amber-600 border border-amber-200/50 shadow-inner">
                 <AlertCircle className="w-6 h-6" />
               </div>
               <div>
                 <h3 className="text-lg font-bold text-zinc-900 mb-2">
                   {duplicateRecord.isVerified ? 'Verified data already exists!' : 'You are already registered!'}
                 </h3>
-                <p className="text-zinc-600 text-sm leading-relaxed mb-4">
+                <p className="text-zinc-700 font-medium text-sm leading-relaxed mb-4">
                   {duplicateRecord.isVerified 
                     ? 'A verified entry with these details is already on the leaderboard. We cannot save duplicate or overwritten data for verified candidates.'
                     : 'We found an existing entry with the same academic scores.'}
                 </p>
                 
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-left space-y-2 w-full">
+                <div className="bg-amber-50/60 backdrop-blur-sm border border-amber-200/50 rounded-2xl p-4 text-left space-y-2 w-full shadow-sm">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs font-semibold text-amber-700 uppercase">Name</span>
+                    <span className="text-xs font-bold text-amber-800 uppercase">Name</span>
                     <span className="font-bold text-amber-900 flex items-center gap-1">
                       {duplicateRecord.name}
                       {duplicateRecord.isVerified === true && <CheckCircle className="w-4 h-4 text-emerald-500" title="Verified" />}
@@ -527,31 +532,31 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-xs font-semibold text-amber-700 uppercase">Category</span>
+                    <span className="text-xs font-bold text-amber-800 uppercase">Category</span>
                     <span className="font-bold text-amber-900">{duplicateRecord.category}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-xs font-semibold text-amber-700 uppercase">Weightage</span>
+                    <span className="text-xs font-bold text-amber-800 uppercase">Weightage</span>
                     <span className="font-bold text-amber-900">{duplicateRecord.finalScore.toFixed(2)}</span>
                   </div>
                   
                   <div className={`grid gap-2 pt-2 mt-2 border-t border-amber-200/50 ${getDuplicateRanks(duplicateRecord).allRank !== null ? 'grid-cols-2' : 'grid-cols-1'}`}>
                     {getDuplicateRanks(duplicateRecord).allRank !== null && (
-                      <div className="bg-white/60 p-2 rounded-lg text-center">
-                        <span className="block text-[10px] font-bold text-amber-700 uppercase">All Rank</span>
+                      <div className="bg-white/60 backdrop-blur-sm p-2 rounded-xl text-center border border-white/40">
+                        <span className="block text-[10px] font-bold text-amber-800 uppercase">All Rank</span>
                         <span className="text-lg font-black text-amber-900">#{getDuplicateRanks(duplicateRecord).allRank}</span>
                       </div>
                     )}
-                    <div className="bg-white/60 p-2 rounded-lg text-center">
-                      <span className="block text-[10px] font-bold text-amber-700 uppercase">Cat. Rank</span>
+                    <div className="bg-white/60 backdrop-blur-sm p-2 rounded-xl text-center border border-white/40">
+                      <span className="block text-[10px] font-bold text-amber-800 uppercase">Cat. Rank</span>
                       <span className="text-lg font-black text-amber-900">#{getDuplicateRanks(duplicateRecord).categoryRank}</span>
                     </div>
                   </div>
                 </div>
 
                 {duplicateRecord.isVerified !== true && (onVerify || onVerifyBySlNo) && (
-                  <div className="mt-4 text-left">
-                    <label className="block text-xs font-semibold text-zinc-700 uppercase tracking-wider mb-2">
+                  <div className="mt-4 text-left w-full">
+                    <label className="block text-xs font-bold text-zinc-800 uppercase tracking-wider mb-2">
                       Verify Your Entry
                     </label>
                     <div className="flex flex-col gap-2">
@@ -560,7 +565,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
                         placeholder="Enter Roll No or Sl No"
                         value={verifyInput}
                         onChange={(e) => setVerifyInput(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm"
+                        className="glass-input w-full px-4 py-3 rounded-xl text-zinc-900 placeholder:text-zinc-400"
                       />
                       <button
                         type="button"
@@ -575,7 +580,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
                             setDuplicateRecord(null);
                           }
                         }}
-                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg text-sm font-bold transition-colors"
+                        className="glass-button w-full bg-emerald-600/90 hover:bg-emerald-600 text-white px-4 py-3 rounded-xl text-sm font-bold transition-colors shadow-lg shadow-emerald-500/20"
                       >
                         Verify
                       </button>
@@ -586,7 +591,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
               <button
                 type="button"
                 onClick={() => setDuplicateRecord(null)}
-                className="w-full mt-2 px-4 py-2 bg-zinc-100 text-zinc-700 font-medium rounded-xl hover:bg-zinc-200 transition-colors active:scale-95"
+                className="glass-button w-full mt-2 px-4 py-3 bg-white/50 text-zinc-800 font-bold rounded-xl hover:bg-white/80 transition-colors active:scale-95 border border-white/40"
               >
                 Close
               </button>

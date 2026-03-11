@@ -32,11 +32,57 @@
       box-shadow: 0 0 12px 4px rgba(239, 68, 68, 0.6);
     }
   }
+
+  @keyframes gradient-x {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes gradient-y {
+    0%, 100% {
+      background-position: 50% 0%;
+    }
+    50% {
+      background-position: 50% 100%;
+    }
+  }
+
+  @keyframes gradient-xy {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
 }
 
 @layer base {
   body {
-    @apply antialiased;
+    @apply antialiased bg-zinc-50;
+    background: linear-gradient(-45deg, #f8fafc, #f0fdf4, #ccfbf1, #e0f2fe);
+    background-size: 400% 400%;
+    animation: gradient-xy 15s ease infinite;
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-white/60 backdrop-blur-xl border border-white/50 shadow-xl;
+  }
+  .glass-card {
+    @apply bg-white/50 backdrop-blur-md border border-white/40 shadow-lg;
+  }
+  .glass-input {
+    @apply bg-white/50 backdrop-blur-sm border border-black/50 shadow-[0_0_15px_rgba(0,0,0,0.1)] focus:shadow-[0_0_20px_rgba(16,185,129,0.2)] focus:bg-white/80 focus:border-emerald-400/50 transition-all duration-300;
+  }
+  .glass-button {
+    @apply backdrop-blur-md shadow-[0_0_15px_rgba(0,0,0,0.1)] hover:shadow-[0_0_20px_rgba(0,0,0,0.15)] transition-all duration-300;
   }
 }
 
