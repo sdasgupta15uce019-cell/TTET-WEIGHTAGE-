@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { 
   collection, 
   doc,
@@ -264,23 +266,21 @@ export default function App() {
 
   const handleDownloadPDF = async () => {
     try {
-      const { jsPDF } = await import('jspdf');
       const doc = new jsPDF();
       
       doc.setFontSize(16);
       doc.text("Merit List (All)", 14, 15);
       
-      doc.setFontSize(12);
-      doc.text("rank ,tet- weightage", 14, 25);
-      
-      let y = 35;
-      allList.forEach((record, index) => {
-        if (y > 280) {
-          doc.addPage();
-          y = 20;
-        }
-        doc.text(`${index + 1}- ${record.scoreTET2}-${record.finalScore.toFixed(2)}`, 14, y);
-        y += 7;
+      const tableData = allList.map((record, index) => [
+        index + 1,
+        record.scoreTET2,
+        record.finalScore.toFixed(2)
+      ]);
+
+      autoTable(doc, {
+        startY: 25,
+        head: [['Rank', 'TET Score', 'Weightage']],
+        body: tableData,
       });
       
       doc.save("merit_list.pdf");
@@ -292,30 +292,103 @@ export default function App() {
 
   const handleDownloadCSVAsPDF = async () => {
     try {
-      const { jsPDF } = await import('jspdf');
       const { candidatesData } = await import('./data/candidates');
       const doc = new jsPDF();
       
       doc.setFontSize(16);
       doc.text("Uploaded CSV Data", 14, 15);
       
-      doc.setFontSize(12);
-      doc.text("Sl No - Name - Roll No - Category - TET Marks", 14, 25);
-      
-      let y = 35;
-      candidatesData.forEach((record) => {
-        if (y > 280) {
-          doc.addPage();
-          y = 20;
-        }
-        doc.text(`${record.slNo || 'N/A'} - ${record.name} - ${record.rollNo} - ${record.category} - ${record.tetMarks}`, 14, y);
-        y += 7;
+      const tableData = candidatesData.map(record => [
+        record.slNo || 'N/A',
+        record.name,
+        record.rollNo,
+        record.category,
+        record.tetMarks
+      ]);
+
+      autoTable(doc, {
+        startY: 25,
+        head: [['Sl No', 'Name', 'Roll No', 'Category', 'TET Marks']],
+        body: tableData,
       });
       
       doc.save("uploaded_csv.pdf");
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Failed to generate PDF. Please try again.");
+    }
+  };
+
+  const handleDownloadCommonList = () => {
+    try {
+      const doc = new jsPDF();
+      
+      const tableData = allList.map((record, index) => [
+        index + 1,
+        record.name,
+        record.isVerified ? 'Yes' : 'No',
+        record.finalScore.toFixed(2)
+      ]);
+
+      doc.setFontSize(16);
+      doc.text("Common Category List (All)", 14, 15);
+      
+      autoTable(doc, {
+        startY: 25,
+        head: [['Rank', 'Name', 'Verification', 'Weightage']],
+        body: tableData,
+      });
+
+      doc.save("common_category_list.pdf");
+    } catch (error) {
+      console.error("Error generating Common List PDF:", error);
+      alert("Failed to generate Common List PDF.");
+    }
+  };
+
+  const handleDownloadMissingList = () => {
+    try {
+      const doc = new jsPDF();
+      
+      // 1. Get all TET scores >= 90 from CSV
+      const csvTETs = candidatesData
+        .filter(c => c.tetMarks >= 90)
+        .map(c => c.tetMarks);
+        
+      const totalCounts: Record<number, number> = {};
+      csvTETs.forEach(score => {
+        totalCounts[score] = (totalCounts[score] || 0) + 1;
+      });
+
+      // 2. Get all TET scores >= 90 from leaderboard (allList)
+      const reportedCounts: Record<number, number> = {};
+      allList.forEach(record => {
+        reportedCounts[record.scoreTET2] = (reportedCounts[record.scoreTET2] || 0) + 1;
+      });
+
+      // 3. Unique scores sorted descending
+      const uniqueScores = Array.from(new Set(csvTETs)).sort((a, b) => b - a);
+
+      const tableData = uniqueScores.map(score => {
+        const total = totalCounts[score] || 0;
+        const reported = reportedCounts[score] || 0;
+        const notReported = total - reported;
+        return [score, total, reported, notReported];
+      });
+
+      doc.setFontSize(16);
+      doc.text("Missing List Statistics", 14, 15);
+      
+      autoTable(doc, {
+        startY: 25,
+        head: [['TET Score', 'Total Candidates', 'Reported', 'Not Reported']],
+        body: tableData,
+      });
+
+      doc.save("missing_list.pdf");
+    } catch (error) {
+      console.error("Error generating Missing List PDF:", error);
+      alert("Failed to generate Missing List PDF.");
     }
   };
 
@@ -579,6 +652,20 @@ service cloud.firestore {
                   <AlertCircle className="w-4 h-4" />
                   Report False Entry
                 </a>
+                <button 
+                  onClick={handleDownloadCommonList}
+                  className="glass-button px-6 py-3 bg-emerald-600/90 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-sm transition-all text-sm flex items-center justify-center gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  Download common category list
+                </button>
+                <button 
+                  onClick={handleDownloadMissingList}
+                  className="glass-button px-6 py-3 bg-blue-600/90 hover:bg-blue-600 text-white font-bold rounded-xl shadow-sm transition-all text-sm flex items-center justify-center gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  Download missing list
+                </button>
               </div>
             </div>
           </div>
