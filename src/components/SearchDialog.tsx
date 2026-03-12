@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Search, X, CheckCircle, XCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { CandidateRecord } from '../types';
 
 interface SearchDialogProps {
@@ -61,17 +62,31 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify })
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[9px] sm:text-[10px] font-bold text-red-700 bg-white/50 backdrop-blur-sm hover:bg-white/80 transition-colors uppercase tracking-wider border border-red-500/50 shadow-sm"
+        className="flex items-center justify-center w-full sm:w-40 px-2 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider text-red-700 hover:text-red-800 bg-gradient-to-br from-white/60 to-white/20 backdrop-blur-md border border-white/60 shadow-[inset_0_1px_2px_rgba(255,255,255,0.8),0_0_30px_rgba(0,0,0,0.4)] hover:from-white/70 hover:to-white/30 hover:shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_0_40px_rgba(0,0,0,0.6)] hover:-translate-y-0.5 transition-all duration-300"
         title="Search Your Rank"
       >
-        <Search className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-        <span>Search Your Rank</span>
+        <span className="whitespace-nowrap">Search Your Rank</span>
       </button>
 
-      {isOpen && createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="glass-panel w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300 rounded-3xl">
-            <div className="flex items-center justify-between p-4 border-b border-white/40 bg-white/30 backdrop-blur-md">
+      {createPortal(
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div 
+              key="search-dialog-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md"
+            >
+              <motion.div 
+                key="search-dialog-content"
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="glass-panel w-full max-w-md overflow-hidden rounded-3xl"
+              >
+                <div className="flex items-center justify-between p-4 border-b border-white/40 bg-white/30 backdrop-blur-md">
               <div className="flex items-center gap-2">
                 <Search className="w-5 h-5 text-emerald-600" />
                 <h3 className="font-bold text-zinc-900">Search Your Rank</h3>
@@ -200,9 +215,11 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify })
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-        </div>,
+              </div>
+            </motion.div>
+          </motion.div>
+          )}
+        </AnimatePresence>,
         document.body
       )}
     </>

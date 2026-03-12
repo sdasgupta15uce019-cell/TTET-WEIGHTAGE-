@@ -441,7 +441,13 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
 
       {showResultPopup && submittedResult && createPortal(
         <div className="fixed inset-0 z-[100] bg-white flex flex-col animate-in fade-in slide-in-from-bottom duration-500">
-          <div className="flex-1 overflow-y-auto p-8 flex flex-col items-center justify-center max-w-2xl mx-auto w-full">
+          <div 
+            className="flex-1 overflow-y-auto p-8 flex flex-col items-center justify-center max-w-2xl mx-auto w-full"
+            style={{ 
+              maskImage: 'linear-gradient(to bottom, transparent, black 2rem, black calc(100% - 2rem), transparent)',
+              WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 2rem, black calc(100% - 2rem), transparent)'
+            }}
+          >
             {isConnecting ? (
               <div className="flex flex-col items-center justify-center py-12 space-y-8">
                 <div className="relative w-24 h-24">
@@ -525,7 +531,13 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
 
       {duplicateRecord && createPortal(
         <div className="fixed inset-0 z-[100] bg-white flex flex-col animate-in fade-in slide-in-from-bottom duration-500">
-          <div className="flex-1 overflow-y-auto p-8 flex flex-col items-center justify-center max-w-2xl mx-auto w-full">
+          <div 
+            className="flex-1 overflow-y-auto p-8 flex flex-col items-center justify-center max-w-2xl mx-auto w-full"
+            style={{ 
+              maskImage: 'linear-gradient(to bottom, transparent, black 2rem, black calc(100% - 2rem), transparent)',
+              WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 2rem, black calc(100% - 2rem), transparent)'
+            }}
+          >
             <div className="w-full space-y-8 py-12">
               <div className="text-center space-y-4">
                 <h3 className="text-3xl font-black text-zinc-900 tracking-tight">

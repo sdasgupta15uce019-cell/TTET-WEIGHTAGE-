@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { HelpCircle, Mail, Phone, X, Shield } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -37,16 +38,32 @@ export const HelpDialog: React.FC<HelpDialogProps> = ({ isAdmin, setIsAdmin }) =
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="p-2 rounded-xl text-zinc-500 hover:text-emerald-700 bg-white/50 backdrop-blur-sm hover:bg-white/80 transition-colors border border-white/40 shadow-sm"
+        className="flex items-center justify-center gap-1.5 w-full sm:w-40 px-2 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider text-zinc-700 hover:text-emerald-800 bg-gradient-to-br from-white/60 to-white/20 backdrop-blur-md border border-white/60 shadow-[inset_0_1px_2px_rgba(255,255,255,0.8),0_0_30px_rgba(0,0,0,0.4)] hover:from-white/70 hover:to-white/30 hover:shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_0_40px_rgba(0,0,0,0.6)] hover:-translate-y-0.5 transition-all duration-300"
         title="Help & Support"
       >
-        <HelpCircle className="w-5 h-5" />
+        <HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+        <span className="whitespace-nowrap">Help</span>
       </button>
 
-      {isOpen && createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="glass-panel w-full max-w-sm rounded-3xl overflow-hidden animate-in fade-in zoom-in duration-300">
-            <div className="p-6 border-b border-white/40 bg-white/30 backdrop-blur-md flex items-center justify-between">
+      {createPortal(
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div 
+              key="help-dialog-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md"
+            >
+              <motion.div 
+                key="help-dialog-content"
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="glass-panel w-full max-w-sm rounded-3xl overflow-hidden"
+              >
+              <div className="p-6 border-b border-white/40 bg-white/30 backdrop-blur-md flex items-center justify-between">
               <h3 className="text-lg font-bold text-zinc-900">Contact Support</h3>
               <button 
                 onClick={() => {
@@ -151,10 +168,12 @@ export const HelpDialog: React.FC<HelpDialogProps> = ({ isAdmin, setIsAdmin }) =
                 </button>
               )}
             </div>
-          </div>
-        </div>,
-        document.body
-      )}
+          </motion.div>
+        </motion.div>
+        )}
+      </AnimatePresence>,
+      document.body
+    )}
     </>
   );
 };

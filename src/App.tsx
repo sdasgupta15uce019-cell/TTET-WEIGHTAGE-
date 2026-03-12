@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { 
@@ -34,6 +34,7 @@ export default function App() {
   const [showUnregisteredPopup, setShowUnregisteredPopup] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionText, setTransitionText] = useState('');
+  const mainRef = useRef<HTMLElement>(null);
 
   const handleViewChange = (view: 'calculator' | 'leaderboard') => {
     setTransitionText(view === 'leaderboard' ? 'Loading Leaderboard...' : 'Loading Calculator...');
@@ -41,7 +42,7 @@ export default function App() {
     setCurrentView(view);
     
     setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'auto' });
+      mainRef.current?.scrollTo({ top: 0, behavior: 'auto' });
     }, 0);
     
     setTimeout(() => {
@@ -425,20 +426,20 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen font-sans selection:bg-emerald-100 selection:text-emerald-900 relative overflow-hidden">
+    <div className="h-screen flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900 relative overflow-hidden">
       {/* Animated Background Elements */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-300/20 blur-[100px] pointer-events-none animate-pulse"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-cyan-300/20 blur-[100px] pointer-events-none animate-pulse" style={{ animationDelay: '2s' }}></div>
-      <div className="absolute top-[40%] left-[60%] w-[30%] h-[30%] rounded-full bg-teal-300/20 blur-[100px] pointer-events-none animate-pulse" style={{ animationDelay: '4s' }}></div>
+      <div className="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-emerald-500/40 blur-[100px] pointer-events-none animate-pulse z-0"></div>
+      <div className="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-500/40 blur-[100px] pointer-events-none animate-pulse z-0" style={{ animationDelay: '2s' }}></div>
+      <div className="fixed top-[40%] left-[60%] w-[40%] h-[40%] rounded-full bg-teal-500/40 blur-[100px] pointer-events-none animate-pulse z-0" style={{ animationDelay: '4s' }}></div>
 
       {/* Header */}
-      <header className="glass-panel border-b border-white/40 sticky top-0 z-40 shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 h-20 flex items-center justify-between">
+      <header className="glass-panel border-b border-white/40 shrink-0 z-40 shadow-md">
+        <div className="max-w-5xl mx-auto px-4 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-y-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-emerald-500/20 border border-emerald-600/20 shrink-0 flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-700">
               <span className="text-white font-black text-sm tracking-tighter">TTET</span>
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-wrap items-center gap-x-1.5">
               <h1 className="font-bold text-sm sm:text-base leading-tight text-zinc-900">TET 2 Merit</h1>
               <h2 className="font-bold text-sm sm:text-base leading-tight text-zinc-900">Calculator & Leaderboard</h2>
             </div>
@@ -496,9 +497,13 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <SearchDialog records={effectiveRecords} onVerify={handleVerify} />
-            <HelpDialog isAdmin={isAdmin} setIsAdmin={setIsAdmin} />
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="flex-1 sm:flex-none">
+              <SearchDialog records={effectiveRecords} onVerify={handleVerify} />
+            </div>
+            <div className="flex-1 sm:flex-none">
+              <HelpDialog isAdmin={isAdmin} setIsAdmin={setIsAdmin} />
+            </div>
           </div>
         </div>
         {/* Mobile Dev Name */}
@@ -551,8 +556,16 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-8 space-y-8">
-        {!isFirebaseConfigured && (
+      <div 
+        ref={mainRef}
+        className="flex-1 overflow-y-auto w-full"
+        style={{ 
+          maskImage: 'linear-gradient(to bottom, transparent, black 3rem, black calc(100% - 3rem), transparent)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 3rem, black calc(100% - 3rem), transparent)'
+        }}
+      >
+        <main className="max-w-5xl mx-auto px-4 pt-12 pb-8 space-y-8">
+          {!isFirebaseConfigured && (
           <div className="glass-panel bg-amber-50/40 backdrop-blur-sm border border-amber-200/50 rounded-3xl p-6 flex items-start gap-4 shadow-sm">
             <AlertCircle className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
             <div>
@@ -717,6 +730,7 @@ service cloud.firestore {
           </p>
         </div>
       </footer>
+      </div>
 
       {/* Predictions Popup */}
       {showPredictionsPopup && (
@@ -800,7 +814,13 @@ service cloud.firestore {
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <div className="p-6 overflow-y-auto flex-1 bg-white/10">
+            <div 
+              className="px-6 pt-8 pb-8 overflow-y-auto flex-1 bg-white/10"
+              style={{ 
+                maskImage: 'linear-gradient(to bottom, transparent, black 2rem, black calc(100% - 2rem), transparent)',
+                WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 2rem, black calc(100% - 2rem), transparent)'
+              }}
+            >
               <div className="space-y-3">
                 {effectiveRecords.filter(r => !r.isHidden && !r.isVerified).length > 0 ? (
                   effectiveRecords.filter(r => !r.isHidden && !r.isVerified).map((candidate, index) => (
@@ -841,7 +861,13 @@ service cloud.firestore {
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <div className="p-6 overflow-y-auto flex-1 bg-white/10">
+            <div 
+              className="px-6 pt-8 pb-8 overflow-y-auto flex-1 bg-white/10"
+              style={{ 
+                maskImage: 'linear-gradient(to bottom, transparent, black 2rem, black calc(100% - 2rem), transparent)',
+                WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 2rem, black calc(100% - 2rem), transparent)'
+              }}
+            >
               <div className="space-y-3">
                 {(() => {
                   const verifiedRollNos = new Set(effectiveRecords.filter(r => !r.isHidden && r.isVerified).map(r => r.rollNo).filter(Boolean));
