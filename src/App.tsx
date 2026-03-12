@@ -426,7 +426,7 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900 relative overflow-hidden">
+    <div className="h-screen h-[100dvh] flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-emerald-500/40 blur-[100px] pointer-events-none animate-pulse z-0"></div>
       <div className="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-500/40 blur-[100px] pointer-events-none animate-pulse z-0" style={{ animationDelay: '2s' }}></div>
@@ -558,13 +558,13 @@ export default function App() {
 
       <div 
         ref={mainRef}
-        className="flex-1 overflow-y-auto w-full"
+        className="flex-1 overflow-y-auto w-full scroll-smooth"
         style={{ 
-          maskImage: 'linear-gradient(to bottom, transparent, black 3rem, black calc(100% - 3rem), transparent)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 3rem, black calc(100% - 3rem), transparent)'
+          maskImage: 'linear-gradient(to bottom, transparent, black 60px, black calc(100% - 60px), transparent)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 60px, black calc(100% - 60px), transparent)'
         }}
       >
-        <main className="max-w-5xl mx-auto px-4 pt-12 pb-8 space-y-8">
+        <main className="max-w-5xl mx-auto px-4 pt-12 pb-24 space-y-8">
           {!isFirebaseConfigured && (
           <div className="glass-panel bg-amber-50/40 backdrop-blur-sm border border-amber-200/50 rounded-3xl p-6 flex items-start gap-4 shadow-sm">
             <AlertCircle className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
@@ -817,8 +817,8 @@ service cloud.firestore {
             <div 
               className="px-6 pt-8 pb-8 overflow-y-auto flex-1 bg-white/10"
               style={{ 
-                maskImage: 'linear-gradient(to bottom, transparent, black 2rem, black calc(100% - 2rem), transparent)',
-                WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 2rem, black calc(100% - 2rem), transparent)'
+                maskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 40px), transparent)',
+                WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 40px), transparent)'
               }}
             >
               <div className="space-y-3">
@@ -864,8 +864,8 @@ service cloud.firestore {
             <div 
               className="px-6 pt-8 pb-8 overflow-y-auto flex-1 bg-white/10"
               style={{ 
-                maskImage: 'linear-gradient(to bottom, transparent, black 2rem, black calc(100% - 2rem), transparent)',
-                WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 2rem, black calc(100% - 2rem), transparent)'
+                maskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 40px), transparent)',
+                WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 40px), transparent)'
               }}
             >
               <div className="space-y-3">
