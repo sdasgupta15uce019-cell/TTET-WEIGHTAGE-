@@ -1499,5 +1499,6 @@ export const candidatesData: CandidateData[] = [
   { slNo: 1488, name: 'PRIYANKA DAS', rollNo: '236860212433945', category: 'SC' as const, tetMarks: 83 },
   { slNo: 1489, name: 'SUPARNA DAS', rollNo: '236201212404453', category: 'SC' as const, tetMarks: 83 },
   { slNo: 1490, name: 'AMITABH DAS', rollNo: '236117212400934', category: 'SC' as const, tetMarks: 83 },
-  { slNo: 1491, name: 'MOUSUMI SARKAR', rollNo: '236810212427824', category: 'SC' as const, tetMarks: 83 }
+  { slNo: 1491, name: 'MOUSUMI SARKAR', rollNo: '236810212427824', category: 'SC' as const, tetMarks: 83 },
+  { slNo: 5000, name: 'test', rollNo: '5000', category: 'ST' as const, tetMarks: 83 }
 ];

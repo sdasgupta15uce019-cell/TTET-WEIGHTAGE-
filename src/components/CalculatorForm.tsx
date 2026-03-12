@@ -465,6 +465,10 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
                 </div>
                 
                 <div className="flex flex-wrap justify-center gap-3">
+                  <div className="px-4 py-2 bg-blue-50 border border-blue-100 text-blue-700 text-xs font-black rounded-full uppercase tracking-widest shadow-sm">
+                    {submittedResult.category}
+                  </div>
+                  
                   {submittedResult.scoreTET2 < 90 && (
                     <div className="px-4 py-2 bg-red-50 border border-red-100 text-red-700 text-xs font-black rounded-full uppercase tracking-widest shadow-sm">
                       Under Reservation
