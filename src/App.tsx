@@ -560,11 +560,11 @@ export default function App() {
         ref={mainRef}
         className="flex-1 overflow-y-auto w-full scroll-smooth"
         style={{ 
-          maskImage: 'linear-gradient(to bottom, transparent, black 80px, black calc(100% - 120px), transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 80px, black calc(100% - 120px), transparent 100%)'
+          maskImage: 'linear-gradient(to bottom, transparent, black 80px, black calc(100% - 300px), transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 80px, black calc(100% - 300px), transparent 100%)'
         }}
       >
-        <main className="max-w-5xl mx-auto px-4 pt-12 pb-32 space-y-8">
+        <main className="max-w-5xl mx-auto px-4 pt-12 pb-80 space-y-8">
           {!isFirebaseConfigured && (
           <div className="glass-panel bg-amber-50/40 backdrop-blur-sm border border-amber-200/50 rounded-3xl p-6 flex items-start gap-4 shadow-sm">
             <AlertCircle className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
