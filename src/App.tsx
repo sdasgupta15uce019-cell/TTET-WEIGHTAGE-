@@ -690,13 +690,6 @@ service cloud.firestore {
               </div>
             </div>
 
-            <button
-              onClick={() => handleViewChange('calculator')}
-              className="fixed bottom-1 right-2 sm:bottom-4 sm:right-4 z-50 flex items-center gap-1.5 px-4 py-2.5 bg-zinc-900 text-white hover:bg-zinc-800 hover:-translate-y-1 active:scale-95 rounded-full shadow-[0_0_5px_rgba(0,0,0,0.5),0_0_15px_rgba(0,0,0,0.3),0_0_30px_rgba(0,0,0,0.2),0_0_50px_rgba(0,0,0,0.15),0_0_80px_rgba(0,0,0,0.1)] font-bold text-[10px] sm:text-xs transition-all"
-            >
-              ← Go Back
-            </button>
-
             {isLoading ? (
               <div className="glass-panel rounded-3xl h-[400px] flex flex-col items-center justify-center gap-4">
                 <div className="w-8 h-8 border-3 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
@@ -899,6 +892,16 @@ service cloud.firestore {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Floating Go Back Button */}
+      {currentView === 'leaderboard' && (
+        <button
+          onClick={() => handleViewChange('calculator')}
+          className="fixed bottom-4 right-4 z-[60] flex items-center gap-1.5 px-4 py-2 bg-zinc-900 text-white hover:bg-zinc-800 hover:-translate-y-1 active:scale-95 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] font-bold text-[10px] sm:text-xs transition-all border border-white/10"
+        >
+          <span>←</span> Go Back
+        </button>
       )}
 
       {/* Full screen transition overlay */}
