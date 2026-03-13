@@ -722,9 +722,9 @@ service cloud.firestore {
               {!showCalculator ? (
                 <button 
                   onClick={() => setShowCalculator(true)}
-                  className="w-full py-6 rounded-3xl font-black text-lg text-white transition-all duration-300 bg-gradient-to-br from-blue-400/90 to-indigo-600/90 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(59,130,246,0.5),inset_0_1px_1px_rgba(255,255,255,0.8)] active:scale-[0.97] active:translate-y-1 active:shadow-[0_4px_10px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] mb-2"
+                  className="w-full py-6 rounded-3xl font-black text-base text-white transition-all duration-300 bg-gradient-to-br from-blue-400/90 to-indigo-600/90 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(59,130,246,0.5),inset_0_1px_1px_rgba(255,255,255,0.8)] active:scale-[0.97] active:translate-y-1 active:shadow-[0_4px_10px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] mb-2"
                 >
-                  Calculate your weightage and rank
+                  Calculate your weightage and rank in the leaderboard
                 </button>
               ) : (
                 <div className="animate-zoom-in-bounce">
