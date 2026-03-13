@@ -560,14 +560,17 @@ export default function App() {
       </header>
 
       <div 
-        ref={mainRef}
-        className="flex-1 overflow-y-auto w-full scroll-smooth"
+        className="flex-1 w-full relative overflow-hidden"
         style={{ 
           maskImage: 'linear-gradient(to bottom, transparent, black 80px, black calc(100% - 40px), transparent 100%)',
           WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 80px, black calc(100% - 40px), transparent 100%)'
         }}
       >
-        <main className="max-w-5xl mx-auto px-4 pt-12 pb-40 space-y-8">
+        <div 
+          ref={mainRef}
+          className="absolute inset-0 overflow-y-auto w-full scroll-smooth"
+        >
+          <main className="max-w-5xl mx-auto px-4 pt-12 pb-40 space-y-8">
           <a 
             href="https://chat.whatsapp.com/JOCjSCdmH5r881KPzxxfjd?mode=hqctcla"
             target="_blank"
@@ -637,7 +640,7 @@ service cloud.firestore {
               {!showCalculator ? (
                 <button 
                   onClick={() => setShowCalculator(true)}
-                  className="w-full py-6 rounded-3xl font-black text-lg text-white transition-all duration-300 bg-gradient-to-br from-emerald-400/90 to-teal-600/90 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgba(16,185,129,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(16,185,129,0.5),inset_0_1px_1px_rgba(255,255,255,0.8)] active:scale-[0.97] active:translate-y-1 active:shadow-[0_4px_10px_rgba(16,185,129,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] mb-2"
+                  className="w-full py-6 rounded-3xl font-black text-lg text-white transition-all duration-300 bg-gradient-to-br from-blue-400/90 to-indigo-600/90 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(59,130,246,0.5),inset_0_1px_1px_rgba(255,255,255,0.8)] active:scale-[0.97] active:translate-y-1 active:shadow-[0_4px_10px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] mb-2"
                 >
                   Calculate your weightage and rank
                 </button>
@@ -748,6 +751,7 @@ service cloud.firestore {
           </p>
         </div>
       </footer>
+        </div>
       </div>
 
       {/* Predictions Popup */}
@@ -833,14 +837,15 @@ service cloud.firestore {
               </button>
             </div>
             <div 
-              className="px-6 pt-8 pb-8 overflow-y-auto flex-1 bg-white/10"
+              className="flex-1 relative bg-white/10"
               style={{ 
                 maskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 40px), transparent)',
                 WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 40px), transparent)'
               }}
             >
-              <div className="space-y-3">
-                {effectiveRecords.filter(r => !r.isHidden && !r.isVerified).length > 0 ? (
+              <div className="absolute inset-0 px-6 pt-8 pb-8 overflow-y-auto">
+                <div className="space-y-3">
+                  {effectiveRecords.filter(r => !r.isHidden && !r.isVerified).length > 0 ? (
                   effectiveRecords.filter(r => !r.isHidden && !r.isVerified).map((candidate, index) => (
                     <div key={candidate.id || index} className="flex justify-between items-center p-4 bg-amber-50/40 backdrop-blur-sm border border-amber-200/50 rounded-xl shadow-sm">
                       <div>
@@ -857,6 +862,7 @@ service cloud.firestore {
                 ) : (
                   <p className="text-center text-zinc-600 font-medium py-8 bg-white/30 rounded-xl border border-white/40">No non-verified candidates found.</p>
                 )}
+              </div>
               </div>
             </div>
           </div>
@@ -880,14 +886,15 @@ service cloud.firestore {
               </button>
             </div>
             <div 
-              className="px-6 pt-8 pb-8 overflow-y-auto flex-1 bg-white/10"
+              className="flex-1 relative bg-white/10"
               style={{ 
                 maskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 40px), transparent)',
                 WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 40px), transparent)'
               }}
             >
-              <div className="space-y-3">
-                {(() => {
+              <div className="absolute inset-0 px-6 pt-8 pb-8 overflow-y-auto">
+                <div className="space-y-3">
+                  {(() => {
                   const verifiedRollNos = new Set(effectiveRecords.filter(r => !r.isHidden && r.isVerified).map(r => r.rollNo).filter(Boolean));
                   const verifiedSlNos = new Set(effectiveRecords.filter(r => !r.isHidden && r.isVerified).map(r => r.slNo).filter(Boolean));
                   
@@ -913,6 +920,7 @@ service cloud.firestore {
                     <p className="text-center text-zinc-600 font-medium py-8 bg-white/30 rounded-xl border border-white/40">All candidates are verified!</p>
                   );
                 })()}
+              </div>
               </div>
             </div>
           </div>
