@@ -73,6 +73,35 @@ const AnimatedPopup = ({ isOpen, onClose, title, subtitle, children }: { isOpen:
   );
 };
 
+const AnimatedModal = ({ isOpen, onClose, children, maxWidth = "max-w-md" }: { isOpen: boolean, onClose: () => void, children: ReactNode, maxWidth?: string }) => {
+  const [isRendered, setIsRendered] = useState(isOpen);
+  const [isAnimatingOut, setIsAnimatingOut] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsRendered(true);
+      setIsAnimatingOut(false);
+    } else if (isRendered) {
+      setIsAnimatingOut(true);
+      const timer = setTimeout(() => {
+        setIsRendered(false);
+        setIsAnimatingOut(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, isRendered]);
+
+  if (!isRendered) return null;
+
+  return (
+    <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md transition-opacity duration-300 ${isAnimatingOut ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`glass-panel ${maxWidth} w-full p-6 rounded-3xl ${isAnimatingOut ? 'animate-zoom-out' : 'animate-zoom-in-bounce'}`}>
+        {children}
+      </div>
+    </div>
+  );
+};
+
 export default function App() {
   const [records, setRecords] = useState<CandidateRecord[]>([]);
   const [trashIds, setTrashIds] = useState<Set<string>>(new Set());
@@ -808,70 +837,70 @@ service cloud.firestore {
       </div>
 
       {/* Predictions Popup */}
-      {showPredictionsPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="glass-panel max-w-md w-full p-6 animate-in zoom-in-95 duration-300 rounded-3xl">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-bold text-zinc-900">Predictions</h3>
-              <button 
-                onClick={() => setShowPredictionsPopup(false)}
-                className="text-zinc-400 hover:text-zinc-600 hover:bg-white/50 p-1 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="bg-amber-100/50 backdrop-blur-sm border border-amber-200/50 p-4 rounded-xl text-center shadow-inner">
-                <p className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">
-                  Predicted UR Cutoff (for 507 posts)
-                </p>
-                <p className="text-3xl font-black text-amber-900">{predictedCutoff}</p>
-              </div>
-
-              {!isAdmin && (
-                <button 
-                  onClick={() => {
-                    setShowPredictionsPopup(false);
-                    handlePredictRankClick();
-                  }}
-                  className="glass-button w-full bg-red-50/80 border border-red-200/50 p-4 rounded-xl text-center hover:bg-red-100/80 transition-colors active:scale-[0.98] shadow-sm"
-                >
-                  <p className="text-sm font-bold text-red-700 uppercase tracking-wider mb-1 flex items-center justify-center gap-1">
-                    Know your predicted rank for 507 vacancies
-                  </p>
-                  <p className="text-xs text-red-900 font-medium">Click to view prediction</p>
-                </button>
-              )}
-            </div>
-          </div>
+      <AnimatedModal
+        isOpen={showPredictionsPopup}
+        onClose={() => setShowPredictionsPopup(false)}
+        maxWidth="max-w-md"
+      >
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-lg font-bold text-zinc-900">Predictions</h3>
+          <button 
+            onClick={() => setShowPredictionsPopup(false)}
+            className="text-zinc-400 hover:text-zinc-600 hover:bg-white/50 p-1 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
-      )}
+        
+        <div className="space-y-4">
+          <div className="bg-amber-100/50 backdrop-blur-sm border border-amber-200/50 p-4 rounded-xl text-center shadow-inner">
+            <p className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">
+              Predicted UR Cutoff (for 507 posts)
+            </p>
+            <p className="text-3xl font-black text-amber-900">{predictedCutoff}</p>
+          </div>
+
+          {!isAdmin && (
+            <button 
+              onClick={() => {
+                setShowPredictionsPopup(false);
+                handlePredictRankClick();
+              }}
+              className="glass-button w-full bg-red-50/80 border border-red-200/50 p-4 rounded-xl text-center hover:bg-red-100/80 transition-colors active:scale-[0.98] shadow-sm"
+            >
+              <p className="text-sm font-bold text-red-700 uppercase tracking-wider mb-1 flex items-center justify-center gap-1">
+                Know your predicted rank for 507 vacancies
+              </p>
+              <p className="text-xs text-red-900 font-medium">Click to view prediction</p>
+            </button>
+          )}
+        </div>
+      </AnimatedModal>
 
       {/* Predict Rank Message Modal */}
-      {predictRankMessage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="glass-panel max-w-sm w-full p-6 animate-in zoom-in-95 duration-300 rounded-3xl">
-            <div className="flex flex-col items-center text-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-indigo-100/50 backdrop-blur-sm flex items-center justify-center text-indigo-600 border border-indigo-200/50 shadow-inner">
-                <AlertCircle className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-zinc-900 mb-2">Predicted Rank</h3>
-                <p className="text-zinc-700 text-sm leading-relaxed font-medium">
-                  {predictRankMessage}
-                </p>
-              </div>
-              <button
-                onClick={() => setPredictRankMessage(null)}
-                className="glass-button w-full mt-2 px-4 py-2.5 bg-zinc-900/90 text-white font-bold rounded-xl hover:bg-zinc-900 transition-colors active:scale-95 shadow-lg shadow-zinc-900/20"
-              >
-                Got it
-              </button>
-            </div>
+      <AnimatedModal
+        isOpen={!!predictRankMessage}
+        onClose={() => setPredictRankMessage(null)}
+        maxWidth="max-w-sm"
+      >
+        <div className="flex flex-col items-center text-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-indigo-100/50 backdrop-blur-sm flex items-center justify-center text-indigo-600 border border-indigo-200/50 shadow-inner">
+            <AlertCircle className="w-6 h-6" />
           </div>
+          <div>
+            <h3 className="text-lg font-bold text-zinc-900 mb-2">Predicted Rank</h3>
+            <p className="text-zinc-700 text-sm leading-relaxed font-medium">
+              {predictRankMessage}
+            </p>
+          </div>
+          <button
+            onClick={() => setPredictRankMessage(null)}
+            className="glass-button w-full mt-2 px-4 py-2.5 bg-zinc-900/90 text-white font-bold rounded-xl hover:bg-zinc-900 transition-colors active:scale-95 shadow-lg shadow-zinc-900/20"
+          >
+            Got it
+          </button>
         </div>
-      )}
+      </AnimatedModal>
 
       {/* Non-Verified Candidates Popup */}
       <AnimatedPopup
