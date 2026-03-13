@@ -32,6 +32,7 @@ export default function App() {
   const [showPredictionsPopup, setShowPredictionsPopup] = useState(false);
   const [showNonVerifiedPopup, setShowNonVerifiedPopup] = useState(false);
   const [showUnregisteredPopup, setShowUnregisteredPopup] = useState(false);
+  const [showCalculator, setShowCalculator] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionText, setTransitionText] = useState('');
   const mainRef = useRef<HTMLElement>(null);
@@ -633,39 +634,50 @@ service cloud.firestore {
           <div className="grid lg:grid-cols-[400px,1fr] gap-8 items-start animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Left Column: Form */}
             <div className="space-y-6">
-              <CalculatorForm 
-                onSubmit={handleSubmit} 
-                records={effectiveRecords}
-                onCategoryChange={setSelectedCategory}
-                onVerify={handleVerify}
-                onVerifyBySlNo={handleVerifyBySlNo}
-                onDownloadCSV={handleDownloadCSVAsPDF}
-              />
+              {!showCalculator ? (
+                <button 
+                  onClick={() => setShowCalculator(true)}
+                  className="w-full py-6 rounded-3xl font-black text-lg text-white transition-all duration-300 bg-gradient-to-br from-emerald-400/90 to-teal-600/90 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgba(16,185,129,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(16,185,129,0.5),inset_0_1px_1px_rgba(255,255,255,0.8)] active:scale-[0.97] active:translate-y-1 active:shadow-[0_4px_10px_rgba(16,185,129,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] mb-2"
+                >
+                  Calculate your weightage and rank
+                </button>
+              ) : (
+                <div className="animate-zoom-in-bounce">
+                  <CalculatorForm 
+                    onSubmit={handleSubmit} 
+                    records={effectiveRecords}
+                    onCategoryChange={setSelectedCategory}
+                    onVerify={handleVerify}
+                    onVerifyBySlNo={handleVerifyBySlNo}
+                    onDownloadCSV={handleDownloadCSVAsPDF}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Right Column: Teaser/Navigation */}
-            <div className="glass-panel rounded-3xl p-8 text-zinc-900 shadow-xl flex flex-col items-center justify-center text-center space-y-6 min-h-[400px] relative overflow-hidden">
+            <div className="glass-panel rounded-3xl p-8 text-zinc-900 shadow-xl flex flex-col items-center justify-center text-center space-y-4 min-h-[400px] relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 to-amber-500/20 animate-gradient-xy"></div>
               <div className="relative z-10 space-y-2">
                 <h2 className="text-3xl font-bold">View Merit List</h2>
               </div>
               <button
                 onClick={() => handleViewChange('leaderboard')}
-                className="glass-button px-8 py-4 bg-white/80 text-zinc-900 font-bold rounded-2xl shadow-lg hover:bg-white transition-all active:scale-95 w-full max-w-xs border border-white/50"
+                className="glass-button px-8 py-3 bg-white/80 text-zinc-900 font-bold rounded-2xl shadow-lg hover:bg-white transition-all active:scale-95 w-full max-w-xs border border-white/50"
               >
                 Go to Leaderboard
               </button>
               
-              <div className="relative z-10 flex flex-col gap-3 w-full max-w-xs mt-4">
+              <div className="relative z-10 flex flex-col gap-2 w-full max-w-xs mt-2">
                 <button 
                   onClick={() => setShowNonVerifiedPopup(true)}
-                  className="glass-button px-6 py-3 bg-white/50 hover:bg-white/80 text-zinc-900 font-bold rounded-xl shadow-sm transition-all text-sm border border-white/40"
+                  className="glass-button px-6 py-2 bg-white/50 hover:bg-white/80 text-zinc-900 font-bold rounded-xl shadow-sm transition-all text-sm border border-white/40"
                 >
                   Non-Verified Candidates
                 </button>
                 <button 
                   onClick={() => setShowUnregisteredPopup(true)}
-                  className="glass-button px-6 py-3 bg-white/50 hover:bg-white/80 text-zinc-900 font-bold rounded-xl shadow-sm transition-all text-sm border border-white/40"
+                  className="glass-button px-6 py-2 bg-white/50 hover:bg-white/80 text-zinc-900 font-bold rounded-xl shadow-sm transition-all text-sm border border-white/40"
                 >
                   Unregistered Candidates
                 </button>
@@ -673,21 +685,21 @@ service cloud.firestore {
                   href="https://wa.me/917005893480"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="glass-button px-6 py-3 bg-red-600/90 hover:bg-red-600 text-white font-bold rounded-xl shadow-sm transition-all text-sm flex items-center justify-center gap-2"
+                  className="glass-button px-6 py-2 bg-red-600/90 hover:bg-red-600 text-white font-bold rounded-xl shadow-sm transition-all text-sm flex items-center justify-center gap-2"
                 >
                   <AlertCircle className="w-4 h-4" />
                   Report False Entry
                 </a>
                 <button 
                   onClick={handleDownloadCommonList}
-                  className="glass-button px-6 py-3 bg-emerald-600/90 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-sm transition-all text-sm flex items-center justify-center gap-2"
+                  className="glass-button px-6 py-2 bg-emerald-600/90 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-sm transition-all text-sm flex items-center justify-center gap-2"
                 >
                   <Download className="w-4 h-4" />
                   Download common category list
                 </button>
                 <button 
                   onClick={handleDownloadMissingList}
-                  className="glass-button px-6 py-3 bg-blue-600/90 hover:bg-blue-600 text-white font-bold rounded-xl shadow-sm transition-all text-sm flex items-center justify-center gap-2"
+                  className="glass-button px-6 py-2 bg-blue-600/90 hover:bg-blue-600 text-white font-bold rounded-xl shadow-sm transition-all text-sm flex items-center justify-center gap-2"
                 >
                   <Download className="w-4 h-4" />
                   Download missing list

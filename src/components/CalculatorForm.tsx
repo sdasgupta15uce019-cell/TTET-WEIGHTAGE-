@@ -286,7 +286,17 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
             <input
               type="number"
               value={formData.slNo}
-              onChange={e => { setFormData({ ...formData, slNo: e.target.value, rollNo: '' }); }}
+              onChange={e => { 
+                const newSlNo = e.target.value;
+                let newRollNo = '';
+                if (newSlNo) {
+                  const candidate = candidatesData.find(c => c.slNo === parseInt(newSlNo, 10));
+                  if (candidate && candidate.rollNo) {
+                    newRollNo = candidate.rollNo;
+                  }
+                }
+                setFormData({ ...formData, slNo: newSlNo, rollNo: newRollNo }); 
+              }}
               placeholder="Enter Sl No"
               className="glass-input w-full px-4 py-3 rounded-xl text-zinc-900 placeholder:text-zinc-400"
             />
@@ -302,7 +312,17 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
             <input
               type="text"
               value={formData.rollNo}
-              onChange={e => { setFormData({ ...formData, rollNo: e.target.value, slNo: '' }); }}
+              onChange={e => { 
+                const newRollNo = e.target.value;
+                let newSlNo = '';
+                if (newRollNo) {
+                  const candidate = candidatesData.find(c => c.rollNo === newRollNo);
+                  if (candidate && candidate.slNo) {
+                    newSlNo = candidate.slNo.toString();
+                  }
+                }
+                setFormData({ ...formData, rollNo: newRollNo, slNo: newSlNo }); 
+              }}
               placeholder="Enter Roll No"
               className="glass-input w-full px-4 py-3 rounded-xl text-zinc-900 placeholder:text-zinc-400"
             />
