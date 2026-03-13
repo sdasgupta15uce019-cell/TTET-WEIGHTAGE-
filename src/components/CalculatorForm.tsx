@@ -277,7 +277,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
                 <button
                   type="button"
                   onClick={onDownloadCSV}
-                  className="flex items-center gap-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded-md transition-colors"
+                  className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-full shadow-sm hover:shadow-md transition-all whitespace-nowrap"
                 >
                   <Download className="w-3 h-3" /> Download List
                 </button>
