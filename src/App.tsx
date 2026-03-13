@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, ReactNode } from 'react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { 
@@ -20,7 +20,7 @@ import { SearchDialog } from './components/SearchDialog';
 import { Sparkles, AlertCircle, Database, Shield, Download, X, MessageCircle } from 'lucide-react';
 import { candidatesData } from './data/candidates';
 
-const AnimatedPopup = ({ isOpen, onClose, title, subtitle, children }: { isOpen: boolean, onClose: () => void, title: string, subtitle: string, children: React.ReactNode }) => {
+const AnimatedPopup = ({ isOpen, onClose, title, subtitle, children }: { isOpen: boolean, onClose: () => void, title: string, subtitle: string, children: ReactNode }) => {
   const [isRendered, setIsRendered] = useState(isOpen);
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
 
@@ -471,9 +471,9 @@ export default function App() {
     if (adjustedCutoff < 64.9) {
       adjustedCutoff = 64.9;
     }
-    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "65.92";
+    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "65.88";
   } else if (!isAdmin) {
-    predictedCutoff = "65.92";
+    predictedCutoff = "65.88";
   }
 
   const handlePredictRankClick = () => {
@@ -615,8 +615,8 @@ export default function App() {
       <div 
         className="flex-1 w-full relative overflow-hidden flex flex-col"
         style={{ 
-          maskImage: 'linear-gradient(to bottom, transparent, black 80px, black calc(100% - 120px), transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 80px, black calc(100% - 120px), transparent 100%)'
+          maskImage: `linear-gradient(to bottom, transparent, black ${currentView === 'calculator' ? '40px' : '80px'}, black calc(100% - 120px), transparent 100%)`,
+          WebkitMaskImage: `linear-gradient(to bottom, transparent, black ${currentView === 'calculator' ? '40px' : '80px'}, black calc(100% - 120px), transparent 100%)`
         }}
       >
         <div 
