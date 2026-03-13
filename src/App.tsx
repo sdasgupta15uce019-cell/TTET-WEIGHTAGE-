@@ -639,6 +639,7 @@ service cloud.firestore {
                 onCategoryChange={setSelectedCategory}
                 onVerify={handleVerify}
                 onVerifyBySlNo={handleVerifyBySlNo}
+                onDownloadCSV={handleDownloadCSVAsPDF}
               />
             </div>
 
