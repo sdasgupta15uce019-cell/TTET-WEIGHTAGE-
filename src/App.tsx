@@ -560,7 +560,7 @@ export default function App() {
       </header>
 
       <div 
-        className="flex-1 w-full relative overflow-hidden"
+        className="flex-1 w-full relative overflow-hidden flex flex-col"
         style={{ 
           maskImage: 'linear-gradient(to bottom, transparent, black 80px, black calc(100% - 40px), transparent 100%)',
           WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 80px, black calc(100% - 40px), transparent 100%)'
@@ -568,7 +568,7 @@ export default function App() {
       >
         <div 
           ref={mainRef}
-          className="absolute inset-0 overflow-y-auto w-full scroll-smooth"
+          className="flex-1 overflow-y-auto w-full scroll-smooth"
         >
           <main className="max-w-5xl mx-auto px-4 pt-12 pb-40 space-y-8">
           <a 
@@ -837,13 +837,13 @@ service cloud.firestore {
               </button>
             </div>
             <div 
-              className="flex-1 relative bg-white/10"
+              className="flex-1 relative bg-white/10 flex flex-col overflow-hidden"
               style={{ 
                 maskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 40px), transparent)',
                 WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 40px), transparent)'
               }}
             >
-              <div className="absolute inset-0 px-6 pt-8 pb-8 overflow-y-auto">
+              <div className="flex-1 overflow-y-auto px-6 pt-8 pb-8">
                 <div className="space-y-3">
                   {effectiveRecords.filter(r => !r.isHidden && !r.isVerified).length > 0 ? (
                   effectiveRecords.filter(r => !r.isHidden && !r.isVerified).map((candidate, index) => (
@@ -886,13 +886,13 @@ service cloud.firestore {
               </button>
             </div>
             <div 
-              className="flex-1 relative bg-white/10"
+              className="flex-1 relative bg-white/10 flex flex-col overflow-hidden"
               style={{ 
                 maskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 40px), transparent)',
                 WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 40px), transparent)'
               }}
             >
-              <div className="absolute inset-0 px-6 pt-8 pb-8 overflow-y-auto">
+              <div className="flex-1 overflow-y-auto px-6 pt-8 pb-8">
                 <div className="space-y-3">
                   {(() => {
                   const verifiedRollNos = new Set(effectiveRecords.filter(r => !r.isHidden && r.isVerified).map(r => r.rollNo).filter(Boolean));
