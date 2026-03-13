@@ -562,8 +562,8 @@ export default function App() {
         ref={mainRef}
         className="flex-1 overflow-y-auto w-full scroll-smooth"
         style={{ 
-          maskImage: 'linear-gradient(to bottom, transparent, black 80px, black calc(100% - 150px), transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 80px, black calc(100% - 150px), transparent 100%)'
+          maskImage: 'linear-gradient(to bottom, transparent, black 80px, black calc(100% - 40px), transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 80px, black calc(100% - 40px), transparent 100%)'
         }}
       >
         <main className="max-w-5xl mx-auto px-4 pt-12 pb-40 space-y-8">
