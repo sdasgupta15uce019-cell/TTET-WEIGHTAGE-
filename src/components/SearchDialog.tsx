@@ -1,39 +1,99 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Search, X, CheckCircle, XCircle } from 'lucide-react';
+import { Search, X, CheckCircle, XCircle, UserPlus } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CandidateRecord } from '../types';
+import { candidatesData } from '../data/candidates';
 
 interface SearchDialogProps {
   records: CandidateRecord[];
   onVerify?: (id: string, rollNo: string) => void;
+  isAdmin?: boolean;
+  isLoading?: boolean;
 }
 
-export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify }) => {
+export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify, isAdmin, isLoading }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [phone, setPhone] = useState('');
+  const [searchValue, setSearchValue] = useState('');
   const [resultId, setResultId] = useState<string | null>(null);
+  const [unregisteredCandidate, setUnregisteredCandidate] = useState<any | null>(null);
   const [error, setError] = useState('');
   const [verifyRollNo, setVerifyRollNo] = useState('');
 
-  const visibleRecords = records.filter(r => !r.isHidden);
-  const currentRecord = resultId ? visibleRecords.find(r => r.id === resultId) : null;
+  const searchableRecords = isAdmin ? records : records.filter(r => !r.isHidden);
+  const currentRecord = resultId ? searchableRecords.find(r => r.id === resultId) : null;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setResultId(null);
+    setUnregisteredCandidate(null);
     setVerifyRollNo('');
 
-    if (!phone.trim()) {
-      setError('Please enter a valid phone number.');
+    if (isLoading) {
+      setError('Database is still loading. Please wait a moment and try again.');
       return;
     }
 
-    const record = visibleRecords.find(r => r.phone === phone.trim());
+    if (!searchValue.trim()) {
+      setError(`Please enter a valid ${isAdmin ? 'Sl No' : 'phone number'}.`);
+      return;
+    }
+
+    let record;
+    const trimmedValue = searchValue.trim();
+
+    if (isAdmin) {
+      const slNo = parseInt(trimmedValue, 10);
+      if (isNaN(slNo)) {
+        setError('Please enter a valid Sl No (number).');
+        return;
+      }
+      record = searchableRecords.find(r => r.slNo !== undefined && Number(r.slNo) === slNo);
+      
+      if (!record) {
+        // Search in master list (candidatesData)
+        const masterCandidate = candidatesData.find(c => c.slNo === slNo);
+        if (masterCandidate) {
+          setUnregisteredCandidate(masterCandidate);
+          return;
+        }
+      }
+    } else {
+      // Normalize search value: remove non-digits
+      const normalizedSearch = trimmedValue.replace(/\D/g, '');
+      
+      // Handle +91 or 0 prefix (standardize to 10 digits if possible)
+      const getStandardPhone = (p: string) => {
+        const digits = p.replace(/\D/g, '');
+        if (digits.length === 12 && digits.startsWith('91')) return digits.slice(2);
+        if (digits.length === 11 && digits.startsWith('0')) return digits.slice(1);
+        return digits;
+      };
+
+      const searchPhone = getStandardPhone(normalizedSearch);
+
+      record = searchableRecords.find(r => {
+        const rPhone = getStandardPhone(r.phone || r.id || '');
+        return rPhone === searchPhone;
+      });
+
+      if (!record) {
+        // Check if it's hidden (to give a better message)
+        const hiddenRecord = records.find(r => {
+          const rPhone = getStandardPhone(r.phone || r.id || '');
+          return r.isHidden && rPhone === searchPhone;
+        });
+
+        if (hiddenRecord) {
+          setError("Your record has been hidden by an administrator. Please contact support if you think this is a mistake.");
+          return;
+        }
+      }
+    }
     
     if (!record) {
-      setError('No record found with this phone number on the public leaderboard.');
+      setError(`No record found with this ${isAdmin ? 'Sl No' : 'phone number'}${isAdmin ? '' : ' on the public leaderboard'}.`);
       return;
     }
 
@@ -42,8 +102,9 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify })
 
   const closeDialog = () => {
     setIsOpen(false);
-    setPhone('');
+    setSearchValue('');
     setResultId(null);
+    setUnregisteredCandidate(null);
     setError('');
     setVerifyRollNo('');
   };
@@ -52,6 +113,7 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify })
   let categoryRank: number | null = null;
 
   if (currentRecord) {
+    const visibleRecords = records.filter(r => !r.isHidden);
     allRank = currentRecord.scoreTET2 >= 90 
       ? visibleRecords.filter(r => r.scoreTET2 >= 90 && r.finalScore > currentRecord.finalScore).length + 1 
       : null;
@@ -103,14 +165,14 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify })
               <form onSubmit={handleSearch} className="space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-zinc-600 uppercase tracking-wider mb-2">
-                    Enter Phone Number
+                    {isAdmin ? 'Enter Sl No' : 'Enter Phone Number'}
                   </label>
                   <input
-                    type="tel"
+                    type={isAdmin ? "number" : "tel"}
                     required
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="e.g. 9876543210"
+                    value={searchValue}
+                    onChange={(e) => setSearchValue(e.target.value)}
+                    placeholder={isAdmin ? "e.g. 1" : "e.g. 9876543210"}
                     className="glass-input w-full px-4 py-3 rounded-xl text-zinc-900 placeholder:text-zinc-400"
                   />
                 </div>
@@ -160,6 +222,12 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify })
                         )}
                       </div>
                     </div>
+                    {isAdmin && currentRecord.slNo && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-semibold text-emerald-600/70 uppercase tracking-wider">Sl No</span>
+                        <span className="font-bold text-emerald-900">{currentRecord.slNo}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-semibold text-emerald-600/70 uppercase tracking-wider">Gender</span>
                       <span className="font-bold text-emerald-900">{currentRecord.gender || 'N/A'}</span>
@@ -212,6 +280,49 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify })
                         </div>
                       </div>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {unregisteredCandidate && (
+                <div className="mt-6 p-6 rounded-2xl bg-amber-50/50 border border-amber-100 backdrop-blur-sm animate-in fade-in slide-in-from-top-2">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2 text-amber-700">
+                      <UserPlus className="w-4 h-4" />
+                      <span className="text-xs font-bold uppercase tracking-widest">Official Record Found</span>
+                    </div>
+                    <span className="px-2 py-1 rounded-md bg-amber-100 text-amber-700 text-[10px] font-bold uppercase tracking-wider">
+                      Not Registered
+                    </span>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="col-span-2">
+                      <div className="text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-1">Name</div>
+                      <div className="text-base font-bold text-zinc-900">{unregisteredCandidate.name}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-1">Sl No</div>
+                      <div className="text-sm font-semibold text-zinc-700">#{unregisteredCandidate.slNo}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-1">Category</div>
+                      <div className="text-sm font-semibold text-zinc-700">{unregisteredCandidate.category}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-1">TET Marks</div>
+                      <div className="text-sm font-semibold text-zinc-700">{unregisteredCandidate.tetMarks}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-1">Roll No</div>
+                      <div className="text-sm font-mono text-zinc-600">{unregisteredCandidate.rollNo}</div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 p-3 rounded-lg bg-white/50 border border-amber-200/50 text-center">
+                    <p className="text-xs text-amber-800 font-medium">
+                      This candidate has not yet calculated their weightage on this platform.
+                    </p>
                   </div>
                 </div>
               )}

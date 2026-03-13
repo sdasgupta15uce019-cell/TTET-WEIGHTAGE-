@@ -48,7 +48,9 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
           let middle = parts.length > 2 ? parts.slice(1, -1).join(' ') : '';
           
           setFormData(prev => {
-            if (prev.rollNo === candidate.rollNo) return prev;
+            if (prev.rollNo === candidate.rollNo && 
+                prev.category === candidate.category && 
+                prev.scoreTET2 === candidate.tetMarks.toString()) return prev;
             return {
               ...prev,
               rollNo: candidate.rollNo,
@@ -75,7 +77,9 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         let middle = parts.length > 2 ? parts.slice(1, -1).join(' ') : '';
         
         setFormData(prev => {
-          if (prev.slNo === (candidate.slNo ? candidate.slNo.toString() : '')) return prev;
+          if (prev.slNo === (candidate.slNo ? candidate.slNo.toString() : '') &&
+              prev.category === candidate.category && 
+              prev.scoreTET2 === candidate.tetMarks.toString()) return prev;
           return {
             ...prev,
             slNo: candidate.slNo ? candidate.slNo.toString() : '',
@@ -141,29 +145,41 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
 
       const visibleRecords = records.filter(r => !r.isHidden);
       
-      // Check if phone number already has a verified record
-      const existingByPhone = visibleRecords.find(r => r.phone === formData.phone);
-      if (existingByPhone && existingByPhone.isVerified) {
-        setDuplicateRecord(existingByPhone);
-        setIsSubmitting(false);
-        return;
-      }
-
       // Check if roll no is already registered in another record
       if (formData.rollNo) {
-        const existingByRollNo = visibleRecords.find(r => r.rollNo === formData.rollNo && r.phone !== formData.phone);
-        if (existingByRollNo) {
+        const existingByRollNo = visibleRecords.find(r => r.rollNo === formData.rollNo);
+        if (existingByRollNo && existingByRollNo.isVerified) {
           setDuplicateRecord(existingByRollNo);
           setIsSubmitting(false);
           return;
         }
       }
 
+      // Check if phone number already has a verified record (only for non-verified candidates)
+      const existingByPhone = visibleRecords.find(r => {
+        const rPhone = (r.phone || r.id || '').replace(/\D/g, '');
+        const normalizedRPhone = rPhone.length > 10 
+          ? (rPhone.startsWith('91') ? rPhone.slice(2) : rPhone)
+          : (rPhone.length === 11 && rPhone.startsWith('0') ? rPhone.slice(1) : rPhone);
+        return normalizedRPhone === formData.phone;
+      });
+      if (existingByPhone && existingByPhone.isVerified && (!formData.rollNo || existingByPhone.rollNo !== formData.rollNo)) {
+        setDuplicateRecord(existingByPhone);
+        setIsSubmitting(false);
+        return;
+      }
+
       // Check if sl no is already registered in another record
       if (formData.slNo) {
         const sl = parseInt(formData.slNo, 10);
         if (!isNaN(sl)) {
-          const existingBySlNo = visibleRecords.find(r => r.slNo === sl && r.phone !== formData.phone);
+          const existingBySlNo = visibleRecords.find(r => {
+            const rPhone = (r.phone || r.id || '').replace(/\D/g, '');
+            const normalizedRPhone = rPhone.length > 10 
+              ? (rPhone.startsWith('91') ? rPhone.slice(2) : rPhone)
+              : (rPhone.length === 11 && rPhone.startsWith('0') ? rPhone.slice(1) : rPhone);
+            return r.slNo === sl && normalizedRPhone !== formData.phone;
+          });
           if (existingBySlNo) {
             setDuplicateRecord(existingBySlNo);
             setIsSubmitting(false);
@@ -176,13 +192,18 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
       const isVerifiedSubmission = (formData.rollNo && candidatesData.some(c => c.rollNo === formData.rollNo && c.tetMarks === tetMarks));
       
       if (!isVerifiedSubmission) {
-        const duplicate = visibleRecords.find(r => 
-          r.score12th === p12 && 
-          r.scoreGrad === pGrad && 
-          r.scoreBEd === pBEd && 
-          r.finalScore === finalScore &&
-          r.phone !== formData.phone
-        );
+        const duplicate = visibleRecords.find(r => {
+          const rPhone = (r.phone || r.id || '').replace(/\D/g, '');
+          const normalizedRPhone = rPhone.length > 10 
+            ? (rPhone.startsWith('91') ? rPhone.slice(2) : rPhone)
+            : (rPhone.length === 11 && rPhone.startsWith('0') ? rPhone.slice(1) : rPhone);
+          
+          return r.score12th === p12 && 
+                 r.scoreGrad === pGrad && 
+                 r.scoreBEd === pBEd && 
+                 r.finalScore === finalScore &&
+                 normalizedRPhone !== formData.phone;
+        });
 
         if (duplicate) {
           setDuplicateRecord(duplicate);
@@ -375,7 +396,8 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
             title="Please enter a valid 10-digit phone number"
             value={formData.phone}
             onChange={e => { 
-              setFormData({ ...formData, phone: e.target.value }); 
+              const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+              setFormData({ ...formData, phone: val }); 
               setSubmittedResult(null);
             }}
             placeholder="e.g. 9876543210"

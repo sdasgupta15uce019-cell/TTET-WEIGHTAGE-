@@ -181,7 +181,8 @@ export default function App() {
       await updateDoc(doc(db, 'merit_records', id), {
         isVerified,
         name: updatedName,
-        rollNo
+        rollNo,
+        slNo: candidate.slNo
       });
 
       console.log(`Record ${id} verification status updated.`);
@@ -219,7 +220,8 @@ export default function App() {
       await updateDoc(doc(db, 'merit_records', id), {
         isVerified,
         name: updatedName,
-        rollNo: candidate.rollNo
+        rollNo: candidate.rollNo,
+        slNo: candidate.slNo
       });
 
       console.log(`Record ${id} verification status updated by Sl No.`);
@@ -415,9 +417,9 @@ export default function App() {
     if (adjustedCutoff < 64.9) {
       adjustedCutoff = 64.9;
     }
-    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "65.90";
+    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "65.92";
   } else if (!isAdmin) {
-    predictedCutoff = "65.90";
+    predictedCutoff = "65.92";
   }
 
   const handlePredictRankClick = () => {
@@ -499,7 +501,7 @@ export default function App() {
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <div className="flex-1 sm:flex-none">
-              <SearchDialog records={effectiveRecords} onVerify={handleVerify} />
+              <SearchDialog records={effectiveRecords} onVerify={handleVerify} isAdmin={isAdmin} isLoading={isLoading} />
             </div>
             <div className="flex-1 sm:flex-none">
               <HelpDialog isAdmin={isAdmin} setIsAdmin={setIsAdmin} />
