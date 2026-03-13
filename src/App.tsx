@@ -20,6 +20,59 @@ import { SearchDialog } from './components/SearchDialog';
 import { Sparkles, AlertCircle, Database, Shield, Download, X, MessageCircle } from 'lucide-react';
 import { candidatesData } from './data/candidates';
 
+const AnimatedPopup = ({ isOpen, onClose, title, subtitle, children }: { isOpen: boolean, onClose: () => void, title: string, subtitle: string, children: React.ReactNode }) => {
+  const [isRendered, setIsRendered] = useState(isOpen);
+  const [isAnimatingOut, setIsAnimatingOut] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsRendered(true);
+      setIsAnimatingOut(false);
+    } else if (isRendered) {
+      setIsAnimatingOut(true);
+      const timer = setTimeout(() => {
+        setIsRendered(false);
+        setIsAnimatingOut(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, isRendered]);
+
+  if (!isRendered) return null;
+
+  return (
+    <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md transition-opacity duration-300 ${isAnimatingOut ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`glass-panel max-w-2xl w-full max-h-[80vh] flex flex-col rounded-3xl overflow-hidden ${isAnimatingOut ? 'animate-zoom-out' : 'animate-zoom-in-bounce'}`}>
+        <div className="p-6 border-b border-white/40 bg-white/30 backdrop-blur-md flex justify-between items-center">
+          <div>
+            <h3 className="text-xl font-bold text-zinc-900">{title}</h3>
+            <p className="text-sm text-zinc-600 mt-1 font-medium">{subtitle}</p>
+          </div>
+          <button 
+            onClick={onClose}
+            className="text-zinc-400 hover:text-zinc-600 hover:bg-white/50 p-1.5 rounded-xl transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+        <div 
+          className="flex-1 relative bg-white/10 flex flex-col overflow-hidden"
+          style={{ 
+            maskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 100px), transparent)',
+            WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 100px), transparent)'
+          }}
+        >
+          <div className="flex-1 overflow-y-auto px-6 pt-8 pb-8">
+            <div className="space-y-3">
+              {children}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function App() {
   const [records, setRecords] = useState<CandidateRecord[]>([]);
   const [trashIds, setTrashIds] = useState<Set<string>>(new Set());
@@ -821,111 +874,65 @@ service cloud.firestore {
       )}
 
       {/* Non-Verified Candidates Popup */}
-      {showNonVerifiedPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="glass-panel max-w-2xl w-full max-h-[80vh] flex flex-col animate-in zoom-in-95 duration-300 rounded-3xl overflow-hidden">
-            <div className="p-6 border-b border-white/40 bg-white/30 backdrop-blur-md flex justify-between items-center">
+      <AnimatedPopup
+        isOpen={showNonVerifiedPopup}
+        onClose={() => setShowNonVerifiedPopup(false)}
+        title="Non-Verified Candidates"
+        subtitle="Candidates with entries but not verified"
+      >
+        {effectiveRecords.filter(r => !r.isHidden && !r.isVerified).length > 0 ? (
+          effectiveRecords.filter(r => !r.isHidden && !r.isVerified).map((candidate, index) => (
+            <div key={candidate.id || index} className="flex justify-between items-center p-4 bg-amber-50/40 backdrop-blur-sm border border-amber-200/50 rounded-xl shadow-sm">
               <div>
-                <h3 className="text-xl font-bold text-zinc-900">Non-Verified Candidates</h3>
-                <p className="text-sm text-zinc-600 mt-1 font-medium">Candidates with entries but not verified</p>
+                <p className="font-bold text-zinc-900">
+                  {candidate.name}
+                  {candidate.slNo && <span className="text-xs text-zinc-600 font-medium ml-2">(Sl No: {candidate.slNo})</span>}
+                </p>
               </div>
-              <button 
-                onClick={() => setShowNonVerifiedPopup(false)}
-                className="text-zinc-400 hover:text-zinc-600 hover:bg-white/50 p-1.5 rounded-xl transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <div 
-              className="flex-1 relative bg-white/10 flex flex-col overflow-hidden"
-              style={{ 
-                maskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 100px), transparent)',
-                WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 100px), transparent)'
-              }}
-            >
-              <div className="flex-1 overflow-y-auto px-6 pt-8 pb-8">
-                <div className="space-y-3">
-                  {effectiveRecords.filter(r => !r.isHidden && !r.isVerified).length > 0 ? (
-                  effectiveRecords.filter(r => !r.isHidden && !r.isVerified).map((candidate, index) => (
-                    <div key={candidate.id || index} className="flex justify-between items-center p-4 bg-amber-50/40 backdrop-blur-sm border border-amber-200/50 rounded-xl shadow-sm">
-                      <div>
-                        <p className="font-bold text-zinc-900">
-                          {candidate.name}
-                          {candidate.slNo && <span className="text-xs text-zinc-600 font-medium ml-2">(Sl No: {candidate.slNo})</span>}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-bold text-amber-700 bg-amber-100/50 px-2 py-1 rounded-lg inline-block">TET: {candidate.scoreTET2}</p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-center text-zinc-600 font-medium py-8 bg-white/30 rounded-xl border border-white/40">No non-verified candidates found.</p>
-                )}
-              </div>
+              <div className="text-right">
+                <p className="text-sm font-bold text-amber-700 bg-amber-100/50 px-2 py-1 rounded-lg inline-block">TET: {candidate.scoreTET2}</p>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          ))
+        ) : (
+          <p className="text-center text-zinc-600 font-medium py-8 bg-white/30 rounded-xl border border-white/40">No non-verified candidates found.</p>
+        )}
+      </AnimatedPopup>
 
       {/* Unregistered Candidates Popup */}
-      {showUnregisteredPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="glass-panel max-w-2xl w-full max-h-[80vh] flex flex-col animate-in zoom-in-95 duration-300 rounded-3xl overflow-hidden">
-            <div className="p-6 border-b border-white/40 bg-white/30 backdrop-blur-md flex justify-between items-center">
-              <div>
-                <h3 className="text-xl font-bold text-zinc-900">Unregistered Candidates</h3>
-                <p className="text-sm text-zinc-600 mt-1 font-medium">Candidates in CSV but not verified</p>
-              </div>
-              <button 
-                onClick={() => setShowUnregisteredPopup(false)}
-                className="text-zinc-400 hover:text-zinc-600 hover:bg-white/50 p-1.5 rounded-xl transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <div 
-              className="flex-1 relative bg-white/10 flex flex-col overflow-hidden"
-              style={{ 
-                maskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 100px), transparent)',
-                WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 100px), transparent)'
-              }}
-            >
-              <div className="flex-1 overflow-y-auto px-6 pt-8 pb-8">
-                <div className="space-y-3">
-                  {(() => {
-                  const verifiedRollNos = new Set(effectiveRecords.filter(r => !r.isHidden && r.isVerified).map(r => r.rollNo).filter(Boolean));
-                  const verifiedSlNos = new Set(effectiveRecords.filter(r => !r.isHidden && r.isVerified).map(r => r.slNo).filter(Boolean));
-                  
-                  const unregistered = candidatesData.filter(c => 
-                    !verifiedRollNos.has(c.rollNo) && !(c.slNo && verifiedSlNos.has(c.slNo))
-                  );
+      <AnimatedPopup
+        isOpen={showUnregisteredPopup}
+        onClose={() => setShowUnregisteredPopup(false)}
+        title="Unregistered Candidates"
+        subtitle="Candidates in CSV but not verified"
+      >
+        {(() => {
+          const verifiedRollNos = new Set(effectiveRecords.filter(r => !r.isHidden && r.isVerified).map(r => r.rollNo).filter(Boolean));
+          const verifiedSlNos = new Set(effectiveRecords.filter(r => !r.isHidden && r.isVerified).map(r => r.slNo).filter(Boolean));
+          
+          const unregistered = candidatesData.filter(c => 
+            !verifiedRollNos.has(c.rollNo) && !(c.slNo && verifiedSlNos.has(c.slNo))
+          );
 
-                  return unregistered.length > 0 ? (
-                    unregistered.map((candidate, index) => (
-                      <div key={candidate.rollNo || index} className="flex justify-between items-center p-4 bg-blue-50/40 backdrop-blur-sm border border-blue-200/50 rounded-xl shadow-sm">
-                        <div>
-                          <p className="font-bold text-zinc-900">
-                            {candidate.name}
-                            {candidate.slNo && <span className="text-xs text-zinc-600 font-medium ml-2">(Sl No: {candidate.slNo})</span>}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-bold text-blue-700 bg-blue-100/50 px-2 py-1 rounded-lg inline-block">TET: {candidate.tetMarks}</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-center text-zinc-600 font-medium py-8 bg-white/30 rounded-xl border border-white/40">All candidates are verified!</p>
-                  );
-                })()}
+          return unregistered.length > 0 ? (
+            unregistered.map((candidate, index) => (
+              <div key={candidate.rollNo || index} className="flex justify-between items-center p-4 bg-blue-50/40 backdrop-blur-sm border border-blue-200/50 rounded-xl shadow-sm">
+                <div>
+                  <p className="font-bold text-zinc-900">
+                    {candidate.name}
+                    {candidate.slNo && <span className="text-xs text-zinc-600 font-medium ml-2">(Sl No: {candidate.slNo})</span>}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-blue-700 bg-blue-100/50 px-2 py-1 rounded-lg inline-block">TET: {candidate.tetMarks}</p>
+                </div>
               </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+            ))
+          ) : (
+            <p className="text-center text-zinc-600 font-medium py-8 bg-white/30 rounded-xl border border-white/40">All candidates are verified!</p>
+          );
+        })()}
+      </AnimatedPopup>
 
       {/* Floating Go Back Button */}
       {currentView === 'leaderboard' && (
