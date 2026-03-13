@@ -562,8 +562,8 @@ export default function App() {
       <div 
         className="flex-1 w-full relative overflow-hidden flex flex-col"
         style={{ 
-          maskImage: 'linear-gradient(to bottom, transparent, black 80px, black calc(100% - 40px), transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 80px, black calc(100% - 40px), transparent 100%)'
+          maskImage: 'linear-gradient(to bottom, transparent, black 80px, black calc(100% - 120px), transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 80px, black calc(100% - 120px), transparent 100%)'
         }}
       >
         <div 
@@ -839,8 +839,8 @@ service cloud.firestore {
             <div 
               className="flex-1 relative bg-white/10 flex flex-col overflow-hidden"
               style={{ 
-                maskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 40px), transparent)',
-                WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 40px), transparent)'
+                maskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 100px), transparent)',
+                WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 100px), transparent)'
               }}
             >
               <div className="flex-1 overflow-y-auto px-6 pt-8 pb-8">
@@ -888,8 +888,8 @@ service cloud.firestore {
             <div 
               className="flex-1 relative bg-white/10 flex flex-col overflow-hidden"
               style={{ 
-                maskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 40px), transparent)',
-                WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 40px), transparent)'
+                maskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 100px), transparent)',
+                WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 100px), transparent)'
               }}
             >
               <div className="flex-1 overflow-y-auto px-6 pt-8 pb-8">
