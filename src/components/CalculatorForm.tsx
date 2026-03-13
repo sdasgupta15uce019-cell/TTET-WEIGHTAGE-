@@ -260,11 +260,11 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
     <>
       <form onSubmit={handleInitialProceed} className="glass-panel p-6 rounded-3xl space-y-4 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400"></div>
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-emerald-100/50 backdrop-blur-sm flex items-center justify-center text-emerald-600">
+        <div className="flex items-center gap-3 mb-6 p-4 rounded-2xl bg-gradient-to-br from-blue-400/90 to-indigo-600/90 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)]">
+          <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shadow-inner">
             <Calculator className="w-5 h-5" />
           </div>
-          <h2 className="text-xl font-bold text-zinc-900">Merit Calculator</h2>
+          <h2 className="text-xl font-bold text-white tracking-tight">Merit Calculator</h2>
         </div>
 
         <div className="space-y-4">
@@ -331,7 +331,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
 
         <button
           type="submit"
-          className="glass-button w-full bg-emerald-600/90 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all active:scale-[0.98] mt-6"
+          className="w-full py-4 rounded-xl font-bold text-white transition-all duration-300 bg-gradient-to-br from-blue-400/90 to-indigo-600/90 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(59,130,246,0.5),inset_0_1px_1px_rgba(255,255,255,0.8)] active:scale-[0.97] active:translate-y-1 active:shadow-[0_4px_10px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] flex items-center justify-center gap-2 mt-6"
         >
           Proceed <ArrowRight className="w-4 h-4" />
         </button>
@@ -489,7 +489,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400/50 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+              className="w-full py-4 rounded-xl font-bold text-white transition-all duration-300 bg-gradient-to-br from-blue-400/90 to-indigo-600/90 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(59,130,246,0.5),inset_0_1px_1px_rgba(255,255,255,0.8)] active:scale-[0.97] active:translate-y-1 active:shadow-[0_4px_10px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
