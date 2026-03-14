@@ -56,6 +56,12 @@
     100% { transform: scale(0.8); opacity: 0; }
   }
 
+  @keyframes shine {
+    0% { left: -100%; }
+    20% { left: 200%; }
+    100% { left: 200%; }
+  }
+
   @keyframes gradient-x {
     0%, 100% {
       background-position: 0% 50%;
@@ -106,6 +112,20 @@
   }
   .glass-button {
     @apply backdrop-blur-md shadow-[0_0_15px_rgba(0,0,0,0.1)] hover:shadow-[0_0_20px_rgba(0,0,0,0.15)] transition-all duration-300;
+  }
+  .glass-shine {
+    @apply relative overflow-hidden bg-gradient-to-br from-white/60 to-white/20 backdrop-blur-md border border-white/60 shadow-[inset_0_1px_2px_rgba(255,255,255,0.8),0_0_30px_rgba(0,0,0,0.4)] transition-all duration-300;
+  }
+  .glass-shine-interactive {
+    @apply relative overflow-hidden bg-gradient-to-br from-white/60 to-white/20 backdrop-blur-md border border-white/60 shadow-[inset_0_1px_2px_rgba(255,255,255,0.8),0_0_30px_rgba(0,0,0,0.4)] transition-all duration-300 hover:from-white/70 hover:to-white/30 hover:shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_0_40px_rgba(0,0,0,0.6)] hover:-translate-y-0.5 cursor-pointer;
+  }
+  .glass-shine::after, .glass-shine-interactive::after, .shine-only::after {
+    content: '';
+    @apply absolute top-0 left-[-100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/60 to-transparent skew-x-[-20deg];
+    animation: shine 3s infinite;
+  }
+  .shine-only {
+    @apply relative overflow-hidden;
   }
 }
 

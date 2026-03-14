@@ -124,10 +124,10 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify, i
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center justify-center w-full sm:w-40 px-2 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider text-red-700 hover:text-red-800 bg-gradient-to-br from-white/60 to-white/20 backdrop-blur-md border border-white/60 shadow-[inset_0_1px_2px_rgba(255,255,255,0.8),0_0_30px_rgba(0,0,0,0.4)] hover:from-white/70 hover:to-white/30 hover:shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_0_40px_rgba(0,0,0,0.6)] hover:-translate-y-0.5 transition-all duration-300"
+        className="flex items-center justify-center w-full sm:w-40 px-2 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider text-red-700 hover:text-red-800 glass-shine-interactive"
         title="Search Your Rank"
       >
-        <span className="whitespace-nowrap">Search Your Rank</span>
+        <span className="whitespace-nowrap relative z-10">Search Your Rank</span>
       </button>
 
       {createPortal(

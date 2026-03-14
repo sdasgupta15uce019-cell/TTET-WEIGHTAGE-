@@ -540,39 +540,39 @@ export default function App() {
             </p>
             <div className="flex flex-col items-center justify-center gap-2">
               <div className="flex items-center justify-center gap-2">
-                <div className="inline-block bg-white/50 backdrop-blur-sm border border-emerald-200/50 px-2.5 py-0.5 rounded-md shadow-sm">
-                  <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
+                <div className="inline-block glass-shine px-2.5 py-0.5 rounded-md">
+                  <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider relative z-10">
                     Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
                   </p>
                 </div>
                 <button 
                   onClick={() => setShowPredictionsPopup(true)}
-                  className="inline-block bg-white/50 backdrop-blur-sm border border-red-200/50 px-3 py-0.5 rounded-md shadow-sm hover:bg-white/80 transition-colors active:scale-95"
+                  className="inline-block glass-shine-interactive px-3 py-0.5 rounded-md"
                 >
-                  <p className="text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center gap-1">
+                  <p className="text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center gap-1 relative z-10">
                     Predictions
                   </p>
                 </button>
                 {isAdmin && (
                   <>
-                    <div className="inline-block bg-white/50 backdrop-blur-sm border border-purple-200/50 px-2.5 py-0.5 rounded-md shadow-sm">
-                      <p className="text-[10px] font-bold text-purple-700 uppercase tracking-wider">
+                    <div className="inline-block glass-shine px-2.5 py-0.5 rounded-md">
+                      <p className="text-[10px] font-bold text-purple-700 uppercase tracking-wider relative z-10">
                         Actual Cutoff (Admin): <span className="text-purple-900 text-xs ml-1">{actualCutoff}</span>
                       </p>
                     </div>
                     <button 
                       onClick={handleDownloadPDF}
-                      className="inline-block bg-white/50 backdrop-blur-sm border border-blue-200/50 px-2.5 py-0.5 rounded-md shadow-sm hover:bg-white/80 transition-colors active:scale-95"
+                      className="inline-block glass-shine-interactive px-2.5 py-0.5 rounded-md"
                     >
-                      <p className="text-[10px] font-bold text-blue-700 uppercase tracking-wider flex items-center gap-1">
+                      <p className="text-[10px] font-bold text-blue-700 uppercase tracking-wider flex items-center gap-1 relative z-10">
                         <Download className="w-3 h-3" /> Download PDF
                       </p>
                     </button>
                     <button 
                       onClick={handleDownloadCSVAsPDF}
-                      className="inline-block bg-white/50 backdrop-blur-sm border border-indigo-200/50 px-2.5 py-0.5 rounded-md shadow-sm hover:bg-white/80 transition-colors active:scale-95"
+                      className="inline-block glass-shine-interactive px-2.5 py-0.5 rounded-md"
                     >
-                      <p className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-1">
+                      <p className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-1 relative z-10">
                         <Download className="w-3 h-3" /> CSV
                       </p>
                     </button>
@@ -598,39 +598,39 @@ export default function App() {
           </p>
           <div className="flex flex-col items-center justify-center gap-2">
             <div className="flex flex-wrap items-center justify-center gap-2">
-              <div className="inline-block bg-white/50 backdrop-blur-sm border border-emerald-200/50 px-2.5 py-0.5 rounded-md shadow-sm">
-                <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
+              <div className="inline-block glass-shine px-2.5 py-0.5 rounded-md">
+                <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider relative z-10">
                   Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
                 </p>
               </div>
               <button 
                 onClick={() => setShowPredictionsPopup(true)}
-                className="inline-block bg-white/50 backdrop-blur-sm border border-red-200/50 px-3 py-0.5 rounded-md shadow-sm hover:bg-white/80 transition-colors active:scale-95"
+                className="inline-block glass-shine-interactive px-3 py-0.5 rounded-md"
               >
-                <p className="text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center gap-1">
+                <p className="text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center gap-1 relative z-10">
                   Predictions
                 </p>
               </button>
               {isAdmin && (
                 <>
-                  <div className="inline-block bg-white/50 backdrop-blur-sm border border-purple-200/50 px-2.5 py-0.5 rounded-md shadow-sm">
-                    <p className="text-[10px] font-bold text-purple-700 uppercase tracking-wider">
+                  <div className="inline-block glass-shine px-2.5 py-0.5 rounded-md">
+                    <p className="text-[10px] font-bold text-purple-700 uppercase tracking-wider relative z-10">
                       Actual Cutoff (Admin): <span className="text-purple-900 text-xs ml-1">{actualCutoff}</span>
                     </p>
                   </div>
                   <button 
                     onClick={handleDownloadPDF}
-                    className="inline-block bg-white/50 backdrop-blur-sm border border-blue-200/50 px-2.5 py-0.5 rounded-md shadow-sm hover:bg-white/80 transition-colors active:scale-95"
+                    className="inline-block glass-shine-interactive px-2.5 py-0.5 rounded-md"
                   >
-                    <p className="text-[10px] font-bold text-blue-700 uppercase tracking-wider flex items-center gap-1">
+                    <p className="text-[10px] font-bold text-blue-700 uppercase tracking-wider flex items-center gap-1 relative z-10">
                       <Download className="w-3 h-3" /> Download PDF
                     </p>
                   </button>
                   <button 
                     onClick={handleDownloadCSVAsPDF}
-                    className="inline-block bg-white/50 backdrop-blur-sm border border-indigo-200/50 px-2.5 py-0.5 rounded-md shadow-sm hover:bg-white/80 transition-colors active:scale-95"
+                    className="inline-block glass-shine-interactive px-2.5 py-0.5 rounded-md"
                   >
-                    <p className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-1">
+                    <p className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-1 relative z-10">
                       <Download className="w-3 h-3" /> CSV
                     </p>
                   </button>
@@ -748,46 +748,46 @@ service cloud.firestore {
               </div>
               <button
                 onClick={() => handleViewChange('leaderboard')}
-                className="glass-button px-8 py-3 bg-white/80 text-zinc-900 font-bold rounded-2xl shadow-lg hover:bg-white transition-all active:scale-95 w-full max-w-xs border border-white/50"
+                className="shine-only px-8 py-3 bg-indigo-600/90 hover:bg-indigo-600 text-white font-bold uppercase rounded-2xl shadow-lg hover:-translate-y-0.5 transition-all duration-300 w-full max-w-xs"
               >
-                Go to Leaderboard
+                <span className="relative z-10">Go to Leaderboard</span>
               </button>
               
               <div className="relative z-10 flex flex-col gap-2 w-full max-w-xs mt-2">
                 <button 
                   onClick={() => setShowNonVerifiedPopup(true)}
-                  className="glass-button px-6 py-2 bg-white/50 hover:bg-white/80 text-zinc-900 font-bold rounded-xl shadow-sm transition-all text-sm border border-white/40"
+                  className="shine-only px-6 py-2 bg-amber-500/90 hover:bg-amber-500 text-white font-bold uppercase rounded-xl shadow-sm hover:-translate-y-0.5 transition-all duration-300 text-sm"
                 >
-                  Non-Verified Candidates
+                  <span className="relative z-10">Non-Verified Candidates</span>
                 </button>
                 <button 
                   onClick={() => setShowUnregisteredPopup(true)}
-                  className="glass-button px-6 py-2 bg-white/50 hover:bg-white/80 text-zinc-900 font-bold rounded-xl shadow-sm transition-all text-sm border border-white/40"
+                  className="shine-only px-6 py-2 bg-slate-700/90 hover:bg-slate-700 text-white font-bold uppercase rounded-xl shadow-sm hover:-translate-y-0.5 transition-all duration-300 text-sm"
                 >
-                  Unregistered Candidates
+                  <span className="relative z-10">Unregistered Candidates</span>
                 </button>
                 <a 
                   href="https://wa.me/917005893480"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="glass-button px-6 py-2 bg-red-600/90 hover:bg-red-600 text-white font-bold rounded-xl shadow-sm transition-all text-sm flex items-center justify-center gap-2"
+                  className="shine-only px-6 py-2 bg-red-600/90 hover:bg-red-600 text-white font-bold uppercase rounded-xl shadow-sm hover:-translate-y-0.5 transition-all duration-300 text-sm flex items-center justify-center gap-2"
                 >
-                  <AlertCircle className="w-4 h-4" />
-                  Report False Entry
+                  <AlertCircle className="w-4 h-4 relative z-10" />
+                  <span className="relative z-10">Report False Entry</span>
                 </a>
                 <button 
                   onClick={handleDownloadCommonList}
-                  className="glass-button px-6 py-2 bg-emerald-600/90 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-sm transition-all text-sm flex items-center justify-center gap-2"
+                  className="shine-only px-6 py-2 bg-emerald-600/90 hover:bg-emerald-600 text-white font-bold uppercase rounded-xl shadow-sm hover:-translate-y-0.5 transition-all duration-300 text-sm flex items-center justify-center gap-2"
                 >
-                  <Download className="w-4 h-4" />
-                  Download common category list
+                  <Download className="w-4 h-4 relative z-10" />
+                  <span className="relative z-10">Download common category list</span>
                 </button>
                 <button 
                   onClick={handleDownloadMissingList}
-                  className="glass-button px-6 py-2 bg-blue-600/90 hover:bg-blue-600 text-white font-bold rounded-xl shadow-sm transition-all text-sm flex items-center justify-center gap-2"
+                  className="shine-only px-6 py-2 bg-blue-600/90 hover:bg-blue-600 text-white font-bold uppercase rounded-xl shadow-sm hover:-translate-y-0.5 transition-all duration-300 text-sm flex items-center justify-center gap-2"
                 >
-                  <Download className="w-4 h-4" />
-                  Download missing list
+                  <Download className="w-4 h-4 relative z-10" />
+                  <span className="relative z-10">Download missing list</span>
                 </button>
               </div>
             </div>

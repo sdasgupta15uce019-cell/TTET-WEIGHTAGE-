@@ -66,13 +66,13 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
             <button
               key={cat}
               onClick={() => onCategoryChange(cat)}
-              className={`flex-1 sm:flex-none px-2 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap text-center ${
+              className={`flex-1 sm:flex-none px-2 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-bold uppercase transition-all whitespace-nowrap text-center ${
                 selectedCategory === cat
-                  ? cat === 'Trash' ? 'bg-red-500 text-white shadow-md' : 'bg-emerald-600 text-white shadow-md'
+                  ? cat === 'Trash' ? 'bg-red-500 text-white shadow-md shine-only' : 'bg-emerald-600 text-white shadow-md shine-only'
                   : 'text-zinc-600 hover:bg-white/50 hover:text-zinc-900'
               }`}
             >
-              {cat}
+              <span className={selectedCategory === cat ? 'relative z-10' : ''}>{cat}</span>
             </button>
           ))}
         </div>
