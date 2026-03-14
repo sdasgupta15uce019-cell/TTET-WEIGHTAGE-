@@ -871,6 +871,9 @@ service cloud.firestore {
               Predicted UR Cutoff (for 507 posts)
             </p>
             <p className="text-3xl font-black text-amber-900">{predictedCutoff}</p>
+            <p className="text-[10px] font-bold text-red-600 mt-2 leading-tight">
+              ( actual cutoff may vary from the predicted cutoff, the predicted cutoff is not absolute )
+            </p>
           </div>
 
           {!isAdmin && (
