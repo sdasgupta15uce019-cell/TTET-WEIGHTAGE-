@@ -118,6 +118,7 @@ export default function App() {
   const [showCalculator, setShowCalculator] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionText, setTransitionText] = useState('');
+  const [animationClass, setAnimationClass] = useState('animate-app-unlock-delayed');
   
   const { scrollRef, contentRef } = useOverscrollStretch();
 
@@ -125,14 +126,18 @@ export default function App() {
     setTransitionText(view === 'leaderboard' ? 'Loading Leaderboard...' : 'Loading Calculator...');
     setIsTransitioning(true);
     setCurrentView(view);
+    setAnimationClass('');
     
     setTimeout(() => {
       scrollRef.current?.scrollTo({ top: 0, behavior: 'auto' });
     }, 0);
     
+    const delay = view === 'calculator' ? 400 : 1000;
+    
     setTimeout(() => {
       setIsTransitioning(false);
-    }, 1000);
+      setAnimationClass('animate-app-unlock');
+    }, delay);
   };
 
   useEffect(() => {
@@ -519,7 +524,7 @@ export default function App() {
       <div className="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-500/40 blur-[100px] pointer-events-none animate-pulse z-0" style={{ animationDelay: '2s' }}></div>
       <div className="fixed top-[40%] left-[60%] w-[40%] h-[40%] rounded-full bg-teal-500/40 blur-[100px] pointer-events-none animate-pulse z-0" style={{ animationDelay: '4s' }}></div>
 
-      <div className="flex flex-col h-full w-full animate-app-unlock will-change-transform [transform:translateZ(0)]">
+      <div className={`flex flex-col h-full w-full will-change-transform [transform:translateZ(0)] ${animationClass}`}>
         {/* Header */}
         <header className="glass-panel border-b border-white/40 shrink-0 z-40 shadow-md">
         <div className="max-w-5xl mx-auto px-4 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-y-3">
@@ -653,7 +658,7 @@ export default function App() {
       >
         <div 
           ref={scrollRef}
-          className="flex-1 overflow-y-auto w-full scroll-smooth overscroll-none"
+          className="flex-1 overflow-y-auto w-full overscroll-none"
         >
           <div ref={contentRef} className="flex flex-col min-h-full">
             <main className="max-w-5xl mx-auto px-4 pt-12 pb-40 space-y-8 origin-top w-full">
@@ -981,7 +986,7 @@ service cloud.firestore {
 
       {/* Full screen transition overlay */}
       {isTransitioning && (
-        <div className="fixed inset-0 z-[100] bg-zinc-50/80 backdrop-blur-md flex flex-col items-center justify-center animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[100] bg-zinc-50 flex flex-col items-center justify-center animate-in fade-in duration-200">
           <div className="w-12 h-12 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mb-4" />
           <p className="text-lg font-bold text-zinc-700">
             {transitionText}
