@@ -19,6 +19,7 @@ import { HelpDialog } from './components/HelpDialog';
 import { SearchDialog } from './components/SearchDialog';
 import { Sparkles, AlertCircle, Database, Shield, Download, X, MessageCircle } from 'lucide-react';
 import { candidatesData } from './data/candidates';
+import { useOverscrollStretch } from './hooks/useOverscrollStretch';
 
 const AnimatedPopup = ({ isOpen, onClose, title, subtitle, children }: { isOpen: boolean, onClose: () => void, title: string, subtitle: string, children: ReactNode }) => {
   const [isRendered, setIsRendered] = useState(isOpen);
@@ -117,7 +118,8 @@ export default function App() {
   const [showCalculator, setShowCalculator] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionText, setTransitionText] = useState('');
-  const mainRef = useRef<HTMLElement>(null);
+  
+  const { scrollRef, contentRef } = useOverscrollStretch();
 
   const handleViewChange = (view: 'calculator' | 'leaderboard') => {
     setTransitionText(view === 'leaderboard' ? 'Loading Leaderboard...' : 'Loading Calculator...');
@@ -125,7 +127,7 @@ export default function App() {
     setCurrentView(view);
     
     setTimeout(() => {
-      mainRef.current?.scrollTo({ top: 0, behavior: 'auto' });
+      scrollRef.current?.scrollTo({ top: 0, behavior: 'auto' });
     }, 0);
     
     setTimeout(() => {
@@ -517,8 +519,9 @@ export default function App() {
       <div className="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-500/40 blur-[100px] pointer-events-none animate-pulse z-0" style={{ animationDelay: '2s' }}></div>
       <div className="fixed top-[40%] left-[60%] w-[40%] h-[40%] rounded-full bg-teal-500/40 blur-[100px] pointer-events-none animate-pulse z-0" style={{ animationDelay: '4s' }}></div>
 
-      {/* Header */}
-      <header className="glass-panel border-b border-white/40 shrink-0 z-40 shadow-md">
+      <div className="flex flex-col h-full w-full animate-app-unlock will-change-transform [transform:translateZ(0)]">
+        {/* Header */}
+        <header className="glass-panel border-b border-white/40 shrink-0 z-40 shadow-md">
         <div className="max-w-5xl mx-auto px-4 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-y-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-emerald-500/20 border border-emerald-600/20 shrink-0 flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-700">
@@ -649,10 +652,11 @@ export default function App() {
         }}
       >
         <div 
-          ref={mainRef}
-          className="flex-1 overflow-y-auto w-full scroll-smooth"
+          ref={scrollRef}
+          className="flex-1 overflow-y-auto w-full scroll-smooth overscroll-none"
         >
-          <main className="max-w-5xl mx-auto px-4 pt-12 pb-40 space-y-8">
+          <div ref={contentRef} className="flex flex-col min-h-full">
+            <main className="max-w-5xl mx-auto px-4 pt-12 pb-40 space-y-8 origin-top w-full">
           <a 
             href="https://chat.whatsapp.com/JOCjSCdmH5r881KPzxxfjd?mode=hqctcla"
             target="_blank"
@@ -826,14 +830,16 @@ service cloud.firestore {
       </main>
 
       {/* Footer */}
-      <footer className="max-w-5xl mx-auto px-4 py-12 border-t border-black/5 mt-12">
+      <footer className="max-w-5xl mx-auto px-4 py-12 border-t border-black/5 mt-12 w-full">
         <div className="flex flex-col items-center text-center space-y-4">
           <p className="text-[10px] text-zinc-400 max-w-md">
             Built with modern web technologies to provide candidates with accurate merit calculations and real-time competitive analysis.
           </p>
         </div>
       </footer>
+          </div>
         </div>
+      </div>
       </div>
 
       {/* Predictions Popup */}
