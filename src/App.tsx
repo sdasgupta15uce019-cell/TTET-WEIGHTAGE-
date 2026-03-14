@@ -662,15 +662,17 @@ export default function App() {
         >
           <div ref={contentRef} className="flex flex-col min-h-full">
             <main className="max-w-5xl mx-auto px-4 pt-12 pb-40 space-y-8 origin-top w-full">
-          <a 
-            href="https://chat.whatsapp.com/JOCjSCdmH5r881KPzxxfjd?mode=hqctcla"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-3 w-full max-w-xs mx-auto py-3 px-6 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-black text-xs uppercase tracking-widest shadow-xl hover:-translate-y-0.5 transition-all active:scale-[0.98] animate-whatsapp-glow group border border-white/20"
-          >
-            <MessageCircle className="w-5 h-5 fill-white/10" />
-            Join WhatsApp Group
-          </a>
+          {currentView === 'calculator' && (
+            <a 
+              href="https://chat.whatsapp.com/JOCjSCdmH5r881KPzxxfjd?mode=hqctcla"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-3 w-full max-w-xs mx-auto py-3 px-6 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-black text-xs uppercase tracking-widest shadow-xl hover:-translate-y-0.5 transition-all active:scale-[0.98] animate-whatsapp-glow group border border-white/20"
+            >
+              <MessageCircle className="w-5 h-5 fill-white/10" />
+              Join WhatsApp Group
+            </a>
+          )}
 
           {!isFirebaseConfigured && (
           <div className="glass-panel bg-amber-50/40 backdrop-blur-sm border border-amber-200/50 rounded-3xl p-6 flex items-start gap-4 shadow-sm">
