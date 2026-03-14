@@ -9,6 +9,10 @@ export function useOverscrollStretch() {
     const contentEl = contentRef.current;
     if (!scrollEl || !contentEl) return;
 
+    // Force hardware acceleration layer
+    contentEl.style.willChange = 'transform';
+    contentEl.style.transform = 'translate3d(0, 0px, 0)';
+
     let startY = 0;
     let currentY = 0;
     let isOverscrolling = false;
@@ -19,6 +23,24 @@ export function useOverscrollStretch() {
     let lastScrollTime = performance.now();
     let scrollVelocity = 0;
     let isMomentumBouncing = false;
+    
+    // For 120fps smooth rendering
+    let rafId: number | null = null;
+    let targetTranslateY = 0;
+
+    const updateTransform = () => {
+      if (contentEl) {
+        contentEl.style.transform = `translate3d(0, ${targetTranslateY}px, 0)`;
+      }
+      rafId = null;
+    };
+
+    const setTranslateY = (y: number) => {
+      targetTranslateY = y;
+      if (rafId === null) {
+        rafId = requestAnimationFrame(updateTransform);
+      }
+    };
 
     const handleTouchStart = (e: TouchEvent) => {
       startY = e.touches[0].clientY;
@@ -28,7 +50,7 @@ export function useOverscrollStretch() {
       
       // Reset any existing transition
       contentEl.style.transition = 'none';
-      contentEl.style.transform = 'translateY(0px)';
+      setTranslateY(0);
     };
 
     const handleTouchMove = (e: TouchEvent) => {
@@ -58,7 +80,7 @@ export function useOverscrollStretch() {
         // If user reverses direction and goes back into scrollable area
         if ((overscrollDirection === 1 && deltaY < 0) || (overscrollDirection === -1 && deltaY > 0)) {
           isOverscrolling = false;
-          contentEl.style.transform = 'translateY(0px)';
+          setTranslateY(0);
           return;
         }
 
@@ -72,7 +94,7 @@ export function useOverscrollStretch() {
         const c = 150; // Rubber band constant
         const translateY = Math.sign(deltaY) * c * Math.log(1 + pullDistance / c);
         
-        contentEl.style.transform = `translateY(${translateY}px)`;
+        setTranslateY(translateY);
       }
     };
 
@@ -80,7 +102,7 @@ export function useOverscrollStretch() {
       if (isOverscrolling && contentEl) {
         // Spring back animation
         contentEl.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-        contentEl.style.transform = 'translateY(0px)';
+        setTranslateY(0);
         
         // Clean up transition after animation completes
         setTimeout(() => {
@@ -118,13 +140,13 @@ export function useOverscrollStretch() {
         
         // Apply bounce
         contentEl.style.transition = 'transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1)';
-        contentEl.style.transform = `translateY(${translateY}px)`;
+        setTranslateY(translateY);
         
         // Spring back
         setTimeout(() => {
           if (!contentEl) return;
           contentEl.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
-          contentEl.style.transform = 'translateY(0px)';
+          setTranslateY(0);
           
           setTimeout(() => {
             if (!contentEl) return;
@@ -145,6 +167,7 @@ export function useOverscrollStretch() {
     scrollEl.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
       scrollEl.removeEventListener('touchstart', handleTouchStart);
       scrollEl.removeEventListener('touchmove', handleTouchMove);
       scrollEl.removeEventListener('touchend', handleTouchEnd);
