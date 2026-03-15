@@ -43,7 +43,7 @@ const AnimatedPopup = ({ isOpen, onClose, title, subtitle, children }: { isOpen:
 
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md transition-opacity duration-300 ${isAnimatingOut ? 'opacity-0' : 'opacity-100'}`}>
-      <div className={`glass-panel max-w-2xl w-full max-h-[80vh] flex flex-col rounded-3xl overflow-hidden ${isAnimatingOut ? 'animate-zoom-out' : 'animate-zoom-in-bounce'}`}>
+      <div className={`glass-morphism max-w-2xl w-full max-h-[80vh] flex flex-col rounded-3xl overflow-hidden ${isAnimatingOut ? 'animate-zoom-out' : 'animate-zoom-in-bounce'}`}>
         <div className="p-6 border-b border-white/40 bg-white/30 backdrop-blur-md flex justify-between items-center">
           <div>
             <h3 className="text-xl font-bold text-zinc-900">{title}</h3>
@@ -51,9 +51,9 @@ const AnimatedPopup = ({ isOpen, onClose, title, subtitle, children }: { isOpen:
           </div>
           <button 
             onClick={onClose}
-            className="text-zinc-400 hover:text-zinc-600 hover:bg-white/50 p-1.5 rounded-xl transition-colors"
+            className="glass-morphism-button-red p-2 rounded-full flex items-center justify-center transition-all"
           >
-            <X className="w-6 h-6" />
+            <X className="w-6 h-6 text-white stroke-[3] drop-shadow-md" />
           </button>
         </div>
         <div 
@@ -96,7 +96,7 @@ const AnimatedModal = ({ isOpen, onClose, children, maxWidth = "max-w-md" }: { i
 
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md transition-opacity duration-300 ${isAnimatingOut ? 'opacity-0' : 'opacity-100'}`}>
-      <div className={`glass-panel ${maxWidth} w-full p-6 rounded-3xl ${isAnimatingOut ? 'animate-zoom-out' : 'animate-zoom-in-bounce'}`}>
+      <div className={`glass-morphism ${maxWidth} w-full p-6 rounded-3xl ${isAnimatingOut ? 'animate-zoom-out' : 'animate-zoom-in-bounce'}`}>
         {children}
       </div>
     </div>
@@ -518,139 +518,140 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen h-[100dvh] flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900 relative overflow-hidden">
+    <div className="fixed inset-0 flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900 overflow-hidden">
       {/* Animated Background Elements */}
       <div className="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-emerald-500/40 blur-[100px] pointer-events-none animate-pulse z-0"></div>
       <div className="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-500/40 blur-[100px] pointer-events-none animate-pulse z-0" style={{ animationDelay: '2s' }}></div>
       <div className="fixed top-[40%] left-[60%] w-[40%] h-[40%] rounded-full bg-teal-500/40 blur-[100px] pointer-events-none animate-pulse z-0" style={{ animationDelay: '4s' }}></div>
 
-      <div className={`flex flex-col h-full w-full will-change-transform [transform:translateZ(0)] ${animationClass}`}>
+      <div className={`flex flex-col flex-1 min-h-0 w-full will-change-transform [transform:translateZ(0)] ${animationClass}`}>
         {/* Header */}
-        <header className="glass-panel border-b border-white/40 shrink-0 z-40 shadow-md">
-        <div className="max-w-5xl mx-auto px-4 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-y-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-emerald-500/20 border border-emerald-600/20 shrink-0 flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-700">
-              <span className="text-white font-black text-sm tracking-tighter">TTET</span>
-            </div>
-            <div className="flex flex-wrap items-center gap-x-1.5">
-              <h1 className="font-bold text-sm sm:text-base leading-tight text-zinc-900">TET 2 Merit</h1>
-              <h2 className="font-bold text-sm sm:text-base leading-tight text-zinc-900">Calculator & Leaderboard</h2>
-            </div>
-          </div>
-          
-          <div className="hidden md:block text-center">
-            <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-0.5">Developer -</p>
-            <p className="text-sm font-bold text-zinc-900 tracking-tight uppercase">
-              Er. SUBHAJIT DASGUPTA
-            </p>
-            <p className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider mb-1.5">
-              NITA 2020 ALUMNUS
-            </p>
-            <div className="flex flex-col items-center justify-center gap-2">
-              <div className="flex items-center justify-center gap-2">
-                <div className="inline-block glass-shine px-2.5 py-0.5 rounded-md">
-                  <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider relative z-10">
-                    Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
-                  </p>
-                </div>
-                <button 
-                  onClick={() => setShowPredictionsPopup(true)}
-                  className="inline-block glass-shine-interactive px-3 py-0.5 rounded-md"
-                >
-                  <p className="text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center gap-1 relative z-10">
-                    Predictions
-                  </p>
-                </button>
-                {isAdmin && (
-                  <>
-                    <div className="inline-block glass-shine px-2.5 py-0.5 rounded-md">
-                      <p className="text-[10px] font-bold text-purple-700 uppercase tracking-wider relative z-10">
-                        Actual Cutoff (Admin): <span className="text-purple-900 text-xs ml-1">{actualCutoff}</span>
+        <div className="shrink-0 z-40">
+          <header className="frosted-glass w-full border-x-0 border-t-0 overflow-hidden">
+            <div className="px-4 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-y-3">
+              <div 
+                className="flex items-center justify-center w-full md:w-auto px-2 text-center"
+                style={{ fontFamily: '"Times New Roman", Times, serif' }}
+              >
+                <h1 className="font-bold text-[0.85rem] sm:text-base md:text-lg leading-tight text-white uppercase tracking-wide whitespace-nowrap drop-shadow-md">
+                  TET 2 MERIT CALCULATOR & LEADERBOARD
+                </h1>
+              </div>
+              
+              <div className="hidden md:block text-center">
+                <p className="text-[10px] font-semibold text-zinc-300 uppercase tracking-wider mb-0.5">Developer -</p>
+                <p className="text-sm font-bold text-white tracking-tight uppercase drop-shadow-md">
+                  Er. SUBHAJIT DASGUPTA
+                </p>
+                <p className="text-[10px] text-zinc-300 font-medium uppercase tracking-wider mb-1.5">
+                  NITA 2020 ALUMNUS
+                </p>
+                <div className="flex flex-col items-center justify-center gap-2">
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="inline-block glass-morphism-pill px-2.5 py-0.5 rounded-md">
+                      <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider relative z-10">
+                        Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
                       </p>
                     </div>
                     <button 
-                      onClick={handleDownloadPDF}
-                      className="inline-block glass-shine-interactive px-2.5 py-0.5 rounded-md"
+                      onClick={() => setShowPredictionsPopup(true)}
+                      className="inline-block glass-morphism-button px-3 py-0.5 rounded-md"
                     >
-                      <p className="text-[10px] font-bold text-blue-700 uppercase tracking-wider flex items-center gap-1 relative z-10">
-                        <Download className="w-3 h-3" /> Download PDF
+                      <p className="text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center gap-1 relative z-10">
+                        Predictions
                       </p>
                     </button>
-                    <button 
-                      onClick={handleDownloadCSVAsPDF}
-                      className="inline-block glass-shine-interactive px-2.5 py-0.5 rounded-md"
-                    >
-                      <p className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-1 relative z-10">
-                        <Download className="w-3 h-3" /> CSV
-                      </p>
-                    </button>
-                  </>
-                )}
+                    {isAdmin && (
+                      <>
+                        <div className="inline-block glass-morphism-pill px-2.5 py-0.5 rounded-md">
+                          <p className="text-[10px] font-bold text-purple-700 uppercase tracking-wider relative z-10">
+                            Actual Cutoff (Admin): <span className="text-purple-900 text-xs ml-1">{actualCutoff}</span>
+                          </p>
+                        </div>
+                        <button 
+                          onClick={handleDownloadPDF}
+                          className="inline-block glass-morphism-button px-2.5 py-0.5 rounded-md"
+                        >
+                          <p className="text-[10px] font-bold text-blue-700 uppercase tracking-wider flex items-center gap-1 relative z-10">
+                            <Download className="w-3 h-3" /> Download PDF
+                          </p>
+                        </button>
+                        <button 
+                          onClick={handleDownloadCSVAsPDF}
+                          className="inline-block glass-morphism-button px-2.5 py-0.5 rounded-md"
+                        >
+                          <p className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-1 relative z-10">
+                            <Download className="w-3 h-3" /> CSV
+                          </p>
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <div className="flex-1 sm:flex-none">
-              <SearchDialog records={effectiveRecords} onVerify={handleVerify} isAdmin={isAdmin} isLoading={isLoading} />
-            </div>
-            <div className="flex-1 sm:flex-none">
-              <HelpDialog isAdmin={isAdmin} setIsAdmin={setIsAdmin} />
-            </div>
-          </div>
-        </div>
-        {/* Mobile Dev Name */}
-        <div className="md:hidden px-4 py-2 border-t border-white/20 text-center bg-white/30 backdrop-blur-md flex flex-col items-center gap-1.5">
-          <p className="text-[10px] font-bold text-zinc-900 tracking-tight uppercase">
-            Developer - Er. SUBHAJIT DASGUPTA (NITA 2020 ALUMNUS)
-          </p>
-          <div className="flex flex-col items-center justify-center gap-2">
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              <div className="inline-block glass-shine px-2.5 py-0.5 rounded-md">
-                <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider relative z-10">
-                  Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
-                </p>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className="flex-1 sm:flex-none">
+                  <SearchDialog records={effectiveRecords} onVerify={handleVerify} isAdmin={isAdmin} isLoading={isLoading} />
+                </div>
+                <div className="flex-1 sm:flex-none">
+                  <HelpDialog isAdmin={isAdmin} setIsAdmin={setIsAdmin} />
+                </div>
               </div>
-              <button 
-                onClick={() => setShowPredictionsPopup(true)}
-                className="inline-block glass-shine-interactive px-3 py-0.5 rounded-md"
-              >
-                <p className="text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center gap-1 relative z-10">
-                  Predictions
-                </p>
-              </button>
-              {isAdmin && (
-                <>
-                  <div className="inline-block glass-shine px-2.5 py-0.5 rounded-md">
-                    <p className="text-[10px] font-bold text-purple-700 uppercase tracking-wider relative z-10">
-                      Actual Cutoff (Admin): <span className="text-purple-900 text-xs ml-1">{actualCutoff}</span>
+            </div>
+            {/* Mobile Dev Name */}
+            <div className="md:hidden px-4 py-2 border-t border-white/40 text-center flex flex-col items-center gap-1.5">
+              <p className="text-[10px] font-bold text-zinc-900 tracking-tight uppercase">
+                Developer - Er. SUBHAJIT DASGUPTA (NITA 2020 ALUMNUS)
+              </p>
+              <div className="flex flex-col items-center justify-center gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  <div className="inline-block glass-morphism-pill px-2.5 py-0.5 rounded-md">
+                    <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider relative z-10">
+                      Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
                     </p>
                   </div>
                   <button 
-                    onClick={handleDownloadPDF}
-                    className="inline-block glass-shine-interactive px-2.5 py-0.5 rounded-md"
+                    onClick={() => setShowPredictionsPopup(true)}
+                    className="inline-block glass-morphism-button px-3 py-0.5 rounded-md"
                   >
-                    <p className="text-[10px] font-bold text-blue-700 uppercase tracking-wider flex items-center gap-1 relative z-10">
-                      <Download className="w-3 h-3" /> Download PDF
+                    <p className="text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center gap-1 relative z-10">
+                      Predictions
                     </p>
                   </button>
-                  <button 
-                    onClick={handleDownloadCSVAsPDF}
-                    className="inline-block glass-shine-interactive px-2.5 py-0.5 rounded-md"
-                  >
-                    <p className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-1 relative z-10">
-                      <Download className="w-3 h-3" /> CSV
-                    </p>
-                  </button>
-                </>
-              )}
+                  {isAdmin && (
+                    <>
+                      <div className="inline-block glass-morphism-pill px-2.5 py-0.5 rounded-md">
+                        <p className="text-[10px] font-bold text-purple-700 uppercase tracking-wider relative z-10">
+                          Actual Cutoff (Admin): <span className="text-purple-900 text-xs ml-1">{actualCutoff}</span>
+                        </p>
+                      </div>
+                      <button 
+                        onClick={handleDownloadPDF}
+                        className="inline-block glass-morphism-button px-2.5 py-0.5 rounded-md"
+                      >
+                        <p className="text-[10px] font-bold text-blue-700 uppercase tracking-wider flex items-center gap-1 relative z-10">
+                          <Download className="w-3 h-3" /> Download PDF
+                        </p>
+                      </button>
+                      <button 
+                        onClick={handleDownloadCSVAsPDF}
+                        className="inline-block glass-morphism-button px-2.5 py-0.5 rounded-md"
+                      >
+                        <p className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-1 relative z-10">
+                          <Download className="w-3 h-3" /> CSV
+                        </p>
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </header>
+          </header>
+      </div>
 
       <div 
-        className="flex-1 w-full relative overflow-hidden flex flex-col"
+        className="flex-1 min-h-0 w-full relative overflow-hidden flex flex-col"
         style={{ 
           maskImage: `linear-gradient(to bottom, transparent, black ${currentView === 'calculator' ? '40px' : '80px'}, black calc(100% - 120px), transparent 100%)`,
           WebkitMaskImage: `linear-gradient(to bottom, transparent, black ${currentView === 'calculator' ? '40px' : '80px'}, black calc(100% - 120px), transparent 100%)`
@@ -859,9 +860,9 @@ service cloud.firestore {
           <h3 className="text-lg font-bold text-zinc-900">Predictions</h3>
           <button 
             onClick={() => setShowPredictionsPopup(false)}
-            className="text-zinc-400 hover:text-zinc-600 hover:bg-white/50 p-1 rounded-lg transition-colors"
+            className="glass-morphism-button-red p-2 rounded-full flex items-center justify-center transition-all"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 text-white stroke-[3] drop-shadow-md" />
           </button>
         </div>
         

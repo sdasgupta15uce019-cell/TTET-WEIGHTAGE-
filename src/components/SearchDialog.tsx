@@ -124,7 +124,7 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify, i
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center justify-center w-full sm:w-40 px-2 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider text-red-700 hover:text-red-800 glass-shine-interactive"
+        className="flex items-center justify-center w-full sm:w-40 px-2 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider text-red-700 hover:text-red-800 glass-morphism-button"
         title="Search Your Rank"
       >
         <span className="whitespace-nowrap relative z-10">Search Your Rank</span>
@@ -145,8 +145,8 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify, i
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="glass-panel w-full max-w-md overflow-hidden rounded-3xl"
+                transition={{ type: "spring", damping: 12, stiffness: 400 }}
+                className="glass-morphism w-full max-w-md overflow-hidden rounded-3xl"
               >
                 <div className="flex items-center justify-between p-4 border-b border-white/40 bg-white/30 backdrop-blur-md">
               <div className="flex items-center gap-2">
@@ -155,9 +155,9 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify, i
               </div>
               <button
                 onClick={closeDialog}
-                className="p-1 text-zinc-400 hover:text-zinc-600 hover:bg-white/50 rounded-lg transition-colors"
+                className="glass-morphism-button-red p-2 rounded-full flex items-center justify-center transition-all"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 text-white stroke-[3] drop-shadow-md" />
               </button>
             </div>
 

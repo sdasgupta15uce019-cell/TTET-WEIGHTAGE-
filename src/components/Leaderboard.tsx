@@ -53,23 +53,23 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
 
   return (
     <div className="glass-panel rounded-3xl overflow-hidden relative">
-      <div className="p-6 border-b border-white/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/30 backdrop-blur-md">
+      <div className="p-6 border-b border-black/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-amber-100/50 backdrop-blur-sm flex items-center justify-center text-amber-500">
+          <div className="w-10 h-10 rounded-xl bg-amber-100/40 backdrop-blur-md border border-amber-200/50 flex items-center justify-center text-amber-600 shadow-sm">
             <Trophy className="w-5 h-5" />
           </div>
-          <h2 className="text-xl font-bold text-zinc-900">Merit Leaderboard</h2>
+          <h2 className="text-xl font-bold text-zinc-800 drop-shadow-sm">Merit Leaderboard</h2>
         </div>
         
-        <div className="flex items-center justify-between sm:justify-start gap-1 sm:gap-2 bg-white/40 backdrop-blur-sm p-1.5 rounded-2xl overflow-x-auto border border-white/50 shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] w-full sm:w-auto">
+        <div className="flex items-center justify-between sm:justify-start gap-1 sm:gap-2 bg-black/5 p-1.5 rounded-2xl overflow-x-auto w-full sm:w-auto">
           {categories.map(cat => (
             <button
               key={cat}
               onClick={() => onCategoryChange(cat)}
               className={`flex-1 sm:flex-none px-2 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-bold uppercase transition-all whitespace-nowrap text-center ${
                 selectedCategory === cat
-                  ? cat === 'Trash' ? 'bg-red-500 text-white shadow-md shine-only' : 'bg-emerald-600 text-white shadow-md shine-only'
-                  : 'text-zinc-600 hover:bg-white/50 hover:text-zinc-900'
+                  ? cat === 'Trash' ? 'bg-red-500 text-white shadow-md shine-only' : 'bg-emerald-500 text-white shadow-md shine-only'
+                  : 'text-zinc-600 hover:bg-black/5 hover:text-zinc-900'
               }`}
             >
               <span className={selectedCategory === cat ? 'relative z-10' : ''}>{cat}</span>
@@ -81,7 +81,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="bg-white/20 backdrop-blur-sm border-b border-white/30">
+            <tr className="bg-black/5 border-b border-black/5">
               <th className="px-1 py-3 sm:px-6 sm:py-4 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest">Rank</th>
               <th className="px-1 py-3 sm:px-6 sm:py-4 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest">Name</th>
               {isAdmin && <th className="px-2 py-3 sm:px-6 sm:py-4 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest text-center">TET Marks</th>}
@@ -109,7 +109,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="hover:bg-white/40 transition-colors group backdrop-blur-sm"
+                    className="hover:bg-black/5 transition-colors group"
                   >
                     <td className="px-1 py-3 sm:px-6 sm:py-4 w-8 sm:w-auto">
                       <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center text-xs sm:text-sm font-bold shadow-sm border ${

@@ -38,7 +38,7 @@ export const HelpDialog: React.FC<HelpDialogProps> = ({ isAdmin, setIsAdmin }) =
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center justify-center gap-1.5 w-full sm:w-40 px-2 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider text-zinc-700 hover:text-emerald-800 glass-shine-interactive"
+        className="flex items-center justify-center gap-1.5 w-full sm:w-40 px-2 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider text-zinc-700 hover:text-emerald-800 glass-morphism-button"
         title="Help & Support"
       >
         <HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 relative z-10" />
@@ -60,8 +60,8 @@ export const HelpDialog: React.FC<HelpDialogProps> = ({ isAdmin, setIsAdmin }) =
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="glass-panel w-full max-w-sm rounded-3xl overflow-hidden"
+                transition={{ type: "spring", damping: 12, stiffness: 400 }}
+                className="glass-morphism w-full max-w-sm rounded-3xl overflow-hidden"
               >
               <div className="p-6 border-b border-white/40 bg-white/30 backdrop-blur-md flex items-center justify-between">
               <h3 className="text-lg font-bold text-zinc-900">Contact Support</h3>
@@ -71,9 +71,9 @@ export const HelpDialog: React.FC<HelpDialogProps> = ({ isAdmin, setIsAdmin }) =
                   setShowAdminLogin(false);
                   setPassword('');
                 }} 
-                className="text-zinc-400 hover:text-zinc-600 hover:bg-white/50 p-1 rounded-lg transition-colors"
+                className="glass-morphism-button-red p-2 rounded-full flex items-center justify-center transition-all"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 text-white stroke-[3] drop-shadow-md" />
               </button>
             </div>
 
