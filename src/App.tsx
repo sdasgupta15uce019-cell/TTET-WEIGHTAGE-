@@ -530,22 +530,18 @@ export default function App() {
           <header className="frosted-glass w-full border-x-0 border-t-0 overflow-hidden">
             <div className="px-4 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-y-3">
               <div 
-                className="flex items-center justify-center w-full md:w-auto px-2 text-center"
+                className="flex flex-col items-center justify-center w-full md:w-auto px-2 text-center"
                 style={{ fontFamily: '"Times New Roman", Times, serif' }}
               >
                 <h1 className="font-bold text-[0.85rem] sm:text-base md:text-lg leading-tight text-white uppercase tracking-wide whitespace-nowrap drop-shadow-md">
                   TET 2 MERIT CALCULATOR & LEADERBOARD
                 </h1>
+                <p className="text-[10px] sm:text-xs font-bold text-zinc-300 tracking-tight uppercase mt-1 drop-shadow-sm">
+                  Developer - Er. SUBHAJIT DASGUPTA (NITA 2020 ALUMNUS)
+                </p>
               </div>
               
               <div className="hidden md:block text-center">
-                <p className="text-[10px] font-semibold text-zinc-300 uppercase tracking-wider mb-0.5">Developer -</p>
-                <p className="text-sm font-bold text-white tracking-tight uppercase drop-shadow-md">
-                  Er. SUBHAJIT DASGUPTA
-                </p>
-                <p className="text-[10px] text-zinc-300 font-medium uppercase tracking-wider mb-1.5">
-                  NITA 2020 ALUMNUS
-                </p>
                 <div className="flex flex-col items-center justify-center gap-2">
                   <div className="flex items-center justify-center gap-2">
                     <div className="inline-block glass-morphism-pill px-2.5 py-0.5 rounded-md">
@@ -599,11 +595,8 @@ export default function App() {
                 </div>
               </div>
             </div>
-            {/* Mobile Dev Name */}
+            {/* Mobile Stats Section */}
             <div className="md:hidden px-4 py-2 border-t border-white/40 text-center flex flex-col items-center gap-1.5">
-              <p className="text-[10px] font-bold text-zinc-900 tracking-tight uppercase">
-                Developer - Er. SUBHAJIT DASGUPTA (NITA 2020 ALUMNUS)
-              </p>
               <div className="flex flex-col items-center justify-center gap-2">
                 <div className="flex flex-wrap items-center justify-center gap-2">
                   <div className="inline-block glass-morphism-pill px-2.5 py-0.5 rounded-md">
@@ -736,7 +729,7 @@ service cloud.firestore {
                   onClick={() => setShowCalculator(true)}
                   className="w-full py-6 rounded-3xl font-black text-base text-white transition-all duration-300 bg-gradient-to-br from-blue-400/90 to-indigo-600/90 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(59,130,246,0.5),inset_0_1px_1px_rgba(255,255,255,0.8)] active:scale-[0.97] active:translate-y-1 active:shadow-[0_4px_10px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] mb-2"
                 >
-                  Calculate your weightage and rank in the leaderboard
+                  CALCULATE YOUR WEIGHTAGE AND RANK IN THE LEADERBOARD
                 </button>
               ) : (
                 <div className="animate-zoom-in-bounce">
