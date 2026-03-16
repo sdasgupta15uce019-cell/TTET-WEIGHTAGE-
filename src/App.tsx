@@ -96,7 +96,13 @@ const AnimatedModal = ({ isOpen, onClose, children, maxWidth = "max-w-md" }: { i
 
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md transition-opacity duration-300 ${isAnimatingOut ? 'opacity-0' : 'opacity-100'}`}>
-      <div className={`glass-morphism ${maxWidth} w-full p-6 rounded-3xl ${isAnimatingOut ? 'animate-zoom-out' : 'animate-zoom-in-bounce'}`}>
+      <div className={`glass-morphism ${maxWidth} w-full p-6 rounded-3xl relative ${isAnimatingOut ? 'animate-zoom-out' : 'animate-zoom-in-bounce'}`}>
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 glass-morphism-button-red p-2 rounded-full flex items-center justify-center transition-all z-50"
+        >
+          <X className="w-5 h-5 text-white stroke-[3] drop-shadow-md" />
+        </button>
         {children}
       </div>
     </div>
@@ -909,14 +915,8 @@ service cloud.firestore {
         onClose={() => setShowPredictionsPopup(false)}
         maxWidth="max-w-md"
       >
-        <div className="flex justify-between items-center mb-6">
+        <div className="mb-6">
           <h3 className="text-lg font-bold text-zinc-900">Predictions</h3>
-          <button 
-            onClick={() => setShowPredictionsPopup(false)}
-            className="glass-morphism-button-red p-2 rounded-full flex items-center justify-center transition-all"
-          >
-            <X className="w-5 h-5 text-white stroke-[3] drop-shadow-md" />
-          </button>
         </div>
         
         <div className="space-y-4">
