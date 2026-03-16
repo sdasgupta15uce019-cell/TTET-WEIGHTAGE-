@@ -960,9 +960,11 @@ service cloud.firestore {
           </div>
           <div className="w-full">
             <h3 className="text-xl font-black text-zinc-900 mb-2 uppercase tracking-wide drop-shadow-sm">Rank Prediction Engine</h3>
-            <p className="text-zinc-600 text-sm font-medium mb-6">
-              Enter your registered phone number to get your predicted rank for the 507 UR vacancies.
-            </p>
+            {!predictResult && (
+              <p className="text-zinc-600 text-sm font-medium mb-6">
+                Enter your registered phone number to get your predicted rank for the 507 UR vacancies.
+              </p>
+            )}
 
             {!predictResult ? (
               <form onSubmit={handlePredictRankSubmit} className="space-y-4 w-full">
