@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { CandidateRecord, Category, FilterCategory } from '../types';
 import { Trophy, EyeOff, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -28,8 +28,6 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
   onUpdateName,
   onUnverify
 }) => {
-  const visibleRecords = records.filter(r => !r.isHidden);
-  const trashRecords = records.filter(r => r.isHidden);
   const [verifyRollNo, setVerifyRollNo] = useState<Record<string, string>>({});
   const [verifySlNo, setVerifySlNo] = useState<Record<string, string>>({});
   const [editingNameId, setEditingNameId] = useState<string | null>(null);
@@ -37,14 +35,18 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
   const [editingRollNoId, setEditingRollNoId] = useState<string | null>(null);
   const [editRollNoValue, setEditRollNoValue] = useState('');
 
-  let filteredRecords: CandidateRecord[] = [];
-  if (selectedCategory === 'Trash') {
-    filteredRecords = trashRecords;
-  } else if (selectedCategory === 'All') {
-    filteredRecords = visibleRecords.filter(r => r.scoreTET2 >= 90);
-  } else {
-    filteredRecords = visibleRecords.filter(r => r.category === selectedCategory);
-  }
+  const filteredRecords = useMemo(() => {
+    const visibleRecords = records.filter(r => !r.isHidden);
+    const trashRecords = records.filter(r => r.isHidden);
+
+    if (selectedCategory === 'Trash') {
+      return trashRecords;
+    } else if (selectedCategory === 'All') {
+      return visibleRecords.filter(r => r.scoreTET2 >= 90);
+    } else {
+      return visibleRecords.filter(r => r.category === selectedCategory);
+    }
+  }, [records, selectedCategory]);
 
   const categories: FilterCategory[] = ['All', 'UR', 'SC', 'ST', 'PH'];
   if (isAdmin) {
@@ -61,18 +63,29 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
           <h2 className="text-xl font-bold text-zinc-800 drop-shadow-sm">Merit Leaderboard</h2>
         </div>
         
-        <div className="flex items-center justify-between sm:justify-start gap-1 sm:gap-2 bg-black/5 p-1.5 rounded-2xl overflow-x-auto w-full sm:w-auto">
+        <div className="flex items-center justify-between sm:justify-start gap-1 sm:gap-2 bg-black/5 p-1.5 rounded-2xl overflow-x-auto w-full sm:w-auto relative">
           {categories.map(cat => (
             <button
               key={cat}
               onClick={() => onCategoryChange(cat)}
-              className={`flex-1 sm:flex-none px-2 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-bold uppercase transition-all whitespace-nowrap text-center ${
+              className={`relative flex-1 sm:flex-none px-2 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-bold uppercase transition-all whitespace-nowrap text-center group ${
                 selectedCategory === cat
-                  ? cat === 'Trash' ? 'bg-red-500 text-white shadow-md shine-only' : 'bg-emerald-500 text-white shadow-md shine-only'
-                  : 'text-zinc-600 hover:bg-black/5 hover:text-zinc-900'
+                  ? 'text-white'
+                  : 'text-zinc-600 hover:bg-white/40 hover:text-zinc-900'
               }`}
             >
-              <span className={selectedCategory === cat ? 'relative z-10' : ''}>{cat}</span>
+              {selectedCategory === cat && (
+                <motion.div
+                  layoutId="activeCategoryPill"
+                  className={`absolute inset-0 rounded-xl shadow-lg border border-white/40 backdrop-blur-md ${
+                    cat === 'Trash' 
+                      ? 'bg-red-500/90 shadow-red-500/20' 
+                      : 'bg-emerald-500/90 shadow-emerald-500/20'
+                  }`}
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+              <span className="relative z-10">{cat}</span>
             </button>
           ))}
         </div>
@@ -90,9 +103,10 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-white/20">
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence mode="wait">
               {filteredRecords.length === 0 ? (
                 <motion.tr
+                  key="empty"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -105,10 +119,9 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                 filteredRecords.map((record, index) => (
                   <motion.tr
                     key={record.id}
-                    layout
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.2, delay: Math.min(index * 0.01, 0.2) }}
                     className="hover:bg-black/5 transition-colors group"
                   >
                     <td className="px-1 py-3 sm:px-6 sm:py-4 w-8 sm:w-auto">
