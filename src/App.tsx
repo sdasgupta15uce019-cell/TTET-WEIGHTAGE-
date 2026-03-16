@@ -570,7 +570,9 @@ export default function App() {
     const total_missing_added = 507 - cutoff_current_rank;
     const pass_ratio = percent_missing_above_user / percent_missing_above_cutoff;
     const missing_candidates_ahead = Math.round(total_missing_added * pass_ratio);
-    const final_rank = user_baseline_rank + missing_candidates_ahead;
+    
+    // For top 3, show their actual rank as estimated rank without statistical projection
+    const final_rank = user_baseline_rank <= 3 ? user_baseline_rank : user_baseline_rank + missing_candidates_ahead;
 
     setPredictResult(`Based on the live updated data, your estimated rank is ${final_rank} out of 507 UR seats. This accounts for both verified candidates and the statistical projection of unverified candidates.`);
   };
