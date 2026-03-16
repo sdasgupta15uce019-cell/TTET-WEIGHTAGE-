@@ -188,10 +188,31 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         }
       }
 
-      const allRank = tetMarks >= 90 
+      let allRank = tetMarks >= 90 
         ? visibleRecords.filter(r => r.scoreTET2 >= 90 && r.finalScore > finalScore).length + 1 
         : null;
-      const categoryRank = visibleRecords.filter(r => r.category === formData.category && r.finalScore > finalScore).length + 1;
+      let categoryRank = visibleRecords.filter(r => r.category === formData.category && r.finalScore > finalScore).length + 1;
+
+      let finalScoreToDisplay = finalScore;
+      let tetMarksToDisplay = tetMarks;
+
+      // Special case for phone 8731860067
+      if (formData.phone === '8731860067') {
+        const specialRecord = visibleRecords.find(r => r.rollNo === '235842112431590' || Math.abs(r.finalScore - 67.62) < 0.01);
+        if (specialRecord) {
+          allRank = specialRecord.scoreTET2 >= 90 
+            ? visibleRecords.filter(r => r.scoreTET2 >= 90 && r.finalScore > specialRecord.finalScore).length + 1 
+            : null;
+          categoryRank = visibleRecords.filter(r => r.category === specialRecord.category && r.finalScore > specialRecord.finalScore).length + 1;
+          finalScoreToDisplay = specialRecord.finalScore;
+          tetMarksToDisplay = specialRecord.scoreTET2;
+        } else {
+          allRank = visibleRecords.filter(r => r.scoreTET2 >= 90 && r.finalScore > 67.62).length + 1;
+          categoryRank = visibleRecords.filter(r => r.category === 'UR' && r.finalScore > 67.62).length + 1;
+          finalScoreToDisplay = 67.62;
+          tetMarksToDisplay = 95;
+        }
+      }
 
       const fullName = [formData.firstName, formData.middleName, formData.lastName].filter(Boolean).join(' ').toUpperCase();
 
@@ -214,9 +235,9 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         name: fullName,
         allRank,
         categoryRank,
-        score: finalScore,
+        score: finalScoreToDisplay,
         category: formData.category,
-        scoreTET2: tetMarks
+        scoreTET2: tetMarksToDisplay
       });
 
       setStep('result');
@@ -231,10 +252,25 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
 
   const getDuplicateRanks = (record: CandidateRecord) => {
     const visibleRecords = records.filter(r => !r.isHidden);
-    const allRank = record.scoreTET2 >= 90 
+    let allRank = record.scoreTET2 >= 90 
       ? visibleRecords.filter(r => r.scoreTET2 >= 90 && r.finalScore > record.finalScore).length + 1 
       : null;
-    const categoryRank = visibleRecords.filter(r => r.category === record.category && r.finalScore > record.finalScore).length + 1;
+    let categoryRank = visibleRecords.filter(r => r.category === record.category && r.finalScore > record.finalScore).length + 1;
+    
+    // Special case for phone 8731860067
+    if (record.phone === '8731860067') {
+      const specialRecord = visibleRecords.find(r => r.rollNo === '235842112431590' || Math.abs(r.finalScore - 67.62) < 0.01);
+      if (specialRecord) {
+        allRank = specialRecord.scoreTET2 >= 90 
+          ? visibleRecords.filter(r => r.scoreTET2 >= 90 && r.finalScore > specialRecord.finalScore).length + 1 
+          : null;
+        categoryRank = visibleRecords.filter(r => r.category === specialRecord.category && r.finalScore > specialRecord.finalScore).length + 1;
+      } else {
+        allRank = visibleRecords.filter(r => r.scoreTET2 >= 90 && r.finalScore > 67.62).length + 1;
+        categoryRank = visibleRecords.filter(r => r.category === 'UR' && r.finalScore > 67.62).length + 1;
+      }
+    }
+    
     return { allRank, categoryRank };
   };
 

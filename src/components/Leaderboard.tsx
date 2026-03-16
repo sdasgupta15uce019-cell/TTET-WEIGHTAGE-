@@ -42,7 +42,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
     if (selectedCategory === 'Trash') {
       return trashRecords;
     } else if (selectedCategory === 'All') {
-      return visibleRecords.filter(r => r.scoreTET2 >= 83);
+      return visibleRecords.filter(r => r.scoreTET2 >= 90);
     } else {
       return visibleRecords.filter(r => r.category === selectedCategory);
     }
