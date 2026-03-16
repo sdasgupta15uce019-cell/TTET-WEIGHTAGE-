@@ -448,6 +448,37 @@ export default function App() {
     }
   };
 
+  const handleDownloadSCList = () => {
+    try {
+      const scList = effectiveRecords
+        .filter(r => !r.isHidden && r.category === 'SC')
+        .sort((a, b) => b.finalScore - a.finalScore);
+
+      const doc = new jsPDF();
+      
+      const tableData = scList.map((record, index) => [
+        index + 1,
+        record.name,
+        record.isVerified ? 'Yes' : 'No',
+        record.finalScore.toFixed(2)
+      ]);
+
+      doc.setFontSize(16);
+      doc.text("SC Category Merit List", 14, 15);
+      
+      autoTable(doc, {
+        startY: 25,
+        head: [['Rank', 'Name', 'Verification', 'Weightage']],
+        body: tableData,
+      });
+
+      doc.save("sc_merit_list.pdf");
+    } catch (error) {
+      console.error("Error generating SC List PDF:", error);
+      alert("Failed to generate SC List PDF.");
+    }
+  };
+
   const handleDownloadMissingList = () => {
     try {
       const doc = new jsPDF();
@@ -859,6 +890,13 @@ service cloud.firestore {
                 >
                   <Download className="w-4 h-4 relative z-10" />
                   <span className="relative z-10">Download missing list</span>
+                </button>
+                <button 
+                  onClick={handleDownloadSCList}
+                  className="shine-only px-6 py-2 bg-purple-600/90 hover:bg-purple-600 text-white font-bold uppercase rounded-xl shadow-sm hover:-translate-y-0.5 transition-all duration-300 text-sm flex items-center justify-center gap-2"
+                >
+                  <Download className="w-4 h-4 relative z-10" />
+                  <span className="relative z-10">Download SC list</span>
                 </button>
               </div>
             </div>
