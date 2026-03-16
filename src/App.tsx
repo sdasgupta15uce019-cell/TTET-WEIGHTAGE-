@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, ReactNode } from 'react';
+import React, { useState, useEffect, useRef, ReactNode } from 'react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { 
@@ -17,7 +17,7 @@ import { CalculatorForm } from './components/CalculatorForm';
 import { Leaderboard } from './components/Leaderboard';
 import { HelpDialog } from './components/HelpDialog';
 import { SearchDialog } from './components/SearchDialog';
-import { Sparkles, AlertCircle, Database, Shield, Download, X, MessageCircle } from 'lucide-react';
+import { Sparkles, AlertCircle, Database, Shield, Download, X, MessageCircle, Trophy } from 'lucide-react';
 import { candidatesData } from './data/candidates';
 import { useOverscrollStretch } from './hooks/useOverscrollStretch';
 
@@ -111,7 +111,10 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentView, setCurrentView] = useState<'calculator' | 'leaderboard'>('calculator');
   const [isAdmin, setIsAdmin] = useState(false);
-  const [predictRankMessage, setPredictRankMessage] = useState<string | null>(null);
+  const [showRankPredictor, setShowRankPredictor] = useState(false);
+  const [predictPhone, setPredictPhone] = useState('');
+  const [predictResult, setPredictResult] = useState<string | null>(null);
+  const [predictError, setPredictError] = useState<string | null>(null);
   const [showPredictionsPopup, setShowPredictionsPopup] = useState(false);
   const [showNonVerifiedPopup, setShowNonVerifiedPopup] = useState(false);
   const [showUnregisteredPopup, setShowUnregisteredPopup] = useState(false);
@@ -507,14 +510,69 @@ export default function App() {
     if (adjustedCutoff < 64.9) {
       adjustedCutoff = 64.9;
     }
-    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "65.96";
+    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "65.87";
   } else if (!isAdmin) {
-    predictedCutoff = "65.96";
+    predictedCutoff = "65.87";
   }
 
-  const handlePredictRankClick = () => {
-    const remaining = 700 - allList.length;
-    setPredictRankMessage(`To predict your rank, add ${remaining} more who got 90 or above.`);
+  const handlePredictRankSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPredictError(null);
+    setPredictResult(null);
+
+    const phone = predictPhone.trim();
+    if (!phone) {
+      setPredictError("Please enter your phone number.");
+      return;
+    }
+
+    const userRecord = effectiveRecords.find(r => r.phone === phone);
+    if (!userRecord) {
+      setPredictError("No record found with this phone number. Please ensure you have submitted your marks.");
+      return;
+    }
+
+    const user_score = userRecord.finalScore;
+    const user_baseline_rank = allList.findIndex(r => r.id === userRecord.id) + 1;
+    
+    if (user_baseline_rank === 0) {
+      setPredictResult("Based on the live updated data, your profile is currently tracking under reservation.");
+      return;
+    }
+
+    const live_cutoff = parseFloat(predictedCutoff as string);
+    if (isNaN(live_cutoff)) {
+      setPredictError("Live cutoff is currently unavailable.");
+      return;
+    }
+
+    if (user_score < live_cutoff) {
+      setPredictResult(`Based on the live updated data, your score of ${user_score.toFixed(2)} is currently tracking below the projected safe zone cutoff of ${live_cutoff.toFixed(2)}.`);
+      return;
+    }
+
+    let cutoff_current_rank = 0;
+    for (let i = 0; i < allList.length; i++) {
+      if (allList[i].finalScore >= live_cutoff) {
+        cutoff_current_rank = i + 1;
+      } else {
+        break;
+      }
+    }
+
+    if (cutoff_current_rank === 0) {
+      cutoff_current_rank = allList.length;
+    }
+
+    const percent_missing_above_cutoff = cutoff_current_rank / allList.length;
+    const percent_missing_above_user = user_baseline_rank / allList.length;
+
+    const total_missing_added = 507 - cutoff_current_rank;
+    const pass_ratio = percent_missing_above_user / percent_missing_above_cutoff;
+    const missing_candidates_ahead = Math.round(total_missing_added * pass_ratio);
+    const final_rank = user_baseline_rank + missing_candidates_ahead;
+
+    setPredictResult(`Based on the live updated data, your estimated rank is ${final_rank} out of 507 UR seats. This accounts for both verified candidates and the statistical projection of unverified candidates.`);
   };
 
   return (
@@ -874,7 +932,10 @@ service cloud.firestore {
             <button 
               onClick={() => {
                 setShowPredictionsPopup(false);
-                handlePredictRankClick();
+                setShowRankPredictor(true);
+                setPredictPhone('');
+                setPredictResult(null);
+                setPredictError(null);
               }}
               className="glass-button w-full bg-red-50/80 border border-red-200/50 p-4 rounded-xl text-center hover:bg-red-100/80 transition-colors active:scale-[0.98] shadow-sm"
             >
@@ -887,28 +948,62 @@ service cloud.firestore {
         </div>
       </AnimatedModal>
 
-      {/* Predict Rank Message Modal */}
+      {/* Rank Predictor Modal */}
       <AnimatedModal
-        isOpen={!!predictRankMessage}
-        onClose={() => setPredictRankMessage(null)}
-        maxWidth="max-w-sm"
+        isOpen={showRankPredictor}
+        onClose={() => setShowRankPredictor(false)}
+        maxWidth="max-w-md"
       >
         <div className="flex flex-col items-center text-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-indigo-100/50 backdrop-blur-sm flex items-center justify-center text-indigo-600 border border-indigo-200/50 shadow-inner">
-            <AlertCircle className="w-6 h-6" />
+            <Trophy className="w-6 h-6" />
           </div>
-          <div>
-            <h3 className="text-lg font-bold text-zinc-900 mb-2">Predicted Rank</h3>
-            <p className="text-zinc-700 text-sm leading-relaxed font-medium">
-              {predictRankMessage}
+          <div className="w-full">
+            <h3 className="text-xl font-black text-zinc-900 mb-2 uppercase tracking-wide drop-shadow-sm">Rank Prediction Engine</h3>
+            <p className="text-zinc-600 text-sm font-medium mb-6">
+              Enter your registered phone number to get your predicted rank for the 507 UR vacancies.
             </p>
+
+            {!predictResult ? (
+              <form onSubmit={handlePredictRankSubmit} className="space-y-4 w-full">
+                <div>
+                  <input
+                    type="tel"
+                    placeholder="Enter Phone Number"
+                    value={predictPhone}
+                    onChange={(e) => setPredictPhone(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-white/50 backdrop-blur-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none font-medium text-center shadow-inner"
+                    required
+                  />
+                </div>
+                {predictError && (
+                  <p className="text-red-600 text-sm font-medium bg-red-50/50 py-2 px-3 rounded-lg border border-red-100">
+                    {predictError}
+                  </p>
+                )}
+                <button
+                  type="submit"
+                  className="w-full py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-bold rounded-xl hover:from-indigo-700 hover:to-blue-700 transition-all active:scale-95 shadow-lg shadow-indigo-500/30 uppercase tracking-wider text-sm"
+                >
+                  Predict My Rank
+                </button>
+              </form>
+            ) : (
+              <div className="space-y-6 w-full animate-zoom-in-bounce">
+                <div className="bg-indigo-50/80 backdrop-blur-md border border-indigo-200/50 p-6 rounded-2xl shadow-inner">
+                  <p className="text-zinc-800 text-base leading-relaxed font-semibold">
+                    {predictResult}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowRankPredictor(false)}
+                  className="w-full py-3 bg-zinc-900 text-white font-bold rounded-xl hover:bg-zinc-800 transition-all active:scale-95 shadow-lg shadow-zinc-900/20 uppercase tracking-wider text-sm"
+                >
+                  Close
+                </button>
+              </div>
+            )}
           </div>
-          <button
-            onClick={() => setPredictRankMessage(null)}
-            className="glass-button w-full mt-2 px-4 py-2.5 bg-zinc-900/90 text-white font-bold rounded-xl hover:bg-zinc-900 transition-colors active:scale-95 shadow-lg shadow-zinc-900/20"
-          >
-            Got it
-          </button>
         </div>
       </AnimatedModal>
 
