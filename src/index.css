@@ -17,11 +17,11 @@
   
   @keyframes splash-logo-zoom {
     0% {
-      transform: scale(1);
+      transform: scale(1) translateZ(0);
       opacity: 1;
     }
     100% {
-      transform: scale(50);
+      transform: scale(40) translateZ(0);
       opacity: 0;
     }
   }
