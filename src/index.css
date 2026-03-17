@@ -13,7 +13,19 @@
   --animate-zoom-out: zoom-out 0.3s ease-in forwards;
   --animate-app-unlock: app-unlock 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   --animate-app-unlock-delayed: app-unlock 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s both;
+  --animate-splash-logo-zoom: splash-logo-zoom 0.6s cubic-bezier(0.8, 0, 0.2, 1) forwards;
   
+  @keyframes splash-logo-zoom {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(50);
+      opacity: 0;
+    }
+  }
+
   @keyframes shimmer {
     100% {
       transform: translateX(100%);

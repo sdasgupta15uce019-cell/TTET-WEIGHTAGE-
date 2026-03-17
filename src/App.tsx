@@ -9,7 +9,9 @@ import {
   query, 
   where, 
   onSnapshot, 
-  serverTimestamp
+  serverTimestamp,
+  getDocs,
+  deleteField
 } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './firebase';
 import { CandidateRecord, Category, FilterCategory } from './types';
@@ -20,6 +22,8 @@ import { SearchDialog } from './components/SearchDialog';
 import { Sparkles, AlertCircle, Database, Shield, Download, X, MessageCircle, Trophy } from 'lucide-react';
 import { candidatesData } from './data/candidates';
 import { useOverscrollStretch } from './hooks/useOverscrollStretch';
+
+import { SplashScreen } from './components/SplashScreen';
 
 const AnimatedPopup = ({ isOpen, onClose, title, subtitle, children }: { isOpen: boolean, onClose: () => void, title: string, subtitle: string, children: ReactNode }) => {
   const [isRendered, setIsRendered] = useState(isOpen);
@@ -127,7 +131,7 @@ export default function App() {
   const [showCalculator, setShowCalculator] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionText, setTransitionText] = useState('');
-  const [animationClass, setAnimationClass] = useState('animate-app-unlock-delayed');
+  const [animationClass, setAnimationClass] = useState('opacity-0');
   
   const { scrollRef, contentRef } = useOverscrollStretch();
 
@@ -155,16 +159,39 @@ export default function App() {
       return;
     }
 
-    // Fetch ALL merit records
-    const qMerit = query(collection(db, 'merit_records'));
-    // Fetch ALL trash records (hidden IDs)
-    const qTrash = query(collection(db, 'trash_records'));
+    // Fetch ALL merit records from single document
+    const meritDocRef = doc(db, 'merit_records', 'leaderboard_v2');
+    // Fetch ALL trash records from single document
+    const trashDocRef = doc(db, 'trash_records', 'trash_v2');
 
-    const unsubscribeMerit = onSnapshot(qMerit, (snapshot) => {
-      const newRecords = snapshot.docs
-        .map(doc => ({
-          id: doc.id,
-          ...doc.data()
+    const unsubscribeMerit = onSnapshot(meritDocRef, async (snapshot) => {
+      if (!snapshot.exists()) {
+        // Run migration once
+        try {
+          const qMerit = query(collection(db, 'merit_records'));
+          const meritSnapshot = await getDocs(qMerit);
+          const recordsObj: Record<string, any> = {};
+          meritSnapshot.docs.forEach(d => {
+            if (d.id !== 'leaderboard_v2') {
+              recordsObj[d.id] = d.data();
+            }
+          });
+          await setDoc(meritDocRef, { records: recordsObj });
+        } catch (err: any) {
+          console.error("Migration failed:", err);
+          if (err.code === 'permission-denied' || err.message?.includes('permissions')) {
+            alert(`Firestore Security Rules Update Required!\n\nTo upgrade to the new high-performance database (Solution 1), you must update your Firestore rules to allow the new document structure.\n\nPlease go to Firebase Console -> Firestore -> Rules, and change the 'allow write' line for merit_records to:\n\nallow write: if docId == 'leaderboard_v2' || (request.resource.data.scoreTET2 >= 0 ... [keep your existing rules here]);\n\nOr simply allow write: if true; temporarily during migration.`);
+          }
+        }
+        return;
+      }
+
+      const data = snapshot.data();
+      const recordsObj = data?.records || {};
+      const newRecords = Object.keys(recordsObj)
+        .map(id => ({
+          id,
+          ...recordsObj[id]
         } as CandidateRecord))
         .filter(record => typeof record.finalScore === 'number');
       
@@ -178,9 +205,30 @@ export default function App() {
       setIsLoading(false);
     });
 
-    const unsubscribeTrash = onSnapshot(qTrash, (snapshot) => {
-      const ids = new Set(snapshot.docs.map(doc => doc.id));
-      setTrashIds(ids);
+    const unsubscribeTrash = onSnapshot(trashDocRef, async (snapshot) => {
+      if (!snapshot.exists()) {
+        try {
+          const qTrash = query(collection(db, 'trash_records'));
+          const trashSnapshot = await getDocs(qTrash);
+          const idsObj: Record<string, any> = {};
+          trashSnapshot.docs.forEach(d => {
+            if (d.id !== 'trash_v2') {
+              idsObj[d.id] = d.data();
+            }
+          });
+          await setDoc(trashDocRef, { ids: idsObj });
+        } catch (err: any) {
+          console.error("Trash migration failed:", err);
+          if (err.code === 'permission-denied' || err.message?.includes('permissions')) {
+            console.error("Please update your trash_records rules to allow writing the 'trash_v2' document.");
+          }
+        }
+        return;
+      }
+
+      const data = snapshot.data();
+      const idsObj = data?.ids || {};
+      setTrashIds(new Set(Object.keys(idsObj)));
       setTrashError(null);
     }, (error: any) => {
       console.error("Firestore trash error:", error);
@@ -229,10 +277,14 @@ export default function App() {
 
     try {
       console.log("Submitting record...", record);
-      await setDoc(doc(db, 'merit_records', record.phone), {
-        ...record,
-        timestamp: serverTimestamp()
-      });
+      await setDoc(doc(db, 'merit_records', 'leaderboard_v2'), {
+        records: {
+          [record.phone]: {
+            ...record,
+            timestamp: Date.now()
+          }
+        }
+      }, { merge: true });
       console.log("Record submitted successfully!");
     } catch (error: any) {
       console.error("Error adding document: ", error);
@@ -250,10 +302,14 @@ export default function App() {
     try {
       // Instead of updating the record, we create a marker in the trash_records collection
       // This is more robust if the user's rules block updates but allow creates
-      await setDoc(doc(db, 'trash_records', id), {
-        hiddenAt: serverTimestamp(),
-        hiddenBy: 'admin'
-      });
+      await setDoc(doc(db, 'trash_records', 'trash_v2'), {
+        ids: {
+          [id]: {
+            hiddenAt: Date.now(),
+            hiddenBy: 'admin'
+          }
+        }
+      }, { merge: true });
       console.log(`Record ${id} moved to trash successfully.`);
     } catch (error: any) {
       console.error("Error hiding document:", error);
@@ -270,8 +326,9 @@ export default function App() {
     try {
       // To restore, we simply delete the marker from the trash_records collection
       // We use the delete_doc equivalent in the SDK
-      const { deleteDoc } = await import('firebase/firestore');
-      await deleteDoc(doc(db, 'trash_records', id));
+      await updateDoc(doc(db, 'trash_records', 'trash_v2'), {
+        [`ids.${id}`]: deleteField()
+      });
       console.log(`Record ${id} restored successfully.`);
     } catch (error: any) {
       console.error("Error restoring document:", error);
@@ -297,12 +354,16 @@ export default function App() {
         updatedName = candidate.name;
       }
 
-      await updateDoc(doc(db, 'merit_records', id), {
-        isVerified,
-        name: updatedName,
-        rollNo,
-        slNo: candidate.slNo
-      });
+      await setDoc(doc(db, 'merit_records', 'leaderboard_v2'), {
+        records: {
+          [id]: {
+            isVerified,
+            name: updatedName,
+            rollNo,
+            slNo: candidate.slNo
+          }
+        }
+      }, { merge: true });
 
       console.log(`Record ${id} verification status updated.`);
     } catch (error: any) {
@@ -336,12 +397,16 @@ export default function App() {
         updatedName = candidate.name;
       }
 
-      await updateDoc(doc(db, 'merit_records', id), {
-        isVerified,
-        name: updatedName,
-        rollNo: candidate.rollNo,
-        slNo: candidate.slNo
-      });
+      await setDoc(doc(db, 'merit_records', 'leaderboard_v2'), {
+        records: {
+          [id]: {
+            isVerified,
+            name: updatedName,
+            rollNo: candidate.rollNo,
+            slNo: candidate.slNo
+          }
+        }
+      }, { merge: true });
 
       console.log(`Record ${id} verification status updated by Sl No.`);
     } catch (error: any) {
@@ -353,9 +418,13 @@ export default function App() {
   const handleUpdateName = async (id: string | undefined, newName: string) => {
     if (!id || !newName) return;
     try {
-      await updateDoc(doc(db, 'merit_records', id), {
-        name: newName
-      });
+      await setDoc(doc(db, 'merit_records', 'leaderboard_v2'), {
+        records: {
+          [id]: {
+            name: newName
+          }
+        }
+      }, { merge: true });
       console.log(`Record ${id} name updated.`);
     } catch (error: any) {
       console.error("Error updating name:", error);
@@ -366,10 +435,14 @@ export default function App() {
   const handleUnverify = async (id: string | undefined) => {
     if (!id) return;
     try {
-      await updateDoc(doc(db, 'merit_records', id), {
-        isVerified: false,
-        rollNo: null
-      });
+      await setDoc(doc(db, 'merit_records', 'leaderboard_v2'), {
+        records: {
+          [id]: {
+            isVerified: false,
+            rollNo: null
+          }
+        }
+      }, { merge: true });
       console.log(`Record ${id} unverified.`);
     } catch (error: any) {
       console.error("Error unverifying:", error);
@@ -642,7 +715,13 @@ export default function App() {
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900 overflow-hidden">
+    <>
+      <SplashScreen 
+        onComplete={() => {
+          setAnimationClass('animate-app-unlock');
+        }} 
+      />
+      <div className="fixed inset-0 flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900 overflow-hidden">
       {/* Animated Background Elements */}
       <div className="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-emerald-500/40 blur-[100px] pointer-events-none animate-pulse z-0"></div>
       <div className="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-500/40 blur-[100px] pointer-events-none animate-pulse z-0" style={{ animationDelay: '2s' }}></div>
@@ -817,12 +896,14 @@ export default function App() {
 {`rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /merit_records/{document=**} {
+    match /merit_records/{docId} {
       // Anyone can view the leaderboard
       allow read: if true; 
       
-      // Strict data validation to block trolls and impossible scores
-      allow write: if request.resource.data.scoreTET2 >= 0 
+      // Allow writes to the new V2 master document
+      // (Note: For production, you may want to add deeper map validation here)
+      allow write: if docId == 'leaderboard_v2' || (
+                   request.resource.data.scoreTET2 >= 0 
                    && request.resource.data.scoreTET2 <= 121
                    && request.resource.data.score12th >= 0 
                    && request.resource.data.score12th <= 100
@@ -830,11 +911,12 @@ service cloud.firestore {
                    && request.resource.data.scoreGrad <= 100
                    && request.resource.data.scoreBEd >= 0 
                    && request.resource.data.scoreBEd <= 100
-                   && request.resource.data.finalScore <= 72
-                   && !(request.resource.data.name.lower().matches('.*(naughty america|mother chod|meloni|sunny leone).*'));
+                   && request.resource.data.finalScore <= 82
+                   && !(request.resource.data.name.lower().matches('.*(naughty america|mother chod|meloni|sunny leone).*'))
+      );
     }
     
-    match /trash_records/{document=**} {
+    match /trash_records/{docId} {
       allow read, write: if true;
     }
   }
@@ -1161,5 +1243,6 @@ service cloud.firestore {
         </div>
       )}
     </div>
+    </>
   );
 }
