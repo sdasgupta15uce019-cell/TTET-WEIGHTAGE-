@@ -117,6 +117,7 @@ export default function App() {
   const [records, setRecords] = useState<CandidateRecord[]>([]);
   const [trashIds, setTrashIds] = useState<Set<string>>(new Set());
   const [trashError, setTrashError] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<FilterCategory>('All');
   const [isLoading, setIsLoading] = useState(true);
   const [currentView, setCurrentView] = useState<'calculator' | 'leaderboard'>('calculator');
@@ -165,29 +166,66 @@ export default function App() {
     const trashDocRef = doc(db, 'trash_records', 'trash_v2');
 
     const unsubscribeMerit = onSnapshot(meritDocRef, async (snapshot) => {
+      setFetchError(null);
       if (!snapshot.exists()) {
         // Run migration once
         try {
           const qMerit = query(collection(db, 'merit_records'));
           const meritSnapshot = await getDocs(qMerit);
           const recordsObj: Record<string, any> = {};
+          const fallbackRecords: CandidateRecord[] = [];
           meritSnapshot.docs.forEach(d => {
             if (d.id !== 'leaderboard_v2') {
-              recordsObj[d.id] = d.data();
+              const data = d.data();
+              recordsObj[d.id] = data;
+              fallbackRecords.push({ id: d.id, ...data } as CandidateRecord);
             }
           });
+          
+          // Set records immediately so data shows even if migration fails
+          const validRecords = fallbackRecords.filter(record => typeof record.finalScore === 'number');
+          validRecords.sort((a, b) => b.finalScore - a.finalScore);
+          setRecords(validRecords);
+
           await setDoc(meritDocRef, { records: recordsObj });
         } catch (err: any) {
           console.error("Migration failed:", err);
+          setFetchError(`Migration failed: ${err.message}`);
           if (err.code === 'permission-denied' || err.message?.includes('permissions')) {
             alert(`Firestore Security Rules Update Required!\n\nTo upgrade to the new high-performance database (Solution 1), you must update your Firestore rules to allow the new document structure.\n\nPlease go to Firebase Console -> Firestore -> Rules, and change the 'allow write' line for merit_records to:\n\nallow write: if docId == 'leaderboard_v2' || (request.resource.data.scoreTET2 >= 0 ... [keep your existing rules here]);\n\nOr simply allow write: if true; temporarily during migration.`);
           }
+        } finally {
+          setIsLoading(false);
         }
         return;
       }
 
       const data = snapshot.data();
       const recordsObj = data?.records || {};
+      
+      // If the document exists but is empty (e.g., created manually in console),
+      // we should still try to fetch the old data so the app works.
+      if (Object.keys(recordsObj).length === 0) {
+        try {
+          const qMerit = query(collection(db, 'merit_records'));
+          const meritSnapshot = await getDocs(qMerit);
+          const fallbackRecords: CandidateRecord[] = [];
+          meritSnapshot.docs.forEach(d => {
+            if (d.id !== 'leaderboard_v2') {
+              fallbackRecords.push({ id: d.id, ...d.data() } as CandidateRecord);
+            }
+          });
+          
+          const validRecords = fallbackRecords.filter(record => typeof record.finalScore === 'number');
+          validRecords.sort((a, b) => b.finalScore - a.finalScore);
+          setRecords(validRecords);
+          setIsLoading(false);
+          return;
+        } catch (err) {
+          console.error("Failed to fetch fallback data:", err);
+        }
+      }
+
       const newRecords = Object.keys(recordsObj)
         .map(id => ({
           id,
@@ -200,8 +238,9 @@ export default function App() {
       
       setRecords(newRecords);
       setIsLoading(false);
-    }, (error) => {
+    }, (error: any) => {
       console.error("Firestore merit error:", error);
+      setFetchError(error.message || "Failed to fetch data");
       setIsLoading(false);
     });
 
@@ -211,11 +250,17 @@ export default function App() {
           const qTrash = query(collection(db, 'trash_records'));
           const trashSnapshot = await getDocs(qTrash);
           const idsObj: Record<string, any> = {};
+          const fallbackIds = new Set<string>();
           trashSnapshot.docs.forEach(d => {
             if (d.id !== 'trash_v2') {
               idsObj[d.id] = d.data();
+              fallbackIds.add(d.id);
             }
           });
+          
+          setTrashIds(fallbackIds);
+          setTrashError(null);
+
           await setDoc(trashDocRef, { ids: idsObj });
         } catch (err: any) {
           console.error("Trash migration failed:", err);
@@ -228,6 +273,25 @@ export default function App() {
 
       const data = snapshot.data();
       const idsObj = data?.ids || {};
+      
+      if (Object.keys(idsObj).length === 0) {
+        try {
+          const qTrash = query(collection(db, 'trash_records'));
+          const trashSnapshot = await getDocs(qTrash);
+          const fallbackIds = new Set<string>();
+          trashSnapshot.docs.forEach(d => {
+            if (d.id !== 'trash_v2') {
+              fallbackIds.add(d.id);
+            }
+          });
+          setTrashIds(fallbackIds);
+          setTrashError(null);
+          return;
+        } catch (err) {
+          console.error("Failed to fetch fallback trash data:", err);
+        }
+      }
+
       setTrashIds(new Set(Object.keys(idsObj)));
       setTrashError(null);
     }, (error: any) => {
@@ -857,6 +921,12 @@ export default function App() {
           ref={scrollRef}
           className="flex-1 overflow-y-auto w-full overscroll-none"
         >
+          {fetchError && (
+            <div className="mx-4 mt-4 mb-2 z-50 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+              <strong className="font-bold">Error: </strong>
+              <span className="block sm:inline">{fetchError}</span>
+            </div>
+          )}
           <div ref={contentRef} className="flex flex-col min-h-full">
             <main className="max-w-5xl mx-auto px-4 pt-12 pb-40 space-y-8 origin-top w-full">
           {currentView === 'calculator' && (
