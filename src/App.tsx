@@ -11,7 +11,8 @@ import {
   onSnapshot, 
   serverTimestamp,
   getDocs,
-  deleteField
+  deleteField,
+  orderBy
 } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './firebase';
 import { CandidateRecord, Category, FilterCategory } from './types';
@@ -160,81 +161,15 @@ export default function App() {
       return;
     }
 
-    // Fetch ALL merit records from single document
-    const meritDocRef = doc(db, 'merit_records', 'leaderboard_v2');
-    // Fetch ALL trash records from single document
-    const trashDocRef = doc(db, 'trash_records', 'trash_v2');
-
-    const unsubscribeMerit = onSnapshot(meritDocRef, async (snapshot) => {
+    const qMerit = query(collection(db, 'merit_records'), orderBy('finalScore', 'desc'));
+    const unsubscribeMerit = onSnapshot(qMerit, (snapshot) => {
       setFetchError(null);
-      if (!snapshot.exists()) {
-        // Run migration once
-        try {
-          const qMerit = query(collection(db, 'merit_records'));
-          const meritSnapshot = await getDocs(qMerit);
-          const recordsObj: Record<string, any> = {};
-          const fallbackRecords: CandidateRecord[] = [];
-          meritSnapshot.docs.forEach(d => {
-            if (d.id !== 'leaderboard_v2') {
-              const data = d.data();
-              recordsObj[d.id] = data;
-              fallbackRecords.push({ id: d.id, ...data } as CandidateRecord);
-            }
-          });
-          
-          // Set records immediately so data shows even if migration fails
-          const validRecords = fallbackRecords.filter(record => typeof record.finalScore === 'number');
-          validRecords.sort((a, b) => b.finalScore - a.finalScore);
-          setRecords(validRecords);
-
-          await setDoc(meritDocRef, { records: recordsObj });
-        } catch (err: any) {
-          console.error("Migration failed:", err);
-          setFetchError(`Migration failed: ${err.message}`);
-          if (err.code === 'permission-denied' || err.message?.includes('permissions')) {
-            alert(`Firestore Security Rules Update Required!\n\nTo upgrade to the new high-performance database (Solution 1), you must update your Firestore rules to allow the new document structure.\n\nPlease go to Firebase Console -> Firestore -> Rules, and change the 'allow write' line for merit_records to:\n\nallow write: if docId == 'leaderboard_v2' || (request.resource.data.scoreTET2 >= 0 ... [keep your existing rules here]);\n\nOr simply allow write: if true; temporarily during migration.`);
-          }
-        } finally {
-          setIsLoading(false);
-        }
-        return;
-      }
-
-      const data = snapshot.data();
-      const recordsObj = data?.records || {};
-      
-      // If the document exists but is empty (e.g., created manually in console),
-      // we should still try to fetch the old data so the app works.
-      if (Object.keys(recordsObj).length === 0) {
-        try {
-          const qMerit = query(collection(db, 'merit_records'));
-          const meritSnapshot = await getDocs(qMerit);
-          const fallbackRecords: CandidateRecord[] = [];
-          meritSnapshot.docs.forEach(d => {
-            if (d.id !== 'leaderboard_v2') {
-              fallbackRecords.push({ id: d.id, ...d.data() } as CandidateRecord);
-            }
-          });
-          
-          const validRecords = fallbackRecords.filter(record => typeof record.finalScore === 'number');
-          validRecords.sort((a, b) => b.finalScore - a.finalScore);
-          setRecords(validRecords);
-          setIsLoading(false);
-          return;
-        } catch (err) {
-          console.error("Failed to fetch fallback data:", err);
-        }
-      }
-
-      const newRecords = Object.keys(recordsObj)
-        .map(id => ({
-          id,
-          ...recordsObj[id]
-        } as CandidateRecord))
-        .filter(record => typeof record.finalScore === 'number');
-      
-      // Sort client-side: Highest score first
-      newRecords.sort((a, b) => b.finalScore - a.finalScore);
+      const newRecords = snapshot.docs
+        .filter(doc => doc.id !== 'leaderboard_v2') // Ignore v2 doc if it exists
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as CandidateRecord[];
       
       setRecords(newRecords);
       setIsLoading(false);
@@ -244,55 +179,14 @@ export default function App() {
       setIsLoading(false);
     });
 
-    const unsubscribeTrash = onSnapshot(trashDocRef, async (snapshot) => {
-      if (!snapshot.exists()) {
-        try {
-          const qTrash = query(collection(db, 'trash_records'));
-          const trashSnapshot = await getDocs(qTrash);
-          const idsObj: Record<string, any> = {};
-          const fallbackIds = new Set<string>();
-          trashSnapshot.docs.forEach(d => {
-            if (d.id !== 'trash_v2') {
-              idsObj[d.id] = d.data();
-              fallbackIds.add(d.id);
-            }
-          });
-          
-          setTrashIds(fallbackIds);
-          setTrashError(null);
-
-          await setDoc(trashDocRef, { ids: idsObj });
-        } catch (err: any) {
-          console.error("Trash migration failed:", err);
-          if (err.code === 'permission-denied' || err.message?.includes('permissions')) {
-            console.error("Please update your trash_records rules to allow writing the 'trash_v2' document.");
-          }
-        }
-        return;
-      }
-
-      const data = snapshot.data();
-      const idsObj = data?.ids || {};
-      
-      if (Object.keys(idsObj).length === 0) {
-        try {
-          const qTrash = query(collection(db, 'trash_records'));
-          const trashSnapshot = await getDocs(qTrash);
-          const fallbackIds = new Set<string>();
-          trashSnapshot.docs.forEach(d => {
-            if (d.id !== 'trash_v2') {
-              fallbackIds.add(d.id);
-            }
-          });
-          setTrashIds(fallbackIds);
-          setTrashError(null);
-          return;
-        } catch (err) {
-          console.error("Failed to fetch fallback trash data:", err);
-        }
-      }
-
-      setTrashIds(new Set(Object.keys(idsObj)));
+    const qTrash = query(collection(db, 'trash_records'));
+    const unsubscribeTrash = onSnapshot(qTrash, (snapshot) => {
+      const ids = new Set(
+        snapshot.docs
+          .filter(doc => doc.id !== 'trash_v2')
+          .map(doc => doc.id)
+      );
+      setTrashIds(ids);
       setTrashError(null);
     }, (error: any) => {
       console.error("Firestore trash error:", error);
@@ -341,14 +235,10 @@ export default function App() {
 
     try {
       console.log("Submitting record...", record);
-      await setDoc(doc(db, 'merit_records', 'leaderboard_v2'), {
-        records: {
-          [record.phone]: {
-            ...record,
-            timestamp: Date.now()
-          }
-        }
-      }, { merge: true });
+      await setDoc(doc(db, 'merit_records', record.phone), {
+        ...record,
+        timestamp: serverTimestamp()
+      });
       console.log("Record submitted successfully!");
     } catch (error: any) {
       console.error("Error adding document: ", error);
@@ -364,16 +254,10 @@ export default function App() {
     }
     
     try {
-      // Instead of updating the record, we create a marker in the trash_records collection
-      // This is more robust if the user's rules block updates but allow creates
-      await setDoc(doc(db, 'trash_records', 'trash_v2'), {
-        ids: {
-          [id]: {
-            hiddenAt: Date.now(),
-            hiddenBy: 'admin'
-          }
-        }
-      }, { merge: true });
+      await setDoc(doc(db, 'trash_records', id), {
+        hiddenAt: serverTimestamp(),
+        hiddenBy: 'admin'
+      });
       console.log(`Record ${id} moved to trash successfully.`);
     } catch (error: any) {
       console.error("Error hiding document:", error);
@@ -389,10 +273,8 @@ export default function App() {
 
     try {
       // To restore, we simply delete the marker from the trash_records collection
-      // We use the delete_doc equivalent in the SDK
-      await updateDoc(doc(db, 'trash_records', 'trash_v2'), {
-        [`ids.${id}`]: deleteField()
-      });
+      const { deleteDoc } = await import('firebase/firestore');
+      await deleteDoc(doc(db, 'trash_records', id));
       console.log(`Record ${id} restored successfully.`);
     } catch (error: any) {
       console.error("Error restoring document:", error);
@@ -418,16 +300,12 @@ export default function App() {
         updatedName = candidate.name;
       }
 
-      await setDoc(doc(db, 'merit_records', 'leaderboard_v2'), {
-        records: {
-          [id]: {
-            isVerified,
-            name: updatedName,
-            rollNo,
-            slNo: candidate.slNo
-          }
-        }
-      }, { merge: true });
+      await updateDoc(doc(db, 'merit_records', id), {
+        isVerified,
+        name: updatedName,
+        rollNo,
+        slNo: candidate?.slNo || null
+      });
 
       console.log(`Record ${id} verification status updated.`);
     } catch (error: any) {
@@ -461,16 +339,12 @@ export default function App() {
         updatedName = candidate.name;
       }
 
-      await setDoc(doc(db, 'merit_records', 'leaderboard_v2'), {
-        records: {
-          [id]: {
-            isVerified,
-            name: updatedName,
-            rollNo: candidate.rollNo,
-            slNo: candidate.slNo
-          }
-        }
-      }, { merge: true });
+      await updateDoc(doc(db, 'merit_records', id), {
+        isVerified,
+        name: updatedName,
+        rollNo: candidate.rollNo,
+        slNo: candidate.slNo
+      });
 
       console.log(`Record ${id} verification status updated by Sl No.`);
     } catch (error: any) {
@@ -482,13 +356,9 @@ export default function App() {
   const handleUpdateName = async (id: string | undefined, newName: string) => {
     if (!id || !newName) return;
     try {
-      await setDoc(doc(db, 'merit_records', 'leaderboard_v2'), {
-        records: {
-          [id]: {
-            name: newName
-          }
-        }
-      }, { merge: true });
+      await updateDoc(doc(db, 'merit_records', id), {
+        name: newName
+      });
       console.log(`Record ${id} name updated.`);
     } catch (error: any) {
       console.error("Error updating name:", error);
@@ -499,14 +369,10 @@ export default function App() {
   const handleUnverify = async (id: string | undefined) => {
     if (!id) return;
     try {
-      await setDoc(doc(db, 'merit_records', 'leaderboard_v2'), {
-        records: {
-          [id]: {
-            isVerified: false,
-            rollNo: null
-          }
-        }
-      }, { merge: true });
+      await updateDoc(doc(db, 'merit_records', id), {
+        isVerified: false,
+        rollNo: null
+      });
       console.log(`Record ${id} unverified.`);
     } catch (error: any) {
       console.error("Error unverifying:", error);
