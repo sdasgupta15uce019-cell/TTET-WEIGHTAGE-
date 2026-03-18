@@ -164,12 +164,30 @@ export default function App() {
     const qMerit = query(collection(db, 'merit_records'), orderBy('finalScore', 'desc'));
     const unsubscribeMerit = onSnapshot(qMerit, (snapshot) => {
       setFetchError(null);
-      const newRecords = snapshot.docs
+      let newRecords = snapshot.docs
         .filter(doc => doc.id !== 'leaderboard_v2') // Ignore v2 doc if it exists
         .map(doc => ({
           id: doc.id,
           ...doc.data()
         })) as CandidateRecord[];
+      
+      // Merge records from leaderboard_v2 if it exists
+      const v2Doc = snapshot.docs.find(doc => doc.id === 'leaderboard_v2');
+      if (v2Doc) {
+        const v2Data = v2Doc.data();
+        if (v2Data.records) {
+          const v2Records = Object.values(v2Data.records) as CandidateRecord[];
+          // Only add records from v2 that don't already exist as individual documents
+          const existingIds = new Set(newRecords.map(r => r.id));
+          v2Records.forEach(r => {
+            if (!existingIds.has(r.id)) {
+              newRecords.push(r);
+            }
+          });
+          // Sort by finalScore descending
+          newRecords.sort((a, b) => b.finalScore - a.finalScore);
+        }
+      }
       
       setRecords(newRecords);
       setIsLoading(false);
@@ -181,11 +199,21 @@ export default function App() {
 
     const qTrash = query(collection(db, 'trash_records'));
     const unsubscribeTrash = onSnapshot(qTrash, (snapshot) => {
-      const ids = new Set(
+      let ids = new Set(
         snapshot.docs
           .filter(doc => doc.id !== 'trash_v2')
           .map(doc => doc.id)
       );
+      
+      // Merge trash ids from trash_v2 if it exists
+      const v2Doc = snapshot.docs.find(doc => doc.id === 'trash_v2');
+      if (v2Doc) {
+        const v2Data = v2Doc.data();
+        if (v2Data.ids && Array.isArray(v2Data.ids)) {
+          v2Data.ids.forEach(id => ids.add(id));
+        }
+      }
+      
       setTrashIds(ids);
       setTrashError(null);
     }, (error: any) => {
@@ -235,10 +263,19 @@ export default function App() {
 
     try {
       console.log("Submitting record...", record);
-      await setDoc(doc(db, 'merit_records', record.phone), {
+      const dataToSave: any = {
         ...record,
         timestamp: serverTimestamp()
+      };
+      
+      // Remove undefined fields to prevent Firestore errors
+      Object.keys(dataToSave).forEach(key => {
+        if (dataToSave[key] === undefined) {
+          delete dataToSave[key];
+        }
       });
+
+      await setDoc(doc(db, 'merit_records', record.phone), dataToSave);
       console.log("Record submitted successfully!");
     } catch (error: any) {
       console.error("Error adding document: ", error);
@@ -519,7 +556,10 @@ export default function App() {
       // 2. Get all TET scores >= 90 from leaderboard (allList)
       const reportedCounts: Record<number, number> = {};
       allList.forEach(record => {
-        reportedCounts[record.scoreTET2] = (reportedCounts[record.scoreTET2] || 0) + 1;
+        const score = Math.round(Number(record.scoreTET2));
+        if (!isNaN(score)) {
+          reportedCounts[score] = (reportedCounts[score] || 0) + 1;
+        }
       });
 
       // 3. Unique scores sorted descending
