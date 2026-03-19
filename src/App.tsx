@@ -1064,14 +1064,13 @@ service cloud.firestore {
               }}
               className="glass-button w-full bg-red-50/80 border border-red-200/50 p-4 rounded-xl text-center hover:bg-red-100/80 transition-colors active:scale-[0.98] shadow-sm"
             >
-              <p className="text-sm font-bold text-red-700 uppercase tracking-wider mb-1 flex items-center justify-center gap-2">
+              <p className="text-sm font-bold text-red-700 uppercase tracking-wider flex items-center justify-center gap-2">
                 Know your predicted rank for 507 vacancies
                 <span className="bg-red-600 text-white text-[10px] px-1.5 py-0.5 rounded font-black tracking-tighter animate-pulse shadow-[0_0_8px_rgba(220,38,38,0.8)] flex items-center gap-1">
                   <span className="w-1 h-1 bg-white rounded-full"></span>
                   LIVE
                 </span>
               </p>
-              <p className="text-xs text-red-900 font-medium">Click to view prediction</p>
             </button>
           )}
         </div>
