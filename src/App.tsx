@@ -610,9 +610,9 @@ export default function App() {
     if (adjustedCutoff < 64.9) {
       adjustedCutoff = 64.9;
     }
-    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "65.87";
+    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "65.84";
   } else if (!isAdmin) {
-    predictedCutoff = "65.87";
+    predictedCutoff = "65.84";
   }
 
   const handlePredictRankSubmit = (e: React.FormEvent) => {
