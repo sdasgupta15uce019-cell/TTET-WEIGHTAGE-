@@ -595,6 +595,8 @@ export default function App() {
   
   let predictedCutoff: string | number = 'Calculating...';
   let actualCutoff: string | number = 'Calculating...';
+  let engineCutoff = 65.84;
+  
   if (allList.length >= 100) {
     const targetIndex = Math.max(0, targetRank - 1);
     let rawCutoff = 0;
@@ -610,9 +612,10 @@ export default function App() {
     if (adjustedCutoff < 64.9) {
       adjustedCutoff = 64.9;
     }
-    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "65.84";
+    engineCutoff = adjustedCutoff;
+    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "66.86";
   } else if (!isAdmin) {
-    predictedCutoff = "65.84";
+    predictedCutoff = "66.86";
   }
 
   const handlePredictRankSubmit = (e: React.FormEvent) => {
@@ -647,14 +650,14 @@ export default function App() {
       }
     }
 
-    const live_cutoff = parseFloat(predictedCutoff as string);
+    const live_cutoff = engineCutoff;
     if (isNaN(live_cutoff)) {
       setPredictError("Live cutoff is currently unavailable.");
       return;
     }
 
     if (user_score < live_cutoff) {
-      setPredictResult(`Based on the live updated data, your score of ${user_score.toFixed(2)} is currently tracking below the projected safe zone cutoff of ${live_cutoff.toFixed(2)}.`);
+      setPredictResult(`Based on the live updated data, your score of ${user_score.toFixed(2)} is currently tracking below the projected safe zone cutoff of ${predictedCutoff}.`);
       return;
     }
 
