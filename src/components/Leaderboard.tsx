@@ -63,12 +63,12 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
           <h2 className="text-xl font-bold text-zinc-800 drop-shadow-sm">Merit Leaderboard</h2>
         </div>
         
-        <div className="flex items-center justify-between sm:justify-start gap-1 sm:gap-2 bg-black/5 p-1.5 rounded-2xl overflow-x-auto w-full sm:w-auto relative">
+        <div className="flex items-center justify-between sm:justify-start gap-1 sm:gap-2 bg-white/20 backdrop-blur-xl border border-white/30 shadow-inner p-1.5 rounded-full overflow-x-auto w-full sm:w-auto relative">
           {categories.map(cat => (
             <button
               key={cat}
               onClick={() => onCategoryChange(cat)}
-              className={`relative flex-1 sm:flex-none px-2 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-bold uppercase transition-all whitespace-nowrap text-center group ${
+              className={`relative flex-1 sm:flex-none px-3 py-1.5 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-bold uppercase transition-all whitespace-nowrap text-center group ${
                 selectedCategory === cat
                   ? 'text-white'
                   : 'text-zinc-600 hover:bg-white/40 hover:text-zinc-900'
@@ -77,12 +77,12 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
               {selectedCategory === cat && (
                 <motion.div
                   layoutId="activeCategoryPill"
-                  className={`absolute inset-0 rounded-xl shadow-lg border border-white/40 backdrop-blur-md ${
+                  className={`absolute inset-0 rounded-full shadow-lg border border-white/40 backdrop-blur-md ${
                     cat === 'Trash' 
-                      ? 'bg-red-500/90 shadow-red-500/20' 
-                      : 'bg-emerald-500/90 shadow-emerald-500/20'
+                      ? 'bg-red-500/80 shadow-red-500/20' 
+                      : 'bg-emerald-500/80 shadow-emerald-500/20'
                   }`}
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }}
                 />
               )}
               <span className="relative z-10">{cat}</span>
@@ -91,41 +91,50 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="bg-black/5 border-b border-black/5">
-              <th className="px-1 py-3 sm:px-6 sm:py-4 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest">Rank</th>
-              <th className="px-1 py-3 sm:px-6 sm:py-4 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest">Name</th>
-              {isAdmin && <th className="px-2 py-3 sm:px-6 sm:py-4 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest text-center">TET Marks</th>}
-              <th className="px-1 py-3 sm:px-6 sm:py-4 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest text-right">Weightage</th>
-              {isAdmin && <th className="px-2 py-3 sm:px-6 sm:py-4 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest text-right">Actions</th>}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/20">
+      <div className="px-2 sm:px-6 pb-6">
+        <div className="w-full">
+          {/* Header Pill */}
+          <div className="flex items-center bg-white/20 backdrop-blur-xl border border-white/30 rounded-full px-4 py-3 mb-4 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] sticky top-4 z-20">
+            <div className="w-10 sm:w-16 text-center text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest shrink-0">Rank</div>
+            <div className="flex-1 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest">Name</div>
+            {isAdmin && <div className="w-20 sm:w-28 text-center text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest shrink-0 hidden sm:block">TET Marks</div>}
+            <div className="w-24 sm:w-28 text-right text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest shrink-0">Weightage</div>
+            {isAdmin && <div className="w-16 sm:w-20 text-right text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest shrink-0">Actions</div>}
+          </div>
+
+          {/* List */}
+          <div className="flex flex-col gap-3">
             <AnimatePresence mode="wait">
               {filteredRecords.length === 0 ? (
-                <motion.tr
+                <motion.div
                   key="empty"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
+                  className="px-6 py-12 text-center text-zinc-400 italic bg-white/30 backdrop-blur-sm rounded-3xl border border-white/40"
                 >
-                  <td colSpan={isAdmin ? 5 : 3} className="px-6 py-12 text-center text-zinc-400 italic">
-                    No records found for {selectedCategory}
-                  </td>
-                </motion.tr>
+                  No records found for {selectedCategory}
+                </motion.div>
               ) : (
-                filteredRecords.map((record, index) => (
-                  <motion.tr
-                    key={record.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.2, delay: Math.min(index * 0.01, 0.2) }}
-                    className="hover:bg-black/5 transition-colors group"
-                  >
-                    <td className="px-1 py-3 sm:px-6 sm:py-4 w-8 sm:w-auto">
-                      <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center text-xs sm:text-sm font-bold shadow-sm border ${
+                <motion.div 
+                  key={selectedCategory}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex flex-col gap-3"
+                >
+                  {filteredRecords.map((record, index) => (
+                    <motion.div
+                      key={record.id}
+                      initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                      viewport={{ once: false, margin: "-10%" }}
+                      transition={{ type: "spring", stiffness: 300, damping: 25, delay: Math.min(index * 0.01, 0.05) }}
+                      className="flex items-center bg-white/30 backdrop-blur-md border border-white/40 rounded-full px-4 py-3 shadow-sm hover:bg-white/40 hover:shadow-md transition-all group will-change-transform will-change-opacity"
+                    >
+                    <div className="w-10 sm:w-16 flex justify-center shrink-0">
+                      <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold shadow-sm border ${
                         index === 0 ? 'bg-amber-100/80 border-amber-200 text-amber-700' :
                         index === 1 ? 'bg-zinc-200/80 border-zinc-300 text-zinc-700' :
                         index === 2 ? 'bg-orange-100/80 border-orange-200 text-orange-700' :
@@ -133,9 +142,10 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                       }`}>
                         {index + 1}
                       </div>
-                    </td>
-                    <td className="px-1 py-3 sm:px-6 sm:py-4">
-                      <div className="font-medium text-xs sm:text-base text-zinc-900 flex items-center gap-1 sm:gap-2 flex-wrap sm:flex-nowrap">
+                    </div>
+                    
+                    <div className="flex-1 min-w-0 pr-2">
+                      <div className="font-medium text-xs sm:text-base text-zinc-900 flex items-center gap-1 sm:gap-2 min-w-0 flex-wrap sm:flex-nowrap">
                         {editingNameId === record.id ? (
                           <div className="flex items-center gap-1">
                             <input
@@ -162,28 +172,28 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                           </div>
                         ) : (
                           <>
-                            {record.name || 'Unknown Candidate'}
+                            <span className="truncate">{record.name || 'Unknown Candidate'}</span>
                             {isAdmin && onUpdateName && (
                               <button
                                 onClick={() => {
                                   setEditingNameId(record.id || null);
                                   setEditNameValue(record.name || '');
                                 }}
-                                className="text-[10px] text-blue-500 hover:text-blue-700 underline ml-1"
+                                className="text-[10px] text-blue-500 hover:text-blue-700 underline ml-1 shrink-0"
                               >
                                 Edit
                               </button>
                             )}
                           </>
                         )}
-                        {record.gender === 'Male' && <span className="text-red-500 font-bold text-xs">M</span>}
-                        {record.gender === 'Female' && <span className="text-blue-500 font-bold text-xs">F</span>}
-                        {record.isVerified === true && <CheckCircle className="w-4 h-4 text-emerald-500" title="Verified" />}
-                        {record.isVerified === false && <XCircle className="w-4 h-4 text-red-500" title="Verification Failed" />}
+                        {record.gender === 'Male' && <span className="text-red-500 font-bold text-xs shrink-0">M</span>}
+                        {record.gender === 'Female' && <span className="text-blue-500 font-bold text-xs shrink-0">F</span>}
+                        {record.isVerified === true && <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" title="Verified" />}
+                        {record.isVerified === false && <XCircle className="w-4 h-4 text-red-500 shrink-0" title="Verification Failed" />}
                       </div>
                       
                       {isAdmin && record.isVerified === true ? (
-                        <div className="mt-2 flex items-center gap-2">
+                        <div className="mt-2 flex items-center gap-2 flex-wrap">
                           {editingRollNoId === record.id ? (
                             <div className="flex flex-col gap-2">
                               <div className="flex items-center gap-2">
@@ -299,48 +309,53 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                       {record.scoreTET2 >= 90 && (record.category === 'SC' || record.category === 'ST' || record.category === 'PH') && selectedCategory !== 'Trash' && (
                         <div className="text-[10px] text-emerald-600 font-bold mt-0.5">(Recommended against UR)</div>
                       )}
-                      <div className="text-[10px] sm:text-xs text-zinc-500 mt-0.5 sm:mt-1">{record.category || 'Unknown'} Category</div>
-                    </td>
+                      <div className="text-[10px] sm:text-xs text-zinc-500 mt-0.5 sm:mt-1 truncate">{record.category || 'Unknown'} Category</div>
+                    </div>
+
                     {isAdmin && (
-                      <td className="px-2 py-3 sm:px-6 sm:py-4 text-center">
+                      <div className="w-20 sm:w-28 text-center shrink-0 hidden sm:block">
                         <div className="inline-block px-1.5 py-0.5 sm:px-2 sm:py-1 bg-purple-50 text-purple-700 text-[10px] sm:text-xs font-bold rounded-md border border-purple-200 tabular-nums">
                           {typeof record.scoreTET2 === 'number' ? record.scoreTET2.toFixed(2) : 'N/A'}
                         </div>
-                      </td>
+                      </div>
                     )}
-                    <td className="px-1 py-3 sm:px-6 sm:py-4 text-right">
+
+                    <div className="w-24 sm:w-28 text-right shrink-0">
                       <div className={`text-xs sm:text-lg font-bold tabular-nums ${record.isVerified === false ? 'text-red-600' : 'text-emerald-600'}`}>
                         {typeof record.finalScore === 'number' ? record.finalScore.toFixed(2) : '0.00'}
                       </div>
-                    </td>
+                    </div>
+
                     {isAdmin && selectedCategory !== 'Trash' && onHide && (
-                      <td className="px-2 py-3 sm:px-6 sm:py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="w-16 sm:w-20 text-right shrink-0 flex justify-end">
                         <button 
                           onClick={() => onHide(record.id)}
-                          className="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition-colors"
+                          className="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 p-2 rounded-full transition-colors"
                           title="Hide Entry (Move to Trash)"
                         >
                           <EyeOff className="w-4 h-4" />
                         </button>
-                      </td>
+                      </div>
                     )}
                     {isAdmin && selectedCategory === 'Trash' && onRestore && (
-                      <td className="px-2 py-3 sm:px-6 sm:py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="w-16 sm:w-20 text-right shrink-0 flex justify-end">
                         <button 
                           onClick={() => onRestore(record.id)}
-                          className="text-emerald-600 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 p-2 rounded-lg transition-colors"
+                          className="text-emerald-600 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 p-2 rounded-full transition-colors"
                           title="Restore Entry"
                         >
                           <RefreshCw className="w-4 h-4" />
                         </button>
-                      </td>
+                      </div>
                     )}
-                  </motion.tr>
+                  </motion.div>
                 ))
+                }
+                </motion.div>
               )}
             </AnimatePresence>
-          </tbody>
-        </table>
+          </div>
+        </div>
       </div>
     </div>
   );
