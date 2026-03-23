@@ -56,11 +56,16 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
   return (
     <div className="glass-panel rounded-3xl overflow-hidden relative">
       <div className="p-6 border-b border-black/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-amber-100/40 backdrop-blur-md border border-amber-200/50 flex items-center justify-center text-amber-600 shadow-sm">
-            <Trophy className="w-5 h-5" />
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-amber-100/40 backdrop-blur-md border border-amber-200/50 flex items-center justify-center text-amber-600 shadow-sm">
+              <Trophy className="w-5 h-5" />
+            </div>
+            <h2 className="text-xl font-bold text-zinc-800 drop-shadow-sm">Merit Leaderboard</h2>
           </div>
-          <h2 className="text-xl font-bold text-zinc-800 drop-shadow-sm">Merit Leaderboard</h2>
+          <p className="text-sm font-medium text-zinc-500 ml-12">
+            Showing {filteredRecords.length} candidates
+          </p>
         </div>
         
         <div className="flex items-center justify-between sm:justify-start gap-1 sm:gap-2 bg-white/10 backdrop-blur-xl border border-white/20 shadow-[inset_0_2px_6px_rgba(0,0,0,0.05)] p-1.5 rounded-full overflow-x-auto w-full sm:w-auto relative">

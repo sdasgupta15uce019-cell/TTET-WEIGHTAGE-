@@ -988,12 +988,6 @@ service cloud.firestore {
           </div>
         ) : (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex items-center justify-center">
-              <div className="text-sm font-medium text-zinc-500">
-                Showing {getDisplayCount()} candidates
-              </div>
-            </div>
-
             {isLoading ? (
               <div className="glass-panel rounded-3xl h-[400px] flex flex-col items-center justify-center gap-4">
                 <div className="w-8 h-8 border-3 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
