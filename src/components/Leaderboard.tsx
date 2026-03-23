@@ -63,7 +63,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
           <h2 className="text-xl font-bold text-zinc-800 drop-shadow-sm">Merit Leaderboard</h2>
         </div>
         
-        <div className="flex items-center justify-between sm:justify-start gap-1 sm:gap-2 bg-white/20 backdrop-blur-xl border border-white/30 shadow-inner p-1.5 rounded-full overflow-x-auto w-full sm:w-auto relative">
+        <div className="flex items-center justify-between sm:justify-start gap-1 sm:gap-2 bg-white/10 backdrop-blur-xl border border-white/20 shadow-[inset_0_2px_6px_rgba(0,0,0,0.05)] p-1.5 rounded-full overflow-x-auto w-full sm:w-auto relative">
           {categories.map(cat => (
             <button
               key={cat}
@@ -77,12 +77,12 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
               {selectedCategory === cat && (
                 <motion.div
                   layoutId="activeCategoryPill"
-                  className={`absolute inset-0 rounded-full shadow-lg border border-white/40 backdrop-blur-md ${
+                  className={`absolute inset-0 rounded-full border border-white/40 backdrop-blur-md ${
                     cat === 'Trash' 
-                      ? 'bg-red-500/80 shadow-red-500/20' 
-                      : 'bg-emerald-500/80 shadow-emerald-500/20'
+                      ? 'bg-red-500/80 shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),inset_0_-2px_4px_rgba(0,0,0,0.2),0_4px_10px_rgba(239,68,68,0.3)]' 
+                      : 'bg-emerald-500/80 shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),inset_0_-2px_4px_rgba(0,0,0,0.2),0_4px_10px_rgba(16,185,129,0.3)]'
                   }`}
-                  transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.8 }}
+                  transition={{ type: "spring", bounce: 0.35, duration: 0.5 }}
                 />
               )}
               <span className="relative z-10">{cat}</span>
@@ -94,7 +94,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
       <div className="px-2 sm:px-6 pb-6">
         <div className="w-full">
           {/* Header Pill */}
-          <div className="flex items-center bg-white/20 backdrop-blur-xl border border-white/30 rounded-full px-4 py-3 mb-4 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] sticky top-4 z-20">
+          <div className="flex items-center bg-white/20 backdrop-blur-xl border border-white/40 rounded-full px-4 py-3 mb-4 shadow-[inset_0_3px_6px_rgba(255,255,255,0.8),inset_0_-3px_6px_rgba(0,0,0,0.05),0_4px_10px_rgba(0,0,0,0.05)] sticky top-4 z-20">
             <div className="w-10 sm:w-16 text-center text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest shrink-0">Rank</div>
             <div className="flex-1 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest">Name</div>
             {isAdmin && <div className="w-20 sm:w-28 text-center text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest shrink-0 hidden sm:block">TET Marks</div>}
@@ -127,11 +127,11 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                   {filteredRecords.map((record, index) => (
                     <motion.div
                       key={record.id}
-                      initial={{ opacity: 0, y: 30, scale: 0.9 }}
-                      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                      viewport={{ once: false, margin: "-10%" }}
-                      transition={{ type: "spring", stiffness: 300, damping: 25, delay: Math.min(index * 0.01, 0.05) }}
-                      className="flex items-center bg-white/30 backdrop-blur-md border border-white/40 rounded-full px-4 py-3 shadow-sm hover:bg-white/40 hover:shadow-md transition-all group will-change-transform will-change-opacity"
+                      initial={{ opacity: 0.4, scale: 0.85 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: false, margin: "-15% 0px -15% 0px" }}
+                      transition={{ duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
+                      className="flex items-center bg-pink-50/40 backdrop-blur-md border border-white/50 rounded-full px-4 py-3 shadow-[inset_0_3px_6px_rgba(255,255,255,0.8),inset_0_-3px_6px_rgba(0,0,0,0.05),0_4px_10px_rgba(0,0,0,0.05)] hover:bg-pink-100/50 hover:shadow-[inset_0_3px_6px_rgba(255,255,255,1),inset_0_-3px_6px_rgba(0,0,0,0.08),0_6px_14px_rgba(0,0,0,0.08)] transition-all group"
                     >
                     <div className="w-10 sm:w-16 flex justify-center shrink-0">
                       <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold shadow-sm border ${
