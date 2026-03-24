@@ -25,6 +25,7 @@ import { candidatesData } from './data/candidates';
 import { useOverscrollStretch } from './hooks/useOverscrollStretch';
 
 import { SplashScreen } from './components/SplashScreen';
+import { AdSlider } from './components/AdSlider';
 
 const AnimatedPopup = ({ isOpen, onClose, title, subtitle, children }: { isOpen: boolean, onClose: () => void, title: string, subtitle: string, children: ReactNode }) => {
   const [isRendered, setIsRendered] = useState(isOpen);
@@ -1012,6 +1013,9 @@ service cloud.firestore {
             )}
           </div>
         )}
+        
+        {/* Advertisement Slider */}
+        <AdSlider />
       </main>
 
       {/* Footer */}
