@@ -104,12 +104,8 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                   className="flex flex-col"
                 >
                   {filteredRecords.map((record, index) => (
-                    <motion.div
+                    <div
                       key={record.id}
-                      initial={{ opacity: 0.4, scale: 0.95 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      viewport={{ once: false, margin: "-15% 0px -15% 0px" }}
-                      transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
                       className="flex items-center bg-transparent border-b border-zinc-200/60 px-2 sm:px-4 py-3 hover:bg-zinc-50/80 transition-all group last:border-b-0"
                     >
                     <div className="w-10 sm:w-16 flex justify-center shrink-0">
@@ -327,7 +323,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                         </button>
                       </div>
                     )}
-                  </motion.div>
+                  </div>
                 ))
                 }
                 </motion.div>
