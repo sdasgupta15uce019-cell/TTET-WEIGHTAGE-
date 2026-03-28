@@ -1201,7 +1201,7 @@ service cloud.firestore {
       {currentView === 'leaderboard' && (
         <button
           onClick={() => handleViewChange('calculator')}
-          className="fixed bottom-4 right-4 z-[60] flex items-center gap-1.5 px-4 py-2 bg-zinc-900 text-white hover:bg-zinc-800 hover:-translate-y-1 active:scale-95 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] font-bold text-[10px] sm:text-xs transition-all border border-white/10"
+          className="fixed bottom-24 right-4 z-[60] flex items-center gap-1.5 px-4 py-2 bg-zinc-900 text-white hover:bg-zinc-800 hover:-translate-y-1 active:scale-95 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] font-bold text-[10px] sm:text-xs transition-all border border-white/10"
         >
           <span>←</span> Go Back
         </button>

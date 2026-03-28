@@ -54,50 +54,24 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
   }
 
   return (
-    <div className="glass-panel rounded-3xl overflow-hidden relative">
-      <div className="p-6 border-b border-black/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-amber-100/40 backdrop-blur-md border border-amber-200/50 flex items-center justify-center text-amber-600 shadow-sm">
-              <Trophy className="w-5 h-5" />
+    <>
+      <div className="glass-panel rounded-3xl overflow-hidden relative">
+        <div className="p-3 sm:p-4 border-b border-black/5 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-amber-100/40 backdrop-blur-md border border-amber-200/50 flex items-center justify-center text-amber-600 shadow-sm">
+              <Trophy className="w-4 h-4" />
             </div>
-            <h2 className="text-xl font-bold text-zinc-800 drop-shadow-sm">Merit Leaderboard</h2>
+            <div className="flex flex-col">
+              <h2 className="text-lg font-bold text-zinc-800 drop-shadow-sm leading-tight">Merit Leaderboard</h2>
+              <p className="text-xs font-medium text-zinc-500">
+                Showing {filteredRecords.length} candidates
+              </p>
+            </div>
           </div>
-          <p className="text-sm font-medium text-zinc-500 ml-12">
-            Showing {filteredRecords.length} candidates
-          </p>
         </div>
-        
-        <div className="flex items-center justify-between sm:justify-start gap-1 sm:gap-2 bg-white/10 backdrop-blur-xl border border-white/20 shadow-[inset_0_2px_6px_rgba(0,0,0,0.05)] p-1.5 rounded-full overflow-x-auto w-full sm:w-auto relative">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => onCategoryChange(cat)}
-              className={`relative flex-1 sm:flex-none px-3 py-1.5 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-bold uppercase transition-all whitespace-nowrap text-center group ${
-                selectedCategory === cat
-                  ? 'text-white'
-                  : 'text-zinc-600 hover:bg-white/40 hover:text-zinc-900'
-              }`}
-            >
-              {selectedCategory === cat && (
-                <motion.div
-                  layoutId="activeCategoryPill"
-                  className={`absolute inset-0 rounded-full border border-white/40 backdrop-blur-md ${
-                    cat === 'Trash' 
-                      ? 'bg-red-500/80 shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),inset_0_-2px_4px_rgba(0,0,0,0.2),0_4px_10px_rgba(239,68,68,0.3)]' 
-                      : 'bg-emerald-500/80 shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),inset_0_-2px_4px_rgba(0,0,0,0.2),0_4px_10px_rgba(16,185,129,0.3)]'
-                  }`}
-                  transition={{ type: "spring", bounce: 0.35, duration: 0.5 }}
-                />
-              )}
-              <span className="relative z-10">{cat}</span>
-            </button>
-          ))}
-        </div>
-      </div>
 
-      <div className="px-2 sm:px-6 pb-6">
-        <div className="w-full">
+        <div className="px-2 sm:px-6 pb-6 pt-4">
+          <div className="w-full">
           {/* Header Pill */}
           <div className="flex items-center bg-white/20 backdrop-blur-xl border border-white/40 rounded-full px-4 py-3 mb-4 shadow-[inset_0_3px_6px_rgba(255,255,255,0.8),inset_0_-3px_6px_rgba(0,0,0,0.05),0_4px_10px_rgba(0,0,0,0.05)] sticky top-4 z-20">
             <div className="w-10 sm:w-16 text-center text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest shrink-0">Rank</div>
@@ -363,6 +337,37 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
         </div>
       </div>
     </div>
+
+      {/* Floating Category Filters */}
+      <div className="fixed bottom-6 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-auto z-[60] flex justify-center pb-safe">
+        <div className="flex items-center justify-between sm:justify-start gap-1 sm:gap-2 bg-white/80 backdrop-blur-2xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.12)] p-1.5 rounded-full overflow-x-auto w-full sm:w-auto relative">
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => onCategoryChange(cat)}
+              className={`relative flex-1 sm:flex-none px-3 py-1.5 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-bold uppercase transition-all whitespace-nowrap text-center group ${
+                selectedCategory === cat
+                  ? 'text-white'
+                  : 'text-zinc-600 hover:bg-white/40 hover:text-zinc-900'
+              }`}
+            >
+              {selectedCategory === cat && (
+                <motion.div
+                  layoutId="activeCategoryPill"
+                  className={`absolute inset-0 rounded-full border border-white/40 backdrop-blur-md ${
+                    cat === 'Trash' 
+                      ? 'bg-red-500/80 shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),inset_0_-2px_4px_rgba(0,0,0,0.2),0_4px_10px_rgba(239,68,68,0.3)]' 
+                      : 'bg-emerald-500/80 shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),inset_0_-2px_4px_rgba(0,0,0,0.2),0_4px_10px_rgba(16,185,129,0.3)]'
+                  }`}
+                  transition={{ type: "spring", bounce: 0.35, duration: 0.5 }}
+                />
+              )}
+              <span className="relative z-10">{cat}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </>
   );
 };
 
