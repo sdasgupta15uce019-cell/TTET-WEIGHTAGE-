@@ -26,6 +26,7 @@ import { useOverscrollStretch } from './hooks/useOverscrollStretch';
 
 import { SplashScreen } from './components/SplashScreen';
 import { AdSlider } from './components/AdSlider';
+import { motion } from 'motion/react';
 
 const AnimatedPopup = ({ isOpen, onClose, title, subtitle, children }: { isOpen: boolean, onClose: () => void, title: string, subtitle: string, children: ReactNode }) => {
   const [isRendered, setIsRendered] = useState(isOpen);
@@ -686,6 +687,11 @@ export default function App() {
     setPredictResult(`Based on the live updated data, your estimated rank is ${final_rank} out of 507 UR seats. This accounts for both verified candidates and the statistical projection of unverified candidates.`);
   };
 
+  const categories: FilterCategory[] = ['All', 'UR', 'SC', 'ST', 'PH'];
+  if (isAdmin) {
+    categories.push('Trash');
+  }
+
   return (
     <>
       <SplashScreen 
@@ -1201,10 +1207,42 @@ service cloud.firestore {
       {currentView === 'leaderboard' && (
         <button
           onClick={() => handleViewChange('calculator')}
-          className="fixed bottom-24 right-4 z-[60] flex items-center gap-1.5 px-4 py-2 bg-zinc-900 text-white hover:bg-zinc-800 hover:-translate-y-1 active:scale-95 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] font-bold text-[10px] sm:text-xs transition-all border border-white/10"
+          className="fixed bottom-20 right-4 z-[60] flex items-center gap-1.5 px-4 py-2 bg-zinc-900 text-white hover:bg-zinc-800 hover:-translate-y-1 active:scale-95 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] font-bold text-[10px] sm:text-xs transition-all border border-white/10"
         >
           <span>←</span> Go Back
         </button>
+      )}
+
+      {/* Floating Category Filters */}
+      {currentView === 'leaderboard' && (
+        <div className="fixed bottom-6 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-auto z-[60] flex justify-center pb-safe">
+          <div className="flex items-center justify-between sm:justify-start bg-[#1c242d]/90 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.3)] p-1.5 rounded-full overflow-x-auto w-full sm:w-auto relative">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`relative flex-1 sm:flex-none px-4 py-2 rounded-full text-xs sm:text-sm font-bold uppercase transition-all whitespace-nowrap text-center group ${
+                  selectedCategory === cat
+                    ? (cat === 'Trash' ? 'text-red-500' : 'text-[#2AABEE]')
+                    : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                {selectedCategory === cat && (
+                  <motion.div
+                    layoutId="activeCategoryPillApp"
+                    className={`absolute inset-0 rounded-full ${
+                      cat === 'Trash' 
+                        ? 'bg-red-500/20' 
+                        : 'bg-[#2AABEE]/20'
+                    }`}
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                  />
+                )}
+                <span className="relative z-10">{cat}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Full screen transition overlay */}

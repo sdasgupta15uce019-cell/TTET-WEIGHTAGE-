@@ -101,16 +101,16 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="flex flex-col gap-3"
+                  className="flex flex-col"
                 >
                   {filteredRecords.map((record, index) => (
                     <motion.div
                       key={record.id}
-                      initial={{ opacity: 0.4, scale: 0.85 }}
+                      initial={{ opacity: 0.4, scale: 0.95 }}
                       whileInView={{ opacity: 1, scale: 1 }}
                       viewport={{ once: false, margin: "-15% 0px -15% 0px" }}
-                      transition={{ duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
-                      className="flex items-center bg-pink-50/40 backdrop-blur-md border border-white/50 rounded-full px-4 py-3 shadow-[inset_0_3px_6px_rgba(255,255,255,0.8),inset_0_-3px_6px_rgba(0,0,0,0.05),0_4px_10px_rgba(0,0,0,0.05)] hover:bg-pink-100/50 hover:shadow-[inset_0_3px_6px_rgba(255,255,255,1),inset_0_-3px_6px_rgba(0,0,0,0.08),0_6px_14px_rgba(0,0,0,0.08)] transition-all group"
+                      transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
+                      className="flex items-center bg-transparent border-b border-zinc-200/60 px-2 sm:px-4 py-3 hover:bg-zinc-50/80 transition-all group last:border-b-0"
                     >
                     <div className="w-10 sm:w-16 flex justify-center shrink-0">
                       <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold shadow-sm border ${
@@ -337,36 +337,6 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
         </div>
       </div>
     </div>
-
-      {/* Floating Category Filters */}
-      <div className="fixed bottom-6 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-auto z-[60] flex justify-center pb-safe">
-        <div className="flex items-center justify-between sm:justify-start gap-1 sm:gap-2 bg-white/80 backdrop-blur-2xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.12)] p-1.5 rounded-full overflow-x-auto w-full sm:w-auto relative">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => onCategoryChange(cat)}
-              className={`relative flex-1 sm:flex-none px-3 py-1.5 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-bold uppercase transition-all whitespace-nowrap text-center group ${
-                selectedCategory === cat
-                  ? 'text-white'
-                  : 'text-zinc-600 hover:bg-white/40 hover:text-zinc-900'
-              }`}
-            >
-              {selectedCategory === cat && (
-                <motion.div
-                  layoutId="activeCategoryPill"
-                  className={`absolute inset-0 rounded-full border border-white/40 backdrop-blur-md ${
-                    cat === 'Trash' 
-                      ? 'bg-red-500/80 shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),inset_0_-2px_4px_rgba(0,0,0,0.2),0_4px_10px_rgba(239,68,68,0.3)]' 
-                      : 'bg-emerald-500/80 shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),inset_0_-2px_4px_rgba(0,0,0,0.2),0_4px_10px_rgba(16,185,129,0.3)]'
-                  }`}
-                  transition={{ type: "spring", bounce: 0.35, duration: 0.5 }}
-                />
-              )}
-              <span className="relative z-10">{cat}</span>
-            </button>
-          ))}
-        </div>
-      </div>
     </>
   );
 };
