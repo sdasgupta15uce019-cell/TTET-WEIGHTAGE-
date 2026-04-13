@@ -14,6 +14,7 @@ interface LeaderboardProps {
   onVerifyBySlNo?: (id: string | undefined, slNo: string) => void;
   onUpdateName?: (id: string | undefined, newName: string) => void;
   onUnverify?: (id: string | undefined) => void;
+  selectedPaper?: 'paper1' | 'paper2';
 }
 
 export const Leaderboard: React.FC<LeaderboardProps> = ({
@@ -26,7 +27,8 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
   onVerify,
   onVerifyBySlNo,
   onUpdateName,
-  onUnverify
+  onUnverify,
+  selectedPaper
 }) => {
   const [verifyRollNo, setVerifyRollNo] = useState<Record<string, string>>({});
   const [verifySlNo, setVerifySlNo] = useState<Record<string, string>>({});
@@ -62,7 +64,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
               <Trophy className="w-4 h-4" />
             </div>
             <div className="flex flex-col">
-              <h2 className="text-lg font-bold text-zinc-800 drop-shadow-sm leading-tight">Merit Leaderboard</h2>
+              <h2 className="text-lg font-bold text-zinc-800 drop-shadow-sm leading-tight">Merit Leaderboard {selectedPaper === 'paper1' ? '(Paper 1)' : '(Paper 2)'}</h2>
               <p className="text-xs font-medium text-zinc-500">
                 Showing {filteredRecords.length} candidates
               </p>

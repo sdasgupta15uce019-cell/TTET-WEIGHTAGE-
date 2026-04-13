@@ -18,4 +18,5 @@ export interface CandidateRecord {
   rollNo?: string;
   slNo?: number;
   isVerified?: boolean;
+  isGraduate?: boolean;
 }

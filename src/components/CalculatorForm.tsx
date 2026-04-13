@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Category, CandidateRecord, Gender, FilterCategory } from '../types';
 import { Calculator, Send, AlertCircle, CheckCircle, XCircle, Download, ArrowRight, RefreshCw } from 'lucide-react';
 import { candidatesData } from '../data/candidates';
+import { paper1CandidatesData } from '../data/paper1Candidates';
 
 interface CalculatorFormProps {
   onSubmit: (record: Omit<CandidateRecord, 'id' | 'timestamp'>) => Promise<void>;
@@ -11,6 +12,7 @@ interface CalculatorFormProps {
   onVerify?: (id: string, rollNo: string) => void;
   onVerifyBySlNo?: (id: string, slNo: string) => void;
   onDownloadCSV?: () => void;
+  selectedPaper: 'paper1' | 'paper2';
 }
 
 type Step = 'initial' | 'loading' | 'confirm' | 'details' | 'result' | 'duplicate';
@@ -45,7 +47,7 @@ const Popup = ({ isOpen, children }: { isOpen: boolean, children: React.ReactNod
   );
 };
 
-export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, records, onCategoryChange, onVerify, onVerifyBySlNo, onDownloadCSV }) => {
+export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, records, onCategoryChange, onVerify, onVerifyBySlNo, onDownloadCSV, selectedPaper }) => {
   const [step, setStep] = useState<Step>('initial');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedResult, setSubmittedResult] = useState<{name: string, allRank: number | null, categoryRank: number, score: number, category: string, scoreTET2: number} | null>(null);
@@ -64,7 +66,8 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
     scoreGrad: '',
     scoreBEd: '',
     scoreTET2: '',
-    category: 'UR' as Category
+    category: 'UR' as Category,
+    isGraduate: true
   });
 
   const handleInitialProceed = (e: React.FormEvent) => {
@@ -75,12 +78,14 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
       return;
     }
 
+    const currentCandidatesData = selectedPaper === 'paper1' ? paper1CandidatesData : candidatesData;
+
     let candidate = null;
     if (formData.slNo) {
       const sl = parseInt(formData.slNo, 10);
-      candidate = candidatesData.find(c => c.slNo === sl);
+      candidate = currentCandidatesData.find(c => c.slNo === sl);
     } else if (formData.rollNo) {
-      candidate = candidatesData.find(c => c.rollNo === formData.rollNo);
+      candidate = currentCandidatesData.find(c => c.rollNo === formData.rollNo);
     }
 
     if (!candidate) {
@@ -138,7 +143,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
 
     try {
       const p12 = parseFloat(formData.score12th) || 0;
-      const pGrad = parseFloat(formData.scoreGrad) || 0;
+      const pGrad = selectedPaper === 'paper1' && !formData.isGraduate ? 0 : (parseFloat(formData.scoreGrad) || 0);
       const pBEd = parseFloat(formData.scoreBEd) || 0;
       const tetMarks = parseFloat(formData.scoreTET2) || 0;
 
@@ -163,8 +168,9 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         return;
       }
 
+      const currentCandidatesData = selectedPaper === 'paper1' ? paper1CandidatesData : candidatesData;
       // Check for duplicate entry by scores
-      const isVerifiedSubmission = (formData.rollNo && candidatesData.some(c => c.rollNo === formData.rollNo && c.tetMarks === tetMarks));
+      const isVerifiedSubmission = (formData.rollNo && currentCandidatesData.some(c => c.rollNo === formData.rollNo && c.tetMarks === tetMarks));
       
       if (!isVerifiedSubmission) {
         const duplicate = visibleRecords.find(r => {
@@ -228,7 +234,8 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
         finalScore: finalScore,
         rollNo: formData.rollNo || undefined,
         slNo: formData.slNo ? parseInt(formData.slNo, 10) : undefined,
-        isVerified: formData.rollNo ? candidatesData.some(c => c.rollNo === formData.rollNo && c.tetMarks === tetMarks) : false
+        isVerified: formData.rollNo ? (selectedPaper === 'paper1' ? paper1CandidatesData : candidatesData).some(c => c.rollNo === formData.rollNo && c.tetMarks === tetMarks) : false,
+        isGraduate: selectedPaper === 'paper1' ? formData.isGraduate : undefined
       });
       
       setSubmittedResult({
@@ -287,7 +294,8 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
       scoreGrad: '',
       scoreBEd: '',
       scoreTET2: '',
-      category: 'UR'
+      category: 'UR',
+      isGraduate: true
     });
     setStep('initial');
   };
@@ -305,15 +313,16 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
 
         <div className="space-y-4">
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider">
-                Sl No <span className="text-[10px] text-red-500 font-normal normal-case">(list of qualified candidates published on 26/06/2025)</span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+              <label className="flex flex-col">
+                <span className="text-xs font-bold text-zinc-900 uppercase tracking-wider">Sl No</span>
+                <span className="text-[10px] text-red-500 font-medium normal-case mt-0.5">*(List of qualified candidates published on 26/06/2025)</span>
               </label>
               {onDownloadCSV && (
                 <button
                   type="button"
                   onClick={onDownloadCSV}
-                  className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-full shadow-sm hover:shadow-md transition-all whitespace-nowrap"
+                  className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-full shadow-sm hover:shadow-md transition-all whitespace-nowrap self-start sm:self-auto"
                 >
                   <Download className="w-3 h-3" /> Download List
                 </button>
@@ -326,7 +335,8 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
                 const newSlNo = e.target.value;
                 let newRollNo = '';
                 if (newSlNo) {
-                  const candidate = candidatesData.find(c => c.slNo === parseInt(newSlNo, 10));
+                  const currentCandidatesData = selectedPaper === 'paper1' ? paper1CandidatesData : candidatesData;
+                  const candidate = currentCandidatesData.find(c => c.slNo === parseInt(newSlNo, 10));
                   if (candidate && candidate.rollNo) {
                     newRollNo = candidate.rollNo;
                   }
@@ -344,7 +354,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1">TET 2 Roll No</label>
+            <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">{selectedPaper === 'paper1' ? 'TET 1 Roll No' : 'TET 2 Roll No'}</label>
             <input
               type="text"
               value={formData.rollNo}
@@ -352,7 +362,8 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
                 const newRollNo = e.target.value;
                 let newSlNo = '';
                 if (newRollNo) {
-                  const candidate = candidatesData.find(c => c.rollNo === newRollNo);
+                  const currentCandidatesData = selectedPaper === 'paper1' ? paper1CandidatesData : candidatesData;
+                  const candidate = currentCandidatesData.find(c => c.rollNo === newRollNo);
                   if (candidate && candidate.slNo) {
                     newSlNo = candidate.slNo.toString();
                   }
@@ -443,7 +454,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
           <div className="p-4 sm:p-6 overflow-y-auto space-y-4">
             <div>
               <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">Gender</label>
-              <div className="glass-input flex gap-6 px-4 py-3 rounded-xl w-full">
+              <div className="flex gap-6 bg-white/50 border border-zinc-200/50 px-4 py-3 rounded-xl w-full">
                 {(['Male', 'Female'] as Gender[]).map(g => (
                   <label key={g} className="flex items-center gap-2 cursor-pointer group">
                     <input
@@ -452,7 +463,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
                       value={g}
                       checked={formData.gender === g}
                       onChange={() => setFormData({ ...formData, gender: g })}
-                      className="w-4 h-4 text-emerald-600 border-zinc-300 focus:ring-emerald-500 bg-white/50"
+                      className="w-4 h-4 text-emerald-600 border-zinc-300 focus:ring-emerald-500 bg-white"
                     />
                     <span className="text-sm font-medium text-zinc-700 group-hover:text-emerald-700 transition-colors">{g}</span>
                   </label>
@@ -461,9 +472,9 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
             </div>
 
             <div>
-              <label className="flex items-center gap-2 mb-1">
-                <span className="block text-xs font-bold text-zinc-900 uppercase tracking-wider">Phone Number</span>
-                <span className="text-[10px] font-bold text-red-500 lowercase tracking-normal">(will be used for searching your rank)</span>
+              <label className="flex flex-col mb-2">
+                <span className="text-xs font-bold text-zinc-900 uppercase tracking-wider">Phone Number</span>
+                <span className="text-[10px] font-medium text-red-500 tracking-normal mt-0.5">*(Will be used for searching your rank)</span>
               </label>
               <input
                 required
@@ -480,9 +491,9 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1">Class 12th %</label>
+                <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">Class 12th %</label>
                 <input
                   required
                   type="number"
@@ -493,22 +504,65 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, record
                   className="glass-input w-full px-4 py-3 rounded-xl text-zinc-900 placeholder:text-zinc-400"
                 />
               </div>
-              <div>
-                <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1">Graduation %</label>
-                <input
-                  required
-                  type="number"
-                  step="0.01"
-                  value={formData.scoreGrad}
-                  onChange={e => setFormData({ ...formData, scoreGrad: e.target.value })}
-                  placeholder="e.g. 70.2"
-                  className="glass-input w-full px-4 py-3 rounded-xl text-zinc-900 placeholder:text-zinc-400"
-                />
-              </div>
+              
+              {selectedPaper === 'paper1' ? (
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">Are you a graduate?</label>
+                    <div className="flex gap-6 bg-white/50 border border-zinc-200/50 px-4 py-3 rounded-xl">
+                      <label className="flex items-center gap-2 cursor-pointer group">
+                        <input
+                          type="radio"
+                          checked={formData.isGraduate}
+                          onChange={() => setFormData({ ...formData, isGraduate: true })}
+                          className="w-4 h-4 text-emerald-600 border-zinc-300 focus:ring-emerald-500 bg-white"
+                        />
+                        <span className="text-sm font-medium text-zinc-700 group-hover:text-emerald-700 transition-colors">Yes</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer group">
+                        <input
+                          type="radio"
+                          checked={!formData.isGraduate}
+                          onChange={() => setFormData({ ...formData, isGraduate: false, scoreGrad: '' })}
+                          className="w-4 h-4 text-emerald-600 border-zinc-300 focus:ring-emerald-500 bg-white"
+                        />
+                        <span className="text-sm font-medium text-zinc-700 group-hover:text-emerald-700 transition-colors">No</span>
+                      </label>
+                    </div>
+                  </div>
+                  {formData.isGraduate && (
+                    <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                      <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">Graduation %</label>
+                      <input
+                        required
+                        type="number"
+                        step="0.01"
+                        value={formData.scoreGrad}
+                        onChange={e => setFormData({ ...formData, scoreGrad: e.target.value })}
+                        placeholder="e.g. 70.2"
+                        className="glass-input w-full px-4 py-3 rounded-xl text-zinc-900 placeholder:text-zinc-400"
+                      />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">Graduation %</label>
+                  <input
+                    required
+                    type="number"
+                    step="0.01"
+                    value={formData.scoreGrad}
+                    onChange={e => setFormData({ ...formData, scoreGrad: e.target.value })}
+                    placeholder="e.g. 70.2"
+                    className="glass-input w-full px-4 py-3 rounded-xl text-zinc-900 placeholder:text-zinc-400"
+                  />
+                </div>
+              )}
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-1">B.Ed / D.El.Ed %</label>
+              <label className="block text-xs font-bold text-zinc-900 uppercase tracking-wider mb-2">B.Ed / D.El.Ed %</label>
               <input
                 required
                 type="number"

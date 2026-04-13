@@ -22,6 +22,7 @@ import { HelpDialog } from './components/HelpDialog';
 import { SearchDialog } from './components/SearchDialog';
 import { Sparkles, AlertCircle, Database, Shield, Download, X, MessageCircle, Trophy } from 'lucide-react';
 import { candidatesData } from './data/candidates';
+import { paper1CandidatesData } from './data/paper1Candidates';
 import { useOverscrollStretch } from './hooks/useOverscrollStretch';
 
 import { SplashScreen } from './components/SplashScreen';
@@ -136,6 +137,73 @@ export default function App() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionText, setTransitionText] = useState('');
   const [animationClass, setAnimationClass] = useState('opacity-0');
+  const [showPaperSelectionPopup, setShowPaperSelectionPopup] = useState(false);
+  const [paperSelectionAction, setPaperSelectionAction] = useState<'calculator' | 'leaderboard' | null>(null);
+  const [selectedPaper, setSelectedPaper] = useState<'paper1' | 'paper2'>('paper2');
+  const [paper1Count, setPaper1Count] = useState<number>(0);
+  const [paper2Count, setPaper2Count] = useState<number>(0);
+
+  useEffect(() => {
+    if (!isFirebaseConfigured) return;
+
+    const setupListeners = (meritCol: string, trashCol: string, setCount: (n: number) => void) => {
+      let meritIds = new Set<string>();
+      let trashIds = new Set<string>();
+
+      const updateCount = () => {
+        let count = 0;
+        meritIds.forEach(id => {
+          if (!trashIds.has(id)) count++;
+        });
+        setCount(count);
+      };
+
+      const unsubMerit = onSnapshot(collection(db, meritCol), (snapshot) => {
+        const newMeritIds = new Set<string>();
+        snapshot.docs.forEach(doc => {
+          if (doc.id !== 'leaderboard_v2') {
+            newMeritIds.add(doc.id);
+          } else {
+            const v2Data = doc.data();
+            if (v2Data.records) {
+              Object.values(v2Data.records).forEach((r: any) => newMeritIds.add(r.id));
+            }
+          }
+        });
+        meritIds = newMeritIds;
+        updateCount();
+      });
+
+      const unsubTrash = onSnapshot(collection(db, trashCol), (snapshot) => {
+        const newTrashIds = new Set<string>();
+        snapshot.docs.forEach(doc => {
+          if (doc.id !== 'trash_v2') {
+            newTrashIds.add(doc.id);
+          } else {
+            const v2Data = doc.data();
+            if (v2Data.ids && Array.isArray(v2Data.ids)) {
+              v2Data.ids.forEach((id: string) => newTrashIds.add(id));
+            }
+          }
+        });
+        trashIds = newTrashIds;
+        updateCount();
+      });
+
+      return () => {
+        unsubMerit();
+        unsubTrash();
+      };
+    };
+
+    const cleanup1 = setupListeners('merit_records_paper1', 'trash_records_paper1', setPaper1Count);
+    const cleanup2 = setupListeners('merit_records', 'trash_records', setPaper2Count);
+
+    return () => {
+      cleanup1();
+      cleanup2();
+    };
+  }, []);
   
   const { scrollRef, contentRef } = useOverscrollStretch();
 
@@ -163,7 +231,10 @@ export default function App() {
       return;
     }
 
-    const qMerit = query(collection(db, 'merit_records'), orderBy('finalScore', 'desc'));
+    const meritCollection = selectedPaper === 'paper1' ? 'merit_records_paper1' : 'merit_records';
+    const trashCollection = selectedPaper === 'paper1' ? 'trash_records_paper1' : 'trash_records';
+
+    const qMerit = query(collection(db, meritCollection), orderBy('finalScore', 'desc'));
     const unsubscribeMerit = onSnapshot(qMerit, (snapshot) => {
       setFetchError(null);
       let newRecords = snapshot.docs
@@ -199,7 +270,7 @@ export default function App() {
       setIsLoading(false);
     });
 
-    const qTrash = query(collection(db, 'trash_records'));
+    const qTrash = query(collection(db, trashCollection));
     const unsubscribeTrash = onSnapshot(qTrash, (snapshot) => {
       let ids = new Set(
         snapshot.docs
@@ -221,7 +292,7 @@ export default function App() {
     }, (error: any) => {
       console.error("Firestore trash error:", error);
       if (error.code === 'permission-denied') {
-        setTrashError("Missing permissions for 'trash_records'.");
+        setTrashError(`Missing permissions for '${trashCollection}'.`);
       }
     });
 
@@ -229,18 +300,19 @@ export default function App() {
       unsubscribeMerit();
       unsubscribeTrash();
     };
-  }, []);
+  }, [selectedPaper]);
 
   // Combine Firebase state with trash overrides
   const effectiveRecords = records.map(r => {
     let tetMarks = r.scoreTET2;
+    const currentCandidatesData = selectedPaper === 'paper1' ? paper1CandidatesData : candidatesData;
     if ((tetMarks === undefined || tetMarks === null || tetMarks === 0 || Number.isNaN(tetMarks)) && r.rollNo) {
-      const candidate = candidatesData.find(c => c.rollNo === r.rollNo);
+      const candidate = currentCandidatesData.find(c => c.rollNo === r.rollNo);
       if (candidate) {
         tetMarks = candidate.tetMarks;
       }
     } else if ((tetMarks === undefined || tetMarks === null || tetMarks === 0 || Number.isNaN(tetMarks)) && r.slNo) {
-      const candidate = candidatesData.find(c => c.slNo === r.slNo);
+      const candidate = currentCandidatesData.find(c => c.slNo === r.slNo);
       if (candidate) {
         tetMarks = candidate.tetMarks;
       }
@@ -277,7 +349,7 @@ export default function App() {
         }
       });
 
-      await setDoc(doc(db, 'merit_records', record.phone), dataToSave);
+      await setDoc(doc(db, selectedPaper === 'paper1' ? 'merit_records_paper1' : 'merit_records', record.phone), dataToSave);
       console.log("Record submitted successfully!");
     } catch (error: any) {
       console.error("Error adding document: ", error);
@@ -293,14 +365,14 @@ export default function App() {
     }
     
     try {
-      await setDoc(doc(db, 'trash_records', id), {
+      await setDoc(doc(db, selectedPaper === 'paper1' ? 'trash_records_paper1' : 'trash_records', id), {
         hiddenAt: serverTimestamp(),
         hiddenBy: 'admin'
       });
       console.log(`Record ${id} moved to trash successfully.`);
     } catch (error: any) {
       console.error("Error hiding document:", error);
-      alert(`Firebase Error: Could not hide entry.\n\nDetails: ${error.message}\n\nPlease check your Firestore Security Rules to allow 'create' on the 'trash_records' collection.`);
+      alert(`Firebase Error: Could not hide entry.\n\nDetails: ${error.message}\n\nPlease check your Firestore Security Rules to allow 'create' on the '${selectedPaper === 'paper1' ? 'trash_records_paper1' : 'trash_records'}' collection.`);
     }
   };
 
@@ -313,11 +385,11 @@ export default function App() {
     try {
       // To restore, we simply delete the marker from the trash_records collection
       const { deleteDoc } = await import('firebase/firestore');
-      await deleteDoc(doc(db, 'trash_records', id));
+      await deleteDoc(doc(db, selectedPaper === 'paper1' ? 'trash_records_paper1' : 'trash_records', id));
       console.log(`Record ${id} restored successfully.`);
     } catch (error: any) {
       console.error("Error restoring document:", error);
-      alert(`Firebase Error: Could not restore entry.\n\nDetails: ${error.message}\n\nPlease check your Firestore Security Rules to allow 'delete' on the 'trash_records' collection.`);
+      alert(`Firebase Error: Could not restore entry.\n\nDetails: ${error.message}\n\nPlease check your Firestore Security Rules to allow 'delete' on the '${selectedPaper === 'paper1' ? 'trash_records_paper1' : 'trash_records'}' collection.`);
     }
   };
 
@@ -328,8 +400,8 @@ export default function App() {
       const record = effectiveRecords.find(r => r.id === id);
       if (!record) return;
 
-      const { candidatesData } = await import('./data/candidates');
-      const candidate = candidatesData.find(c => c.rollNo === rollNo);
+      const currentCandidatesData = selectedPaper === 'paper1' ? paper1CandidatesData : (await import('./data/candidates')).candidatesData;
+      const candidate = currentCandidatesData.find(c => c.rollNo === rollNo);
       
       let isVerified = false;
       let updatedName = record.name;
@@ -339,7 +411,7 @@ export default function App() {
         updatedName = candidate.name;
       }
 
-      await updateDoc(doc(db, 'merit_records', id), {
+      await updateDoc(doc(db, selectedPaper === 'paper1' ? 'merit_records_paper1' : 'merit_records', id), {
         isVerified,
         name: updatedName,
         rollNo,
@@ -362,8 +434,8 @@ export default function App() {
       const record = effectiveRecords.find(r => r.id === id);
       if (!record) return;
 
-      const { candidatesData } = await import('./data/candidates');
-      const candidate = candidatesData.find(c => c.slNo === slNo);
+      const currentCandidatesData = selectedPaper === 'paper1' ? paper1CandidatesData : (await import('./data/candidates')).candidatesData;
+      const candidate = currentCandidatesData.find(c => c.slNo === slNo);
       
       if (!candidate) {
         alert(`No candidate found with Sl No: ${slNo}`);
@@ -378,7 +450,7 @@ export default function App() {
         updatedName = candidate.name;
       }
 
-      await updateDoc(doc(db, 'merit_records', id), {
+      await updateDoc(doc(db, selectedPaper === 'paper1' ? 'merit_records_paper1' : 'merit_records', id), {
         isVerified,
         name: updatedName,
         rollNo: candidate.rollNo,
@@ -395,7 +467,7 @@ export default function App() {
   const handleUpdateName = async (id: string | undefined, newName: string) => {
     if (!id || !newName) return;
     try {
-      await updateDoc(doc(db, 'merit_records', id), {
+      await updateDoc(doc(db, selectedPaper === 'paper1' ? 'merit_records_paper1' : 'merit_records', id), {
         name: newName
       });
       console.log(`Record ${id} name updated.`);
@@ -408,7 +480,7 @@ export default function App() {
   const handleUnverify = async (id: string | undefined) => {
     if (!id) return;
     try {
-      await updateDoc(doc(db, 'merit_records', id), {
+      await updateDoc(doc(db, selectedPaper === 'paper1' ? 'merit_records_paper1' : 'merit_records', id), {
         isVerified: false,
         rollNo: null
       });
@@ -456,13 +528,13 @@ export default function App() {
 
   const handleDownloadCSVAsPDF = async () => {
     try {
-      const { candidatesData } = await import('./data/candidates');
+      const currentCandidatesData = selectedPaper === 'paper1' ? paper1CandidatesData : (await import('./data/candidates')).candidatesData;
       const doc = new jsPDF();
       
       doc.setFontSize(16);
-      doc.text("Uploaded CSV Data", 14, 15);
+      doc.text(`Uploaded CSV Data (${selectedPaper === 'paper1' ? 'Paper 1' : 'Paper 2'})`, 14, 15);
       
-      const tableData = candidatesData.map(record => [
+      const tableData = currentCandidatesData.map(record => [
         record.slNo || 'N/A',
         record.name,
         record.rollNo,
@@ -546,7 +618,8 @@ export default function App() {
       const doc = new jsPDF();
       
       // 1. Get all TET scores >= 90 from CSV
-      const csvTETs = candidatesData
+      const currentCandidatesData = selectedPaper === 'paper1' ? paper1CandidatesData : candidatesData;
+      const csvTETs = currentCandidatesData
         .filter(c => c.tetMarks >= 90)
         .map(c => c.tetMarks);
         
@@ -726,8 +799,10 @@ export default function App() {
                 <div className="flex flex-col items-center justify-center gap-2">
                   <div className="flex items-center justify-center gap-2">
                     <div className="inline-block glass-morphism-pill px-2.5 py-0.5 rounded-md">
-                      <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider relative z-10">
-                        Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
+                      <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider relative z-10 flex items-center gap-2">
+                        <span>Paper 1: <span className="text-emerald-900 text-xs">{paper1Count}</span></span>
+                        <span className="text-emerald-300">|</span>
+                        <span>Paper 2: <span className="text-emerald-900 text-xs">{paper2Count}</span></span>
                       </p>
                     </div>
                     <button 
@@ -769,7 +844,7 @@ export default function App() {
 
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <div className="flex-1 sm:flex-none">
-                  <SearchDialog records={effectiveRecords} onVerify={handleVerify} isAdmin={isAdmin} isLoading={isLoading} />
+                  <SearchDialog records={effectiveRecords} onVerify={handleVerify} isAdmin={isAdmin} isLoading={isLoading} selectedPaper={selectedPaper} onPaperSelect={setSelectedPaper} />
                 </div>
                 <div className="flex-1 sm:flex-none">
                   <HelpDialog isAdmin={isAdmin} setIsAdmin={setIsAdmin} />
@@ -781,8 +856,10 @@ export default function App() {
               <div className="flex flex-col items-center justify-center gap-2">
                 <div className="flex flex-wrap items-center justify-center gap-2">
                   <div className="inline-block glass-morphism-pill px-2.5 py-0.5 rounded-md">
-                    <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider relative z-10">
-                      Total Candidates: <span className="text-emerald-900 text-xs ml-1">{effectiveRecords.filter(r => !r.isHidden).length}</span>
+                    <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider relative z-10 flex items-center gap-2">
+                      <span>Paper 1: <span className="text-emerald-900 text-xs">{paper1Count}</span></span>
+                      <span className="text-emerald-300">|</span>
+                      <span>Paper 2: <span className="text-emerald-900 text-xs">{paper2Count}</span></span>
                     </p>
                   </div>
                   <button 
@@ -867,13 +944,13 @@ export default function App() {
           </div>
         )}
 
-        {trashError && (
+        {(trashError || (fetchError && fetchError.toLowerCase().includes('permission'))) && (
           <div className="glass-panel bg-red-50/40 backdrop-blur-sm border border-red-200/50 rounded-3xl p-6 flex items-start gap-4 shadow-sm">
             <Shield className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
             <div className="w-full">
               <h3 className="font-bold text-red-900">Firestore Security Rules Update Required</h3>
               <p className="text-sm text-red-800 mt-1 mb-3 font-medium">
-                To use the Trash feature, you must allow access to the <code className="bg-red-100/50 px-1.5 py-0.5 rounded-md border border-red-200/50">trash_records</code> collection. 
+                To use the application fully, you must allow access to the required collections. 
                 Go to your Firebase Console &gt; Firestore Database &gt; Rules, and add the following:
               </p>
               <pre className="bg-red-100/30 backdrop-blur-sm p-4 rounded-2xl text-sm text-red-900 overflow-x-auto border border-red-200/50 font-mono shadow-inner">
@@ -881,11 +958,7 @@ export default function App() {
 service cloud.firestore {
   match /databases/{database}/documents {
     match /merit_records/{docId} {
-      // Anyone can view the leaderboard
       allow read: if true; 
-      
-      // Allow writes to the new V2 master document
-      // (Note: For production, you may want to add deeper map validation here)
       allow write: if docId == 'leaderboard_v2' || (
                    request.resource.data.scoreTET2 >= 0 
                    && request.resource.data.scoreTET2 <= 121
@@ -903,6 +976,26 @@ service cloud.firestore {
     match /trash_records/{docId} {
       allow read, write: if true;
     }
+
+    match /merit_records_paper1/{docId} {
+      allow read: if true; 
+      allow write: if docId == 'leaderboard_v2' || (
+                   request.resource.data.scoreTET2 >= 0 
+                   && request.resource.data.scoreTET2 <= 121
+                   && request.resource.data.score12th >= 0 
+                   && request.resource.data.score12th <= 100
+                   && request.resource.data.scoreGrad >= 0 
+                   && request.resource.data.scoreGrad <= 100
+                   && request.resource.data.scoreBEd >= 0 
+                   && request.resource.data.scoreBEd <= 100
+                   && request.resource.data.finalScore <= 82
+                   && !(request.resource.data.name.lower().matches('.*(naughty america|mother chod|meloni|sunny leone).*'))
+      );
+    }
+    
+    match /trash_records_paper1/{docId} {
+      allow read, write: if true;
+    }
   }
 }`}
               </pre>
@@ -916,7 +1009,10 @@ service cloud.firestore {
             <div className="space-y-6">
               {!showCalculator ? (
                 <button 
-                  onClick={() => setShowCalculator(true)}
+                  onClick={() => {
+                    setPaperSelectionAction('calculator');
+                    setShowPaperSelectionPopup(true);
+                  }}
                   className="w-full py-6 rounded-3xl font-black text-base text-white transition-all duration-300 bg-gradient-to-br from-blue-400/90 to-indigo-600/90 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(59,130,246,0.5),inset_0_1px_1px_rgba(255,255,255,0.8)] active:scale-[0.97] active:translate-y-1 active:shadow-[0_4px_10px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] mb-2"
                 >
                   CALCULATE YOUR WEIGHTAGE AND RANK IN THE LEADERBOARD
@@ -930,6 +1026,7 @@ service cloud.firestore {
                     onVerify={handleVerify}
                     onVerifyBySlNo={handleVerifyBySlNo}
                     onDownloadCSV={handleDownloadCSVAsPDF}
+                    selectedPaper={selectedPaper}
                   />
                 </div>
               )}
@@ -942,7 +1039,10 @@ service cloud.firestore {
                 <h2 className="text-3xl font-bold">View Merit List</h2>
               </div>
               <button
-                onClick={() => handleViewChange('leaderboard')}
+                onClick={() => {
+                  setPaperSelectionAction('leaderboard');
+                  setShowPaperSelectionPopup(true);
+                }}
                 className="shine-only px-8 py-3 bg-indigo-600/90 hover:bg-indigo-600 text-white font-bold uppercase rounded-2xl shadow-lg hover:-translate-y-0.5 transition-all duration-300 w-full max-w-xs"
               >
                 <span className="relative z-10">Go to Leaderboard</span>
@@ -1014,6 +1114,7 @@ service cloud.firestore {
                   onVerifyBySlNo={handleVerifyBySlNo}
                   onUpdateName={handleUpdateName}
                   onUnverify={handleUnverify}
+                  selectedPaper={selectedPaper}
                 />
               </>
             )}
@@ -1036,6 +1137,41 @@ service cloud.firestore {
         </div>
       </div>
       </div>
+
+      {/* Paper Selection Popup */}
+      <AnimatedModal
+        isOpen={showPaperSelectionPopup}
+        onClose={() => setShowPaperSelectionPopup(false)}
+        maxWidth="max-w-md"
+      >
+        <div className="mb-6">
+          <h3 className="text-lg font-bold text-zinc-900">Select Exam</h3>
+        </div>
+        <div className="space-y-4">
+          <button
+            onClick={() => {
+              setSelectedPaper('paper1');
+              setShowPaperSelectionPopup(false);
+              if (paperSelectionAction === 'calculator') setShowCalculator(true);
+              if (paperSelectionAction === 'leaderboard') handleViewChange('leaderboard');
+            }}
+            className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all"
+          >
+            Paper 1
+          </button>
+          <button
+            onClick={() => {
+              setSelectedPaper('paper2');
+              setShowPaperSelectionPopup(false);
+              if (paperSelectionAction === 'calculator') setShowCalculator(true);
+              if (paperSelectionAction === 'leaderboard') handleViewChange('leaderboard');
+            }}
+            className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all"
+          >
+            Paper 2
+          </button>
+        </div>
+      </AnimatedModal>
 
       {/* Predictions Popup */}
       <AnimatedModal
@@ -1179,7 +1315,8 @@ service cloud.firestore {
           const verifiedRollNos = new Set(effectiveRecords.filter(r => !r.isHidden && r.isVerified).map(r => r.rollNo).filter(Boolean));
           const verifiedSlNos = new Set(effectiveRecords.filter(r => !r.isHidden && r.isVerified).map(r => r.slNo).filter(Boolean));
           
-          const unregistered = candidatesData.filter(c => 
+          const currentCandidatesData = selectedPaper === 'paper1' ? paper1CandidatesData : candidatesData;
+          const unregistered = currentCandidatesData.filter(c => 
             !verifiedRollNos.has(c.rollNo) && !(c.slNo && verifiedSlNos.has(c.slNo))
           );
 

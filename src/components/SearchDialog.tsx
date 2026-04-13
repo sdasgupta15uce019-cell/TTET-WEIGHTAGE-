@@ -4,15 +4,18 @@ import { Search, X, CheckCircle, XCircle, UserPlus } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CandidateRecord } from '../types';
 import { candidatesData } from '../data/candidates';
+import { paper1CandidatesData } from '../data/paper1Candidates';
 
 interface SearchDialogProps {
   records: CandidateRecord[];
   onVerify?: (id: string, rollNo: string) => void;
   isAdmin?: boolean;
   isLoading?: boolean;
+  selectedPaper?: 'paper1' | 'paper2';
+  onPaperSelect?: (paper: 'paper1' | 'paper2') => void;
 }
 
-export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify, isAdmin, isLoading }) => {
+export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify, isAdmin, isLoading, selectedPaper, onPaperSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [resultId, setResultId] = useState<string | null>(null);
@@ -52,8 +55,9 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify, i
       record = searchableRecords.find(r => r.slNo !== undefined && Number(r.slNo) === slNo);
       
       if (!record) {
-        // Search in master list (candidatesData)
-        const masterCandidate = candidatesData.find(c => c.slNo === slNo);
+        // Search in master list (currentCandidatesData)
+        const currentCandidatesData = selectedPaper === 'paper1' ? paper1CandidatesData : candidatesData;
+        const masterCandidate = currentCandidatesData.find(c => c.slNo === slNo);
         if (masterCandidate) {
           setUnregisteredCandidate(masterCandidate);
           return;
@@ -187,6 +191,34 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify, i
 
             <div className="p-6">
               <form onSubmit={handleSearch} className="space-y-4">
+                {onPaperSelect && (
+                  <div className="flex bg-zinc-100/50 p-1 rounded-xl mb-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onPaperSelect('paper1');
+                        setResultId(null);
+                        setUnregisteredCandidate(null);
+                        setError('');
+                      }}
+                      className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${selectedPaper === 'paper1' ? 'bg-white text-emerald-700 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'}`}
+                    >
+                      Paper 1
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onPaperSelect('paper2');
+                        setResultId(null);
+                        setUnregisteredCandidate(null);
+                        setError('');
+                      }}
+                      className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${selectedPaper === 'paper2' ? 'bg-white text-emerald-700 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'}`}
+                    >
+                      Paper 2
+                    </button>
+                  </div>
+                )}
                 <div>
                   <label className="block text-xs font-semibold text-zinc-600 uppercase tracking-wider mb-2">
                     {isAdmin ? 'Enter Sl No' : 'Enter Phone Number'}
