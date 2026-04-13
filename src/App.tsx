@@ -788,7 +788,7 @@ export default function App() {
                 style={{ fontFamily: '"Times New Roman", Times, serif' }}
               >
                 <h1 className="font-bold text-[0.85rem] sm:text-base md:text-lg leading-tight text-white uppercase tracking-wide whitespace-nowrap drop-shadow-md">
-                  TET 2 MERIT CALCULATOR & LEADERBOARD
+                  TTET MERIT CALCULATOR & LEADERBOARD
                 </h1>
                 <p className="text-[10px] sm:text-xs font-bold text-zinc-300 tracking-tight uppercase mt-1 drop-shadow-sm">
                   Developer - Er. SUBHAJIT DASGUPTA (NITA 2020 ALUMNUS)

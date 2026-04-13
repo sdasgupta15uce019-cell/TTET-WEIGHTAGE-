@@ -201,9 +201,16 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify, i
                         setUnregisteredCandidate(null);
                         setError('');
                       }}
-                      className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${selectedPaper === 'paper1' ? 'bg-white text-emerald-700 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'}`}
+                      className={`relative flex-1 py-2 text-xs font-bold rounded-lg transition-colors duration-300 ${selectedPaper === 'paper1' ? 'text-emerald-700' : 'text-zinc-500 hover:text-zinc-700'}`}
                     >
-                      Paper 1
+                      {selectedPaper === 'paper1' && (
+                        <motion.div
+                          layoutId="search-paper-toggle"
+                          className="absolute inset-0 bg-white rounded-lg shadow-sm"
+                          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                        />
+                      )}
+                      <span className="relative z-10">Paper 1</span>
                     </button>
                     <button
                       type="button"
@@ -213,9 +220,16 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({ records, onVerify, i
                         setUnregisteredCandidate(null);
                         setError('');
                       }}
-                      className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${selectedPaper === 'paper2' ? 'bg-white text-emerald-700 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'}`}
+                      className={`relative flex-1 py-2 text-xs font-bold rounded-lg transition-colors duration-300 ${selectedPaper === 'paper2' ? 'text-emerald-700' : 'text-zinc-500 hover:text-zinc-700'}`}
                     >
-                      Paper 2
+                      {selectedPaper === 'paper2' && (
+                        <motion.div
+                          layoutId="search-paper-toggle"
+                          className="absolute inset-0 bg-white rounded-lg shadow-sm"
+                          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                        />
+                      )}
+                      <span className="relative z-10">Paper 2</span>
                     </button>
                   </div>
                 )}
