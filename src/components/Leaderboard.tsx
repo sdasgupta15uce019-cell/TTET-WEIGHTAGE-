@@ -57,8 +57,8 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
 
   return (
     <>
-      <div className="glass-panel rounded-3xl overflow-hidden relative">
-        <div className="p-3 sm:p-4 border-b border-black/5 flex items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl overflow-hidden relative shadow-xl border border-zinc-200/60">
+        <div className="p-3 sm:p-4 border-b border-zinc-100 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-amber-100/40 backdrop-blur-md border border-amber-200/50 flex items-center justify-center text-amber-600 shadow-sm">
               <Trophy className="w-4 h-4" />
@@ -75,7 +75,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
         <div className="px-2 sm:px-6 pb-6 pt-4">
           <div className="w-full">
           {/* Header Pill */}
-          <div className="flex items-center bg-white/20 backdrop-blur-xl border border-white/40 rounded-full px-4 py-3 mb-4 shadow-[inset_0_3px_6px_rgba(255,255,255,0.8),inset_0_-3px_6px_rgba(0,0,0,0.05),0_4px_10px_rgba(0,0,0,0.05)] sticky top-4 z-20">
+          <div className="flex items-center bg-zinc-50 border border-zinc-200 rounded-full px-4 py-3 mb-4 shadow-sm sticky top-4 z-20">
             <div className="w-10 sm:w-16 text-center text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest shrink-0">Rank</div>
             <div className="flex-1 text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest">Name</div>
             {isAdmin && <div className="w-20 sm:w-28 text-center text-[10px] sm:text-xs font-bold text-zinc-600 uppercase tracking-widest shrink-0 hidden sm:block">TET Marks</div>}
@@ -121,7 +121,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                       </div>
                     </div>
                     
-                    <div className="flex-1 min-w-0 pr-2">
+                    <div className="flex-1 min-w-0 pr-2 relative">
                       <div className="font-medium text-xs sm:text-base text-zinc-900 flex items-center gap-1 sm:gap-2 min-w-0 flex-wrap sm:flex-nowrap">
                         {editingNameId === record.id ? (
                           <div className="flex items-center gap-1">
@@ -297,8 +297,16 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                       </div>
                     )}
 
-                    <div className="w-24 sm:w-28 text-right shrink-0">
-                      <div className={`text-xs sm:text-lg font-bold tabular-nums ${record.isVerified === false ? 'text-red-600' : 'text-emerald-600'}`}>
+                    <div className="w-24 sm:w-28 text-right shrink-0 relative flex items-center justify-end">
+                      {index === 0 && (
+                        <img 
+                          src="https://i.postimg.cc/4xJy0mW9/hd-real-gold-and-red-king-crown-png-704081695122649zm2izk6f2p.png" 
+                          alt="Crown" 
+                          className="w-6 h-6 sm:w-8 sm:h-8 object-contain absolute -left-1 sm:-left-4"
+                          referrerPolicy="no-referrer"
+                        />
+                      )}
+                      <div className={`text-xs sm:text-lg font-bold tabular-nums w-full ${record.isVerified === false ? 'text-red-600' : 'text-emerald-600'}`}>
                         {typeof record.finalScore === 'number' ? record.finalScore.toFixed(2) : '0.00'}
                       </div>
                     </div>
