@@ -613,6 +613,90 @@ export default function App() {
     }
   };
 
+  const handleDownloadSCMissingList = () => {
+    try {
+      const verifiedRollNos = new Set(effectiveRecords.filter(r => !r.isHidden && r.isVerified).map(r => r.rollNo).filter(Boolean));
+      const verifiedSlNos = new Set(effectiveRecords.filter(r => !r.isHidden && r.isVerified).map(r => r.slNo).filter(Boolean));
+      
+      const currentCandidatesData = selectedPaper === 'paper1' ? paper1CandidatesData : candidatesData;
+      const scUnregistered = currentCandidatesData.filter(c => 
+        c.category === 'SC' && !verifiedRollNos.has(c.rollNo) && !(c.slNo && verifiedSlNos.has(c.slNo))
+      );
+
+      const doc = new jsPDF();
+      
+      const tableData = scUnregistered.map((c) => [
+        c.name,
+        c.category,
+        c.rollNo,
+        c.tetMarks
+      ]);
+
+      doc.setFontSize(16);
+      doc.text("SC Missing Candidates List", 14, 15);
+      
+      autoTable(doc, {
+        startY: 25,
+        head: [['Name', 'Category', 'Roll No', 'TET Score']],
+        body: tableData,
+      });
+
+      doc.save("sc_missing_list.pdf");
+    } catch (error) {
+      console.error("Error generating SC Missing List PDF:", error);
+      alert("Failed to generate SC Missing List PDF.");
+    }
+  };
+
+  const handleDownloadSCMissingListITO = () => {
+    try {
+      const doc = new jsPDF();
+      
+      const currentCandidatesData = selectedPaper === 'paper1' ? paper1CandidatesData : candidatesData;
+      const csvSCTETs = currentCandidatesData
+        .filter(c => c.category === 'SC')
+        .map(c => c.tetMarks);
+        
+      const totalCounts: Record<number, number> = {};
+      csvSCTETs.forEach(score => {
+        totalCounts[score] = (totalCounts[score] || 0) + 1;
+      });
+
+      const reportedCounts: Record<number, number> = {};
+      allList.forEach(record => {
+        if (record.category === 'SC') {
+          const score = Math.round(Number(record.scoreTET2));
+          if (!isNaN(score)) {
+            reportedCounts[score] = (reportedCounts[score] || 0) + 1;
+          }
+        }
+      });
+
+      const uniqueScores = Array.from(new Set(csvSCTETs)).sort((a, b) => b - a);
+
+      const tableData = uniqueScores.map(score => {
+        const total = totalCounts[score] || 0;
+        const reported = reportedCounts[score] || 0;
+        const notReported = total - reported;
+        return [score, total, reported, notReported];
+      });
+
+      doc.setFontSize(16);
+      doc.text("SC Missing List Statistics (By Marks)", 14, 15);
+      
+      autoTable(doc, {
+        startY: 25,
+        head: [['TET Score', 'Total Candidates', 'Reported', 'Not Reported']],
+        body: tableData,
+      });
+
+      doc.save("sc_missing_list_by_marks.pdf");
+    } catch (error) {
+      console.error("Error generating SC Missing List ITO PDF:", error);
+      alert("Failed to generate SC Missing List ITO PDF.");
+    }
+  };
+
   const handleDownloadMissingList = () => {
     try {
       const doc = new jsPDF();
@@ -1091,6 +1175,24 @@ service cloud.firestore {
                   <Download className="w-4 h-4 relative z-10" />
                   <span className="relative z-10">Download SC list</span>
                 </button>
+                {selectedPaper === 'paper2' && (
+                  <>
+                    <button 
+                      onClick={handleDownloadSCMissingList}
+                      className="shine-only px-6 py-2 bg-fuchsia-600/90 hover:bg-fuchsia-600 text-white font-bold uppercase rounded-xl shadow-sm hover:-translate-y-0.5 transition-all duration-300 text-sm flex items-center justify-center gap-2"
+                    >
+                      <Download className="w-4 h-4 relative z-10" />
+                      <span className="relative z-10">Download SC missing list</span>
+                    </button>
+                    <button 
+                      onClick={handleDownloadSCMissingListITO}
+                      className="shine-only px-6 py-2 bg-pink-600/90 hover:bg-pink-600 text-white font-bold uppercase rounded-xl shadow-sm hover:-translate-y-0.5 transition-all duration-300 text-sm flex items-center justify-center gap-2"
+                    >
+                      <Download className="w-4 h-4 relative z-10" />
+                      <span className="relative z-10">Download SC missing list ITO marks</span>
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
