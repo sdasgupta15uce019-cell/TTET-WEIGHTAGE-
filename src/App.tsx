@@ -615,12 +615,12 @@ export default function App() {
 
   const handleDownloadSCMissingList = () => {
     try {
-      const verifiedRollNos = new Set(effectiveRecords.filter(r => !r.isHidden && r.isVerified).map(r => r.rollNo).filter(Boolean));
-      const verifiedSlNos = new Set(effectiveRecords.filter(r => !r.isHidden && r.isVerified).map(r => r.slNo).filter(Boolean));
+      const reportedRollNos = new Set(effectiveRecords.filter(r => !r.isHidden).map(r => r.rollNo).filter(Boolean));
+      const reportedSlNos = new Set(effectiveRecords.filter(r => !r.isHidden).map(r => r.slNo).filter(Boolean));
       
       const currentCandidatesData = selectedPaper === 'paper1' ? paper1CandidatesData : candidatesData;
       const scUnregistered = currentCandidatesData.filter(c => 
-        c.category === 'SC' && !verifiedRollNos.has(c.rollNo) && !(c.slNo && verifiedSlNos.has(c.slNo))
+        c.category === 'SC' && !reportedRollNos.has(c.rollNo) && !(c.slNo && reportedSlNos.has(c.slNo))
       );
 
       const doc = new jsPDF();
@@ -663,8 +663,8 @@ export default function App() {
       });
 
       const reportedCounts: Record<number, number> = {};
-      allList.forEach(record => {
-        if (record.category === 'SC') {
+      effectiveRecords.forEach(record => {
+        if (!record.isHidden && record.category === 'SC') {
           const score = Math.round(Number(record.scoreTET2));
           if (!isNaN(score)) {
             reportedCounts[score] = (reportedCounts[score] || 0) + 1;
@@ -770,9 +770,9 @@ export default function App() {
     if (adjustedCutoff < 64.9) {
       adjustedCutoff = 64.9;
     }
-    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "66.19";
+    predictedCutoff = isAdmin ? adjustedCutoff.toFixed(2) : "66.17";
   } else if (!isAdmin) {
-    predictedCutoff = "66.19";
+    predictedCutoff = "66.17";
   }
 
   const handlePredictRankSubmit = (e: React.FormEvent) => {
