@@ -111,10 +111,7 @@
 
 @layer base {
   body {
-    @apply antialiased bg-zinc-50;
-    background: linear-gradient(-45deg, #f8fafc, #f0fdf4, #ccfbf1, #e0f2fe);
-    background-size: 400% 400%;
-    animation: gradient-xy 15s ease infinite;
+    @apply antialiased bg-emerald-100;
     min-height: 100vh;
     overscroll-behavior-y: none;
   }

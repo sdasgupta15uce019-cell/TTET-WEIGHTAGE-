@@ -856,12 +856,7 @@ export default function App() {
           setAnimationClass('animate-app-unlock');
         }} 
       />
-      <div className="fixed inset-0 flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900 overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-emerald-500/40 blur-[100px] pointer-events-none animate-pulse z-0"></div>
-      <div className="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-500/40 blur-[100px] pointer-events-none animate-pulse z-0" style={{ animationDelay: '2s' }}></div>
-      <div className="fixed top-[40%] left-[60%] w-[40%] h-[40%] rounded-full bg-teal-500/40 blur-[100px] pointer-events-none animate-pulse z-0" style={{ animationDelay: '4s' }}></div>
-
+      <div className="fixed inset-0 flex flex-col font-sans selection:bg-emerald-200 selection:text-emerald-900 overflow-hidden bg-emerald-100">
       <div className={`flex flex-col flex-1 min-h-0 w-full will-change-transform [transform:translateZ(0)] ${animationClass}`}>
         {/* Header */}
         <div className="shrink-0 z-40">
@@ -1117,8 +1112,8 @@ service cloud.firestore {
             </div>
 
             {/* Right Column: Teaser/Navigation */}
-            <div className="glass-panel rounded-3xl p-8 text-zinc-900 shadow-xl flex flex-col items-center justify-center text-center space-y-4 min-h-[400px] relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 to-amber-500/20 animate-gradient-xy"></div>
+            <div className="glass-panel rounded-3xl p-8 text-zinc-900 flex flex-col items-center justify-center text-center space-y-4 min-h-[400px] relative overflow-hidden ring-2 ring-yellow-400/60 !shadow-[0_15px_50px_-10px_rgba(250,204,21,0.6)] shadow-yellow-400/50">
+              <div className="absolute inset-0 bg-gradient-to-b from-yellow-200/90 to-transparent pointer-events-none"></div>
               <div className="relative z-10 space-y-2">
                 <h2 className="text-3xl font-bold">View Merit List</h2>
               </div>

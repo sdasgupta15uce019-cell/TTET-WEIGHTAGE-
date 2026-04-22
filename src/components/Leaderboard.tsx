@@ -57,8 +57,8 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
 
   return (
     <>
-      <div className="bg-white rounded-3xl overflow-hidden relative shadow-xl border border-zinc-200/60">
-        <div className="p-3 sm:p-4 border-b border-zinc-100 flex items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl overflow-hidden relative shadow-xl border border-zinc-200/60 ring-1 ring-yellow-400/30 shadow-[0_10px_40px_-10px_rgba(250,204,21,0.2)]">
+        <div className="p-3 sm:p-4 border-b border-zinc-100 flex items-center justify-between gap-4 bg-gradient-to-b from-yellow-100/80 to-transparent">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-amber-100/40 backdrop-blur-md border border-amber-200/50 flex items-center justify-center text-amber-600 shadow-sm">
               <Trophy className="w-4 h-4" />
