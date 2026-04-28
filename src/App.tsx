@@ -563,6 +563,7 @@ export default function App() {
         index + 1,
         record.name,
         record.isVerified ? 'Yes' : 'No',
+        record.scoreTET2,
         record.finalScore.toFixed(2)
       ]);
 
@@ -571,7 +572,7 @@ export default function App() {
       
       autoTable(doc, {
         startY: 25,
-        head: [['Rank', 'Name', 'Verification', 'Weightage']],
+        head: [['Rank', 'Name', 'Verification', 'TET Marks', 'Weightage']],
         body: tableData,
       });
 
