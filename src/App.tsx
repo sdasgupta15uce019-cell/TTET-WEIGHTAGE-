@@ -20,7 +20,7 @@ import { CalculatorForm } from './components/CalculatorForm';
 import { Leaderboard } from './components/Leaderboard';
 import { HelpDialog } from './components/HelpDialog';
 import { SearchDialog } from './components/SearchDialog';
-import { Sparkles, AlertCircle, Database, Shield, Download, X, MessageCircle, Trophy } from 'lucide-react';
+import { Sparkles, AlertCircle, Database, Shield, Download, X, MessageCircle, Trophy, Loader2 } from 'lucide-react';
 import { candidatesData } from './data/candidates';
 import { paper1CandidatesData } from './data/paper1Candidates';
 import { useOverscrollStretch } from './hooks/useOverscrollStretch';
@@ -52,10 +52,10 @@ const AnimatedPopup = ({ isOpen, onClose, title, subtitle, children }: { isOpen:
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md transition-opacity duration-300 ${isAnimatingOut ? 'opacity-0' : 'opacity-100'}`}>
       <div className={`glass-morphism max-w-2xl w-full max-h-[80vh] flex flex-col rounded-3xl overflow-hidden ${isAnimatingOut ? 'animate-zoom-out' : 'animate-zoom-in-bounce'}`}>
-        <div className="p-6 border-b border-white/40 bg-white/30 backdrop-blur-md flex justify-between items-center">
+        <div className="p-6 border-b border-white/40 bg-white/30 backdrop-blur-md flex items-center justify-between">
           <div>
             <h3 className="text-xl font-bold text-zinc-900">{title}</h3>
-            <p className="text-sm text-zinc-600 mt-1 font-medium">{subtitle}</p>
+            <p className="text-sm text-zinc-600 mt-0.5 font-medium">{subtitle}</p>
           </div>
           <button 
             onClick={onClose}
@@ -64,17 +64,9 @@ const AnimatedPopup = ({ isOpen, onClose, title, subtitle, children }: { isOpen:
             <X className="w-6 h-6 text-white stroke-[3] drop-shadow-md" />
           </button>
         </div>
-        <div 
-          className="flex-1 relative bg-white/10 flex flex-col overflow-hidden"
-          style={{ 
-            maskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 100px), transparent)',
-            WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 40px, black calc(100% - 100px), transparent)'
-          }}
-        >
-          <div className="flex-1 overflow-y-auto px-6 pt-8 pb-8">
-            <div className="space-y-3">
-              {children}
-            </div>
+        <div className="flex-1 overflow-y-auto px-6 py-6 bg-white/10">
+          <div className="space-y-4">
+            {children}
           </div>
         </div>
       </div>
@@ -142,6 +134,12 @@ export default function App() {
   const [selectedPaper, setSelectedPaper] = useState<'paper1' | 'paper2'>('paper2');
   const [paper1Count, setPaper1Count] = useState<number>(0);
   const [paper2Count, setPaper2Count] = useState<number>(0);
+
+  const [showStgtPopup, setShowStgtPopup] = useState(false);
+  const [stgtRollNo, setStgtRollNo] = useState('');
+  const [stgtResult, setStgtResult] = useState<{ category: string; rank: number | string; marks: number; isUncertain?: boolean } | null>(null);
+  const [stgtError, setStgtError] = useState<string | null>(null);
+  const [isStgtLoading, setIsStgtLoading] = useState(false);
 
   useEffect(() => {
     if (!isFirebaseConfigured) return;
@@ -776,6 +774,88 @@ export default function App() {
     predictedCutoff = "66.12";
   }
 
+  const handleStgtSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStgtError(null);
+    setStgtResult(null);
+    
+    if (!stgtRollNo.trim()) {
+      setStgtError("Please enter a valid STGT Roll No.");
+      return;
+    }
+
+    setIsStgtLoading(true);
+    
+    // Simulate connection delay for 2.5 seconds
+    await new Promise(resolve => setTimeout(resolve, 2500));
+    
+    try {
+      // NOTE: You can add 3 CSV files named 'stgt_ur.csv', 'stgt_sc.csv', 'stgt_st.csv' 
+      // in the 'public' folder. 
+      // The logic below will try to process them if they exist and contain "roll", "rank", "mark" headers.
+      const categories = ['ur_uncertain', 'sc_uncertain', 'st_uncertain', 'ur', 'sc', 'st'];
+      let found = false;
+
+      for (const cat of categories) {
+        try {
+          const response = await fetch(`/stgt_${cat}.csv`);
+          if (response.ok) {
+            const text = await response.text();
+            const lines = text.split('\n');
+            if (lines.length > 0) {
+              const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+              const rollIdx = headers.findIndex(h => h.includes('roll'));
+              const rankIdx = headers.findIndex(h => h.includes('rank') || h.includes('sl no') || h.includes('sl. no') || h === 'sn' || h.includes('sl'));
+              const markIdx = headers.findIndex(h => h.includes('mark') || h.includes('score'));
+              
+              if (rollIdx !== -1) {
+                for (let i = 1; i < lines.length; i++) {
+                  if (!lines[i]) continue;
+                  const parts = lines[i].split(',').map(p => p.trim());
+                  if (parts[rollIdx] === stgtRollNo.trim()) {
+                    const marks = markIdx !== -1 ? parseFloat(parts[markIdx]) || 0 : 0;
+                    const isUncertain = cat === 'ur_uncertain' || cat === 'sc_uncertain' || cat === 'st_uncertain' || (cat.toUpperCase() === 'UR' && marks === 94) || (cat.toUpperCase() === 'SC' && marks === 84) || (cat.toUpperCase() === 'ST' && marks === 75);
+                    const rank = isUncertain ? "Uncertain" : (rankIdx !== -1 ? parseInt(parts[rankIdx]) || 0 : i);
+
+                    let displayCat = cat.toUpperCase();
+                    if (cat === 'ur_uncertain') displayCat = 'UR';
+                    if (cat === 'sc_uncertain') displayCat = 'SC';
+                    if (cat === 'st_uncertain') displayCat = 'ST';
+
+                    setStgtResult({
+                      category: displayCat,
+                      rank,
+                      marks,
+                      isUncertain
+                    });
+                    found = true;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        } catch (e) {
+          // Ignore fetch errors to check next category or fallback
+        }
+        if (found) break;
+      }
+
+      if (!found) {
+        // Dummy fallback if CSVs aren't present yet or roll no not found
+        if (stgtRollNo.trim() === '12345') {
+          setStgtResult({ category: 'UR (Demo)', rank: 1, marks: 95.5 });
+        } else {
+          setStgtError("Roll number not found. Please verify your roll number.");
+        }
+      }
+    } catch (err) {
+      setStgtError("Something went wrong while checking your rank.");
+    } finally {
+      setIsStgtLoading(false);
+    }
+  };
+
   const handlePredictRankSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setPredictError(null);
@@ -1088,26 +1168,42 @@ service cloud.firestore {
             {/* Left Column: Form */}
             <div className="space-y-6">
               {!showCalculator ? (
-                <button 
-                  onClick={() => {
-                    setPaperSelectionAction('calculator');
-                    setShowPaperSelectionPopup(true);
-                  }}
-                  className="w-full py-6 rounded-3xl font-black text-base text-white transition-all duration-300 bg-gradient-to-br from-blue-400/90 to-indigo-600/90 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(59,130,246,0.5),inset_0_1px_1px_rgba(255,255,255,0.8)] active:scale-[0.97] active:translate-y-1 active:shadow-[0_4px_10px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] mb-2"
-                >
-                  CALCULATE YOUR WEIGHTAGE AND RANK IN THE LEADERBOARD
-                </button>
+                <>
+                  <button 
+                    onClick={() => {
+                      setPaperSelectionAction('calculator');
+                      setShowPaperSelectionPopup(true);
+                    }}
+                    className="w-full py-6 rounded-3xl font-black text-base text-white transition-all duration-300 bg-gradient-to-br from-blue-400/90 to-indigo-600/90 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(59,130,246,0.5),inset_0_1px_1px_rgba(255,255,255,0.8)] active:scale-[0.97] active:translate-y-1 active:shadow-[0_4px_10px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] mb-2"
+                  >
+                    CALCULATE YOUR WEIGHTAGE AND RANK IN THE LEADERBOARD
+                  </button>
+                  <button 
+                    onClick={() => setShowStgtPopup(true)}
+                    className="w-full py-6 rounded-3xl font-black text-base text-white transition-all duration-300 bg-gradient-to-br from-emerald-500/90 to-teal-600/90 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgba(16,185,129,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(16,185,129,0.5),inset_0_1px_1px_rgba(255,255,255,0.8)] active:scale-[0.97] active:translate-y-1 active:shadow-[0_4px_10px_rgba(16,185,129,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] my-2"
+                  >
+                    STGT 2025 Rank
+                  </button>
+                </>
               ) : (
-                <div className="animate-zoom-in-bounce">
-                  <CalculatorForm 
-                    onSubmit={handleSubmit} 
-                    records={effectiveRecords}
-                    onCategoryChange={setSelectedCategory}
-                    onVerify={handleVerify}
-                    onVerifyBySlNo={handleVerifyBySlNo}
-                    onDownloadCSV={handleDownloadCSVAsPDF}
-                    selectedPaper={selectedPaper}
-                  />
+                <div className="space-y-4">
+                  <div className="animate-zoom-in-bounce">
+                    <CalculatorForm 
+                      onSubmit={handleSubmit} 
+                      records={effectiveRecords}
+                      onCategoryChange={setSelectedCategory}
+                      onVerify={handleVerify}
+                      onVerifyBySlNo={handleVerifyBySlNo}
+                      onDownloadCSV={handleDownloadCSVAsPDF}
+                      selectedPaper={selectedPaper}
+                    />
+                  </div>
+                  <button 
+                    onClick={() => setShowStgtPopup(true)}
+                    className="w-full py-4 rounded-2xl font-bold text-sm text-white transition-all duration-300 bg-gradient-to-br from-emerald-500/90 to-teal-600/90 shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                  >
+                    Check STGT 2025 Rank
+                  </button>
                 </div>
               )}
             </div>
@@ -1436,6 +1532,79 @@ service cloud.firestore {
             <p className="text-center text-zinc-600 font-medium py-8 bg-white/30 rounded-xl border border-white/40">All candidates are verified!</p>
           );
         })()}
+      </AnimatedPopup>
+
+      {/* STGT 2025 Rank Popup */}
+      <AnimatedPopup
+        isOpen={showStgtPopup}
+        onClose={() => setShowStgtPopup(false)}
+        title="STGT 2025 Rank predictor"
+        subtitle="Check your estimated category rank and marks"
+      >
+        <div className="space-y-4 sm:space-y-5">
+          {isStgtLoading ? (
+            <div className="flex flex-col items-center justify-center py-8 sm:py-12 gap-3 sm:gap-4">
+              <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-600 animate-spin" />
+              <p className="text-zinc-900 font-bold text-base sm:text-lg drop-shadow-md">Connecting to TRBT...</p>
+            </div>
+          ) : (
+            <>
+              {!stgtResult && (
+                <form onSubmit={handleStgtSubmit} className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                  <input
+                    type="text"
+                    placeholder="Enter your STGT Roll No."
+                    value={stgtRollNo}
+                    onChange={(e) => setStgtRollNo(e.target.value)}
+                    className="flex-1 w-full px-4 py-3 rounded-xl border border-zinc-200 bg-white/50 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none font-medium text-sm sm:text-base"
+                    required
+                  />
+                  <button
+                    type="submit"
+                    disabled={isStgtLoading}
+                    className={`w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-600 text-white font-bold transition-all shadow-sm hover:bg-emerald-700 hover:-translate-y-0.5 text-sm sm:text-base whitespace-nowrap`}
+                  >
+                    Check
+                  </button>
+                </form>
+              )}
+
+              {stgtError && (
+                <p className="text-red-600 text-xs sm:text-sm font-medium bg-red-50 py-2 px-3 rounded-lg border border-red-100 text-center">{stgtError}</p>
+              )}
+
+              {stgtResult && (
+                <div className="bg-emerald-50 border border-emerald-100 p-4 sm:p-6 rounded-2xl flex flex-col items-center justify-center text-center gap-3 animate-in fade-in slide-in-from-bottom-2">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
+                    <Trophy className="w-6 h-6 sm:w-8 sm:h-8" />
+                  </div>
+                  <h4 className="text-lg sm:text-xl font-bold text-zinc-900 m-0">Your Status</h4>
+                  
+                  {stgtResult.isUncertain && (
+                    <div className="w-full bg-red-50 border border-red-200 text-red-600 text-xs sm:text-sm font-medium px-3 py-2 rounded-xl mt-1 mb-1 shadow-sm">
+                      Selection uncertain due to lack of age data
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full mt-1">
+                    <div className="bg-white p-2 sm:p-3 rounded-xl border border-emerald-50/50 shadow-sm flex flex-col items-center justify-center min-w-0">
+                      <span className="text-[9px] sm:text-xs font-bold text-emerald-600/70 uppercase">Category</span>
+                      <span className="text-sm sm:text-lg font-black text-zinc-800 truncate w-full">{stgtResult.category}</span>
+                    </div>
+                    <div className="bg-white p-2 sm:p-3 rounded-xl border border-emerald-50/50 shadow-sm flex flex-col items-center justify-center min-w-0">
+                      <span className="text-[9px] sm:text-xs font-bold text-emerald-600/70 uppercase">Rank</span>
+                      <span className={`font-black text-zinc-800 truncate w-full ${typeof stgtResult.rank === 'string' ? 'text-xs sm:text-sm' : 'text-sm sm:text-lg'}`}>{stgtResult.rank}</span>
+                    </div>
+                    <div className="bg-white p-2 sm:p-3 rounded-xl border border-emerald-50/50 shadow-sm flex flex-col items-center justify-center min-w-0">
+                      <span className="text-[9px] sm:text-xs font-bold text-emerald-600/70 uppercase">Marks</span>
+                      <span className="text-sm sm:text-lg font-black text-zinc-800 truncate w-full">{stgtResult.marks}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </AnimatedPopup>
 
       {/* Floating Go Back Button */}
