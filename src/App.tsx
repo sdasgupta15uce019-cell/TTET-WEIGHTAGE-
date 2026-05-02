@@ -809,10 +809,12 @@ export default function App() {
               const markIdx = headers.findIndex(h => h.includes('mark') || h.includes('score'));
               
               if (rollIdx !== -1) {
+                const normalizeRoll = (r: string) => r.replace(/^0+/, '');
+                const targetRoll = normalizeRoll(stgtRollNo.trim());
                 for (let i = 1; i < lines.length; i++) {
                   if (!lines[i]) continue;
                   const parts = lines[i].split(',').map(p => p.trim());
-                  if (parts[rollIdx] === stgtRollNo.trim()) {
+                  if (normalizeRoll(parts[rollIdx]) === targetRoll) {
                     const marks = markIdx !== -1 ? parseFloat(parts[markIdx]) || 0 : 0;
                     const isUncertain = cat === 'ur_uncertain' || cat === 'sc_uncertain' || cat === 'st_uncertain' || (cat.toUpperCase() === 'UR' && marks === 94) || (cat.toUpperCase() === 'SC' && marks === 84) || (cat.toUpperCase() === 'ST' && marks === 75);
                     const rank = isUncertain ? "Uncertain" : (rankIdx !== -1 ? parseInt(parts[rankIdx]) || 0 : i);
