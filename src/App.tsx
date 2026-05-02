@@ -846,7 +846,7 @@ export default function App() {
         if (stgtRollNo.trim() === '12345') {
           setStgtResult({ category: 'UR (Demo)', rank: 1, marks: 95.5 });
         } else {
-          setStgtError("Roll number not found. Please verify your roll number.");
+          setStgtError("Sorry your rank is beyond the vacancies");
         }
       }
     } catch (err) {
