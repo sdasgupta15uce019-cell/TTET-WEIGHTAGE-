@@ -774,6 +774,14 @@ export default function App() {
     predictedCutoff = "66.12";
   }
 
+  const handleCloseStgtPopup = () => {
+    setShowStgtPopup(false);
+    setStgtRollNo('');
+    setStgtResult(null);
+    setStgtError(null);
+    setIsStgtLoading(false);
+  };
+
   const handleStgtSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStgtError(null);
@@ -785,9 +793,6 @@ export default function App() {
     }
 
     setIsStgtLoading(true);
-    
-    // Simulate connection delay for 2.5 seconds
-    await new Promise(resolve => setTimeout(resolve, 2500));
     
     try {
       // NOTE: You can add 3 CSV files named 'stgt_ur.csv', 'stgt_sc.csv', 'stgt_st.csv' 
@@ -1542,7 +1547,7 @@ service cloud.firestore {
       {/* STGT 2025 Rank Popup */}
       <AnimatedPopup
         isOpen={showStgtPopup}
-        onClose={() => setShowStgtPopup(false)}
+        onClose={handleCloseStgtPopup}
         title="STGT 2025 Rank"
         subtitle="Check your category rank and marks"
       >
