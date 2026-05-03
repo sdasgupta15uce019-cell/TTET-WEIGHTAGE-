@@ -44,9 +44,13 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
       
       {/* TTET Logo that zooms in */}
       <div 
-        className={`relative z-10 w-24 h-24 bg-[#00a859] rounded-2xl flex items-center justify-center shadow-2xl will-change-transform ${animationClass}`}
+        className={`relative z-10 w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-2xl overflow-hidden will-change-transform ${animationClass}`}
       >
-        <span className="text-white font-bold text-3xl tracking-tighter">TTET</span>
+        <img 
+          src="https://i.postimg.cc/nctrhc1R/IMG-20260503-WA0008.jpg" 
+          alt="App Logo" 
+          className="w-full h-full object-cover"
+        />
       </div>
     </div>
   );
