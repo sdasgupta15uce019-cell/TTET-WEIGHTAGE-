@@ -137,7 +137,7 @@ export default function App() {
 
   const [showStgtPopup, setShowStgtPopup] = useState(false);
   const [stgtRollNo, setStgtRollNo] = useState('');
-  const [stgtResult, setStgtResult] = useState<{ category: string; rank: number | string; marks: number; isUncertain?: boolean } | null>(null);
+  const [stgtResult, setStgtResult] = useState<{ category: string; rank: number | string; marks: number; isUncertain?: boolean; mayBeCategorisedAsUR?: boolean } | null>(null);
   const [stgtError, setStgtError] = useState<string | null>(null);
   const [isStgtLoading, setIsStgtLoading] = useState(false);
 
@@ -793,7 +793,7 @@ export default function App() {
       // NOTE: You can add 3 CSV files named 'stgt_ur.csv', 'stgt_sc.csv', 'stgt_st.csv' 
       // in the 'public' folder. 
       // The logic below will try to process them if they exist and contain "roll", "rank", "mark" headers.
-      const categories = ['ur_uncertain', 'sc_uncertain', 'st_uncertain', 'ur', 'sc', 'st'];
+      const categories = ['ur_uncertain', 'ur_uncertain2', 'sc_uncertain', 'st_uncertain', 'ur', 'sc', 'st'];
       let found = false;
 
       for (const cat of categories) {
@@ -809,26 +809,29 @@ export default function App() {
               const markIdx = headers.findIndex(h => h.includes('mark') || h.includes('score'));
               
               if (rollIdx !== -1) {
-                const normalizeRoll = (r: string) => r.replace(/^0+/, '');
+                const normalizeRoll = (r?: string) => r ? r.replace(/^0+/, '') : '';
                 const targetRoll = normalizeRoll(stgtRollNo.trim());
                 for (let i = 1; i < lines.length; i++) {
                   if (!lines[i]) continue;
                   const parts = lines[i].split(',').map(p => p.trim());
                   if (normalizeRoll(parts[rollIdx]) === targetRoll) {
                     const marks = markIdx !== -1 ? parseFloat(parts[markIdx]) || 0 : 0;
-                    const isUncertain = cat === 'ur_uncertain' || cat === 'sc_uncertain' || cat === 'st_uncertain' || (cat.toUpperCase() === 'UR' && marks === 94) || (cat.toUpperCase() === 'SC' && marks === 84) || (cat.toUpperCase() === 'ST' && marks === 75);
+                    const isUncertain = cat === 'ur_uncertain' || cat === 'ur_uncertain2' || cat === 'sc_uncertain' || cat === 'st_uncertain' || (cat.toUpperCase() === 'UR' && marks === 94) || (cat.toUpperCase() === 'SC' && marks === 84) || (cat.toUpperCase() === 'ST' && marks === 75);
                     const rank = isUncertain ? "Uncertain" : (rankIdx !== -1 ? parseInt(parts[rankIdx]) || 0 : i);
 
                     let displayCat = cat.toUpperCase();
-                    if (cat === 'ur_uncertain') displayCat = 'UR';
+                    if (cat === 'ur_uncertain' || cat === 'ur_uncertain2') displayCat = 'UR';
                     if (cat === 'sc_uncertain') displayCat = 'SC';
                     if (cat === 'st_uncertain') displayCat = 'ST';
+
+                    const mayBeCategorisedAsUR = (displayCat === 'SC' || displayCat === 'ST') && marks === 94;
 
                     setStgtResult({
                       category: displayCat,
                       rank,
                       marks,
-                      isUncertain
+                      isUncertain,
+                      mayBeCategorisedAsUR
                     });
                     found = true;
                     break;
@@ -1540,8 +1543,8 @@ service cloud.firestore {
       <AnimatedPopup
         isOpen={showStgtPopup}
         onClose={() => setShowStgtPopup(false)}
-        title="STGT 2025 Rank predictor"
-        subtitle="Check your estimated category rank and marks"
+        title="STGT 2025 Rank"
+        subtitle="Check your category rank and marks"
       >
         <div className="space-y-4 sm:space-y-5">
           {isStgtLoading ? (
@@ -1585,6 +1588,11 @@ service cloud.firestore {
                   {stgtResult.isUncertain && (
                     <div className="w-full bg-red-50 border border-red-200 text-red-600 text-xs sm:text-sm font-medium px-3 py-2 rounded-xl mt-1 mb-1 shadow-sm">
                       Selection uncertain due to lack of age data
+                    </div>
+                  )}
+                  {stgtResult.mayBeCategorisedAsUR && (
+                    <div className="w-full bg-orange-50 border border-orange-200 text-orange-600 text-xs sm:text-sm font-medium px-3 py-2 rounded-xl mt-1 mb-1 shadow-sm">
+                      May be categorised as UR
                     </div>
                   )}
 
