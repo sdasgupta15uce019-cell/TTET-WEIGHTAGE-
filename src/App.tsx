@@ -137,7 +137,7 @@ export default function App() {
 
   const [showStgtPopup, setShowStgtPopup] = useState(false);
   const [stgtRollNo, setStgtRollNo] = useState('');
-  const [stgtResult, setStgtResult] = useState<{ category: string; rank: number | string; marks: number; isUncertain?: boolean; mayBeCategorisedAsUR?: boolean } | null>(null);
+  const [stgtResult, setStgtResult] = useState<{ category: string; rank: number | string; marks: number; isUncertain?: boolean; mayBeCategorisedAsUR?: boolean; isUnderReservation?: boolean } | null>(null);
   const [stgtError, setStgtError] = useState<string | null>(null);
   const [isStgtLoading, setIsStgtLoading] = useState(false);
 
@@ -833,13 +833,15 @@ export default function App() {
                     if (cat === 'st_uncertain') displayCat = 'ST';
 
                     const mayBeCategorisedAsUR = (displayCat === 'SC' || displayCat === 'ST') && marks === 94;
+                    const isUnderReservation = (displayCat === 'SC' || displayCat === 'ST') && !(displayCat === 'SC' && marks === 94);
 
                     setStgtResult({
                       category: displayCat,
                       rank,
                       marks,
                       isUncertain,
-                      mayBeCategorisedAsUR
+                      mayBeCategorisedAsUR,
+                      isUnderReservation
                     });
                     found = true;
                     break;
@@ -1602,6 +1604,11 @@ service cloud.firestore {
                   {stgtResult.mayBeCategorisedAsUR && (
                     <div className="w-full bg-orange-50 border border-orange-200 text-orange-600 text-xs sm:text-sm font-medium px-3 py-2 rounded-xl mt-1 mb-1 shadow-sm">
                       May be categorised as UR
+                    </div>
+                  )}
+                  {stgtResult.isUnderReservation && (
+                    <div className="w-full bg-red-50 border border-red-200 text-red-600 text-xs sm:text-sm font-medium px-3 py-2 rounded-xl mt-1 mb-1 shadow-sm">
+                      Under reservation
                     </div>
                   )}
 
