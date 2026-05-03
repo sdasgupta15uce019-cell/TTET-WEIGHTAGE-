@@ -794,6 +794,9 @@ export default function App() {
 
     setIsStgtLoading(true);
     
+    // Simulate connection delay for 2 seconds
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
     try {
       // NOTE: You can add 3 CSV files named 'stgt_ur.csv', 'stgt_sc.csv', 'stgt_st.csv' 
       // in the 'public' folder. 
@@ -1555,7 +1558,7 @@ service cloud.firestore {
         <div className="space-y-4 sm:space-y-5">
           {isStgtLoading ? (
             <div className="flex flex-col items-center justify-center py-8 sm:py-12 gap-3 sm:gap-4">
-              <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-600 animate-spin" />
+              <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 text-red-600 animate-spin" />
               <p className="text-zinc-900 font-bold text-base sm:text-lg drop-shadow-md">Connecting to TRBT...</p>
             </div>
           ) : (
