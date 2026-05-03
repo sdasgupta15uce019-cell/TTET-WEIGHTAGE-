@@ -1596,7 +1596,7 @@ service cloud.firestore {
                   
                   {stgtResult.isUncertain && (
                     <div className="w-full bg-red-50 border border-red-200 text-red-600 text-xs sm:text-sm font-medium px-3 py-2 rounded-xl mt-1 mb-1 shadow-sm">
-                      Selection uncertain due to lack of age data
+                      Selection uncertain due to unavailability of DOB
                     </div>
                   )}
                   {stgtResult.mayBeCategorisedAsUR && (
