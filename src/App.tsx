@@ -1184,13 +1184,14 @@ service cloud.firestore {
                       setPaperSelectionAction('calculator');
                       setShowPaperSelectionPopup(true);
                     }}
-                    className="w-full py-6 rounded-3xl font-black text-base text-white transition-all duration-300 bg-gradient-to-br from-blue-400/90 to-indigo-600/90 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(59,130,246,0.5),inset_0_1px_1px_rgba(255,255,255,0.8)] active:scale-[0.97] active:translate-y-1 active:shadow-[0_4px_10px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] mb-2"
+                    className="w-full py-5 flex flex-col items-center justify-center gap-1 rounded-3xl font-black text-base text-white transition-all duration-300 bg-gradient-to-br from-blue-400/90 to-indigo-600/90 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(59,130,246,0.5),inset_0_1px_1px_rgba(255,255,255,0.8)] active:scale-[0.97] active:translate-y-1 active:shadow-[0_4px_10px_rgba(59,130,246,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] mb-2"
                   >
-                    CALCULATE YOUR WEIGHTAGE AND RANK IN THE LEADERBOARD
+                    <span className="text-center px-2">CALCULATE YOUR WEIGHTAGE AND RANK IN THE LEADERBOARD</span>
+                    <span className="text-sm font-semibold text-white/90">(Paper I &amp; II)</span>
                   </button>
                   <button 
                     onClick={() => setShowStgtPopup(true)}
-                    className="w-full py-6 rounded-3xl font-black text-base text-white transition-all duration-300 bg-gradient-to-br from-emerald-500/90 to-teal-600/90 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgba(16,185,129,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(16,185,129,0.5),inset_0_1px_1px_rgba(255,255,255,0.8)] active:scale-[0.97] active:translate-y-1 active:shadow-[0_4px_10px_rgba(16,185,129,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] my-2"
+                    className="w-full py-6 rounded-3xl font-black text-base text-white transition-all duration-300 bg-gradient-to-br from-red-500/90 to-rose-600/90 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgba(239,68,68,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(239,68,68,0.5),inset_0_1px_1px_rgba(255,255,255,0.8)] active:scale-[0.97] active:translate-y-1 active:shadow-[0_4px_10px_rgba(239,68,68,0.3),inset_0_1px_1px_rgba(255,255,255,0.8)] my-2"
                   >
                     STGT 2025 Rank
                   </button>
@@ -1210,7 +1211,7 @@ service cloud.firestore {
                   </div>
                   <button 
                     onClick={() => setShowStgtPopup(true)}
-                    className="w-full py-4 rounded-2xl font-bold text-sm text-white transition-all duration-300 bg-gradient-to-br from-emerald-500/90 to-teal-600/90 shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                    className="w-full py-4 rounded-2xl font-bold text-sm text-white transition-all duration-300 bg-gradient-to-br from-red-500/90 to-rose-600/90 shadow-sm hover:shadow-md hover:-translate-y-0.5"
                   >
                     Check STGT 2025 Rank
                   </button>
